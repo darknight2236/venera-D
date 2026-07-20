@@ -46,19 +46,25 @@ dependencies:
       ref: 7801fc582ecf5a7351632887891ecf309a7b2583
   flutter_inappwebview:
     git:
-      url: https://github.com/venera-app/flutter_inappwebview
+      url: ssh://git@ssh.github.com:443/darknight2236/flutter_inappwebview.git
       path: flutter_inappwebview
-      ref: 3ef899b3db57c911b080979f1392253b835f98ab
+      ref: dbbfd0540095d5fd28f404c6e05eb5e82be5fe10
   app_links: ^7.0.0
   sliver_tools: ^0.2.12
   flutter_file_dialog: ^3.0.3
   file_selector: ^1.1.0
-  zip_flutter: ^0.0.13
+  zip_flutter:
+    git:
+      url: ssh://git@ssh.github.com:443/darknight2236/zip_flutter.git
+      ref: 1de5d62895335d0fab5ff9a60ebb41096ac18ac8
   lodepng_flutter:
     git:
       url: https://github.com/venera-app/lodepng_flutter
       ref: ac7d05dde32e8d728102a9ff66e6b55f05d94ba1
-  rhttp: ^0.15.1
+  rhttp:
+    git:
+      url: ssh://git@ssh.github.com:443/darknight2236/rhttp.git
+      ref: 283c7f93c56bc2bd9c4e0c3aa0f50e85d1e6991d
   webdav_client:
     git:
       url: https://github.com/venera-app/webdav_client
