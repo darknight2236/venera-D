@@ -9,7 +9,6 @@ import 'package:venera/foundation/appdata.dart';
 import 'package:venera/foundation/image_provider/local_favorite_image.dart';
 import 'package:venera/foundation/local.dart';
 import 'package:venera/foundation/log.dart';
-import 'package:venera/pages/follow_updates_page.dart';
 import 'package:venera/utils/tags_translation.dart';
 import 'dart:io';
 
@@ -209,6 +208,10 @@ class LocalFavoritesManager with ChangeNotifier {
   LocalFavoritesManager._create();
 
   static LocalFavoritesManager? cache;
+
+  /// Called when a comic in the follow-updates folder is updated.
+  /// Registered by the UI layer (main_page) to refresh follow-updates UI.
+  static void Function()? onFollowUpdatesChanged;
 
   late Database _db;
 
@@ -972,7 +975,7 @@ class LocalFavoritesManager with ChangeNotifier {
             WHERE id == ? and type == ?;
           """, [newTime, id, type.value]);
         if (followUpdatesFolder == folder) {
-          updateFollowUpdatesUI();
+          onFollowUpdatesChanged?.call();
         }
       }
     }

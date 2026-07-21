@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:venera/foundation/appdata.dart';
+import 'package:venera/foundation/favorites.dart';
 import 'package:venera/pages/categories_page.dart';
+import 'package:venera/pages/follow_updates_page.dart';
 import 'package:venera/pages/search_page.dart';
 import 'package:venera/pages/settings/settings_page.dart';
 import 'package:venera/utils/translations.dart';
@@ -41,6 +43,8 @@ class _MainPageState extends State<MainPage> {
     _navigatorKey = GlobalKey();
     App.mainNavigatorKey = _navigatorKey;
     index = int.tryParse(appdata.settings['initialPage'].toString()) ?? 0;
+    // Register UI-layer callbacks used by the foundation layer.
+    LocalFavoritesManager.onFollowUpdatesChanged = updateFollowUpdatesUI;
     super.initState();
   }
 
