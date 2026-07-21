@@ -5,6 +5,7 @@ import 'package:flex_seed_scheme/flex_seed_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:venera/foundation/js_engine.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/pages/auth_page.dart';
 import 'package:venera/pages/main_page.dart';
@@ -12,6 +13,7 @@ import 'package:venera/pages/settings/settings_page.dart';
 import 'package:venera/utils/io.dart';
 import 'package:window_manager/window_manager.dart';
 import 'components/components.dart';
+import 'components/js_ui.dart';
 import 'components/window_frame.dart';
 import 'foundation/app.dart';
 import 'foundation/appdata.dart';
@@ -27,6 +29,9 @@ void main(List<String> args) {
   overrideIO(() {
     runZonedGuarded(() async {
       WidgetsFlutterBinding.ensureInitialized();
+      // Register UI delegate before init(): comic source loading during
+      // init() may already execute JS that sends UI messages.
+      JsEngine.uiHandler = JsUiApiImpl();
       await init();
       runApp(const MyApp());
       if (App.isDesktop) {

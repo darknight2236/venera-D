@@ -8,9 +8,18 @@ import 'package:venera/foundation/js_engine.dart';
 
 import 'components.dart';
 
-mixin class JsUiApi {
+class JsUiApiImpl implements JsUiHandler {
   final Map<int, LoadingDialogController> _loadingDialogControllers = {};
 
+  @override
+  void onEngineReset() {
+    for (var controller in _loadingDialogControllers.values) {
+      controller.close();
+    }
+    _loadingDialogControllers.clear();
+  }
+
+  @override
   dynamic handleUIMessage(Map<String, dynamic> message) {
     switch (message['function']) {
       case 'showMessage':

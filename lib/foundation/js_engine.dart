@@ -22,7 +22,6 @@ import 'package:pointycastle/block/modes/cfb.dart';
 import 'package:pointycastle/block/modes/ecb.dart';
 import 'package:pointycastle/block/modes/ofb.dart';
 import 'package:uuid/uuid.dart';
-import 'package:venera/components/js_ui.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/js_pool.dart';
 import 'package:venera/network/app_dio.dart';
@@ -33,6 +32,18 @@ import 'package:venera/utils/init.dart';
 import 'comic_source/comic_source.dart';
 import 'consts.dart';
 import 'log.dart';
+
+/// Handles UI requests sent from JS comic sources (dialogs, loading, etc.).
+/// Implemented by the UI layer (components/js_ui.dart) and registered on
+/// [JsEngine.uiHandler] at app startup, so that foundation/ does not
+/// depend on components/.
+abstract class JsUiHandler {
+  dynamic handleUIMessage(Map<String, dynamic> message);
+
+  /// Called when the JS engine is reset. Implementations should close
+  /// any UI (e.g. loading dialogs) tied to the previous engine instance.
+  void onEngineReset() {}
+}
 
 class JavaScriptRuntimeException implements Exception {
   final String message;
@@ -45,10 +56,14 @@ class JavaScriptRuntimeException implements Exception {
   }
 }
 
-class JsEngine with _JSEngineApi, JsUiApi, Init {
+class JsEngine with _JSEngineApi, Init {
   factory JsEngine() => _cache ?? (_cache = JsEngine._create());
 
   static JsEngine? _cache;
+
+  /// UI delegate for JS-originated UI requests. Registered by the UI
+  /// layer (main.dart) before [init]. Null in headless mode.
+  static JsUiHandler? uiHandler;
 
   JsEngine._create();
 
@@ -61,6 +76,7 @@ class JsEngine with _JSEngineApi, JsUiApi, Init {
   static void reset() {
     _cache = null;
     _cache?.dispose();
+    uiHandler?.onEngineReset();
     JsEngine().init();
   }
 
@@ -176,7 +192,12 @@ class JsEngine with _JSEngineApi, JsUiApi, Init {
           case "delay":
             return Future.delayed(Duration(milliseconds: message["time"]));
           case "UI":
-            return handleUIMessage(Map.from(message));
+            if (uiHandler == null) {
+              Log.warning(
+                  "JS Engine", "UI handler is not registered, ignoring UI message.");
+              return null;
+            }
+            return uiHandler!.handleUIMessage(Map.from(message));
           case "getLocale":
             return "${App.locale.languageCode}_${App.locale.countryCode}";
           case "getPlatform":
