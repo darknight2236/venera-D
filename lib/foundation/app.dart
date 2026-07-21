@@ -106,6 +106,11 @@ class _App {
   void forceRebuild() {
     _forceRebuildHandler?.call();
   }
+
+  /// Shows the app-update dialog. Registered by the UI layer (MyApp)
+  /// so that init.dart does not depend on pages/.
+  Future<void> Function(bool showMessageIfNoUpdate, bool delay)?
+      appUpdateUiHandler;
 }
 
 // ignore: non_constant_identifier_names

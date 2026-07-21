@@ -13,7 +13,6 @@ import 'package:venera/foundation/log.dart';
 import 'package:venera/network/cookie_jar.dart';
 import 'package:venera/pages/comic_source_page.dart';
 import 'package:venera/pages/follow_updates_page.dart';
-import 'package:venera/pages/settings/settings_page.dart';
 import 'package:venera/utils/app_links.dart';
 import 'package:venera/utils/handle_text_share.dart';
 import 'package:venera/utils/opencc.dart';
@@ -113,7 +112,7 @@ Future<void> _checkAppUpdates() async {
   appdata.writeImplicitData();
   ComicSourcePage.checkComicSourceUpdate();
   if (appdata.settings['checkUpdateOnStart']) {
-    await checkUpdateUi(false, true);
+    await App.appUpdateUiHandler?.call(false, true);
   }
 }
 
