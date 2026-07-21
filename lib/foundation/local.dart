@@ -10,13 +10,46 @@ import 'package:venera/foundation/comic_type.dart';
 import 'package:venera/foundation/favorites.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/network/download.dart';
-import 'package:venera/pages/reader/reader.dart';
 import 'package:venera/utils/io.dart';
 
 import 'app.dart';
 import 'history.dart';
 
+/// Pure data describing how to launch the reader for a local comic.
+///
+/// Produced by [LocalComic.read] and consumed by the UI layer through
+/// [LocalComic.readerLauncher], so foundation/ does not depend on pages/.
+class ReaderLaunchData {
+  final ComicType type;
+  final String cid;
+  final String name;
+  final ComicChapters? chapters;
+  final int? initialChapter;
+  final int? initialPage;
+  final int? initialChapterGroup;
+  final History history;
+  final String author;
+  final List<String> tags;
+
+  const ReaderLaunchData({
+    required this.type,
+    required this.cid,
+    required this.name,
+    required this.chapters,
+    required this.initialChapter,
+    required this.initialPage,
+    required this.initialChapterGroup,
+    required this.history,
+    required this.author,
+    required this.tags,
+  });
+}
+
 class LocalComic with HistoryMixin implements Comic {
+  /// UI-layer callback that opens the reader page. Registered at app startup
+  /// (see main_page.dart); null in headless mode.
+  static void Function(ReaderLaunchData data)? readerLauncher;
+
   @override
   final String id;
 
@@ -136,25 +169,31 @@ class LocalComic with HistoryMixin implements Comic {
         }
       }
     }
-    App.rootContext.to(
-      () => Reader(
-        type: comicType,
-        cid: id,
-        name: title,
-        chapters: chapters,
-        initialChapter: history?.ep ?? firstDownloadedChapter,
-        initialPage: history?.page,
-        initialChapterGroup: history?.group ?? firstDownloadedChapterGroup,
-        history: history ??
-            History.fromModel(
-              model: this,
-              ep: 0,
-              page: 0,
-            ),
-        author: subtitle,
-        tags: tags,
-      )
-    );
+    final launcher = readerLauncher;
+    if (launcher == null) {
+      Log.warning(
+        "LocalComic",
+        "readerLauncher is not registered, cannot open reader.",
+      );
+      return;
+    }
+    launcher(ReaderLaunchData(
+      type: comicType,
+      cid: id,
+      name: title,
+      chapters: chapters,
+      initialChapter: history?.ep ?? firstDownloadedChapter,
+      initialPage: history?.page,
+      initialChapterGroup: history?.group ?? firstDownloadedChapterGroup,
+      history: history ??
+          History.fromModel(
+            model: this,
+            ep: 0,
+            page: 0,
+          ),
+      author: subtitle,
+      tags: tags,
+    ));
   }
 
   @override
