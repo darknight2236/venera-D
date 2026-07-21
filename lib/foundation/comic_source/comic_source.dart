@@ -8,9 +8,11 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_qjs/flutter_qjs.dart';
 import 'package:venera/foundation/app.dart';
+import 'package:venera/foundation/appdata.dart';
 import 'package:venera/foundation/comic_type.dart';
 import 'package:venera/foundation/history.dart';
 import 'package:venera/foundation/res.dart';
+import 'package:venera/network/app_dio.dart';
 import 'package:venera/pages/category_comics_page.dart';
 import 'package:venera/pages/search_result_page.dart';
 import 'package:venera/utils/data_sync.dart';
@@ -101,6 +103,42 @@ class ComicSourceManager with ChangeNotifier, Init {
   }
 
   Map<String, String> get availableUpdates => Map.from(_availableUpdates);
+
+  /// Check the remote comic source list for script updates.
+  ///
+  /// Returns the number of sources that have a newer version available,
+  /// or -1 if the request failed. Found updates are stored in
+  /// [availableUpdates].
+  Future<int> checkUpdates() async {
+    if (_sources.isEmpty) {
+      return 0;
+    }
+    var dio = AppDio();
+    var res = await dio.get<String>(appdata.settings['comicSourceListUrl']);
+    if (res.statusCode != 200) {
+      return -1;
+    }
+    var list = jsonDecode(res.data!) as List;
+    var versions = <String, String>{};
+    for (var source in list) {
+      versions[source['key']] = source['version'];
+    }
+    var shouldUpdate = <String>[];
+    for (var source in _sources) {
+      if (versions.containsKey(source.key) &&
+          compareSemVer(versions[source.key]!, source.version)) {
+        shouldUpdate.add(source.key);
+      }
+    }
+    if (shouldUpdate.isNotEmpty) {
+      var updates = <String, String>{};
+      for (var key in shouldUpdate) {
+        updates[key] = versions[key]!;
+      }
+      updateAvailableUpdates(updates);
+    }
+    return shouldUpdate.length;
+  }
 
   void notifyStateChange() {
     notifyListeners();

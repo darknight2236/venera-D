@@ -11,7 +11,6 @@ import 'package:venera/foundation/comic_source/comic_source.dart';
 import 'package:venera/foundation/js_engine.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/network/cookie_jar.dart';
-import 'package:venera/pages/comic_source_page.dart';
 import 'package:venera/pages/follow_updates_page.dart';
 import 'package:venera/utils/app_links.dart';
 import 'package:venera/utils/handle_text_share.dart';
@@ -110,7 +109,7 @@ Future<void> _checkAppUpdates() async {
   }
   appdata.implicitData['lastCheckUpdate'] = now;
   appdata.writeImplicitData();
-  ComicSourcePage.checkComicSourceUpdate();
+  ComicSourceManager().checkUpdates();
   if (appdata.settings['checkUpdateOnStart']) {
     await App.appUpdateUiHandler?.call(false, true);
   }

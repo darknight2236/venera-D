@@ -53,7 +53,7 @@ Future<void> runHeadlessMode(List<String> args) async {
     case 'updatescript':
       if (subCommand == 'all') {
         cliPrint({'status': 'running', 'message': 'Checking for comic source script updates...'});
-        await ComicSourcePage.checkComicSourceUpdate();
+        await ComicSourceManager().checkUpdates();
         var updates = ComicSourceManager().availableUpdates;
         if (updates.isEmpty) {
           cliPrint({'status': 'success', 'message': 'No updates found.'});

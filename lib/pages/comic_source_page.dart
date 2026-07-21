@@ -69,37 +69,6 @@ class ComicSourcePage extends StatelessWidget {
     }
   }
 
-  static Future<int> checkComicSourceUpdate() async {
-    if (ComicSource.all().isEmpty) {
-      return 0;
-    }
-    var dio = AppDio();
-    var res = await dio.get<String>(appdata.settings['comicSourceListUrl']);
-    if (res.statusCode != 200) {
-      return -1;
-    }
-    var list = jsonDecode(res.data!) as List;
-    var versions = <String, String>{};
-    for (var source in list) {
-      versions[source['key']] = source['version'];
-    }
-    var shouldUpdate = <String>[];
-    for (var source in ComicSource.all()) {
-      if (versions.containsKey(source.key) &&
-          compareSemVer(versions[source.key]!, source.version)) {
-        shouldUpdate.add(source.key);
-      }
-    }
-    if (shouldUpdate.isNotEmpty) {
-      var updates = <String, String>{};
-      for (var key in shouldUpdate) {
-        updates[key] = versions[key]!;
-      }
-      ComicSourceManager().updateAvailableUpdates(updates);
-    }
-    return shouldUpdate.length;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: const _Body());
@@ -649,7 +618,7 @@ class _CheckUpdatesButtonState extends State<_CheckUpdatesButton> {
     setState(() {
       isLoading = true;
     });
-    var count = await ComicSourcePage.checkComicSourceUpdate();
+    var count = await ComicSourceManager().checkUpdates();
     if (count == -1) {
       context.showMessage(message: "Network error".tl);
     } else if (count == 0) {
