@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:venera/components/components.dart';
 
 import 'app_page_route.dart';
 
@@ -37,10 +36,6 @@ extension Navigation on BuildContext {
   Brightness get brightness => Theme.of(this).brightness;
 
   bool get isDarkMode => brightness == Brightness.dark;
-
-  void showMessage({required String message}) {
-    showToast(message: message, context: this);
-  }
 
   Color useBackgroundColor(MaterialColor color) {
     return color[brightness == Brightness.light ? 100 : 800]!;

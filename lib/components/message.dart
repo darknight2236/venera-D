@@ -21,6 +21,12 @@ void showToast({
   Timer(Duration(seconds: seconds ?? 2), () => state?.remove(newEntry));
 }
 
+extension ToastExtension on BuildContext {
+  void showMessage({required String message}) {
+    showToast(message: message, context: this);
+  }
+}
+
 class _ToastOverlay extends StatelessWidget {
   const _ToastOverlay({required this.message, this.icon, this.trailing});
 
