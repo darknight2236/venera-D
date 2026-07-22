@@ -12,6 +12,14 @@ import 'package:venera/utils/io.dart';
 class Appdata with Init {
   Appdata._create();
 
+  /// Creates an instance without any I/O, for unit tests.
+  ///
+  /// The production [appdata] global runs [doInit]/[saveData] against the
+  /// filesystem; this constructor skips all of that so tests can exercise
+  /// pure logic such as [toJson]/[loadFromJson].
+  @visibleForTesting
+  Appdata.forTesting();
+
   final Settings settings = Settings._create();
 
   var searchHistory = <String>[];
@@ -76,6 +84,20 @@ class Appdata with Init {
     return {'settings': settings._data, 'searchHistory': searchHistory};
   }
 
+  /// Populates [settings] and [searchHistory] from a decoded json [map].
+  ///
+  /// Pure (no I/O); extracted from [doInit] so the deserialization logic can
+  /// be unit-tested. Mirrors the previous inline behavior, including skipping
+  /// null setting values.
+  void loadFromJson(Map<String, dynamic> map) {
+    for (var key in (map['settings'] as Map<String, dynamic>).keys) {
+      if (map['settings'][key] != null) {
+        settings[key] = map['settings'][key];
+      }
+    }
+    searchHistory = List.from(map['searchHistory']);
+  }
+
   List<String> splitField(String merged) {
     return merged
         .split(',')
@@ -136,13 +158,8 @@ class Appdata with Init {
       return;
     }
     try {
-      var json = jsonDecode(await file.readAsString());
-      for (var key in (json['settings'] as Map<String, dynamic>).keys) {
-        if (json['settings'][key] != null) {
-          settings[key] = json['settings'][key];
-        }
-      }
-      searchHistory = List.from(json['searchHistory']);
+      var json = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+      loadFromJson(json);
     } catch (e) {
       Log.error("Appdata", "Failed to load appdata", e);
       Log.info("Appdata", "Resetting appdata");
@@ -166,7 +183,13 @@ class Appdata with Init {
   }
 }
 
-final appdata = Appdata._create();
+Appdata? _appdata;
+
+Appdata get appdata => _appdata ??= Appdata._create();
+
+/// Allows tests to replace the global [appdata] instance.
+@visibleForTesting
+set appdata(Appdata value) => _appdata = value;
 
 class Settings with ChangeNotifier {
   Settings._create();
