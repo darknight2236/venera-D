@@ -72,7 +72,9 @@
 
 补充（✅ 已解决，2026-07）：原 `foundation/context.dart:2` import `components/components.dart`（`showToast`）。已将 `showMessage` 移至 `components/message.dart` 的 `ToastExtension`，context.dart 不再 import components（调用方 `utils/io.dart` 补 import components，与 import_comic.dart 先例一致）。**至此 foundation/ 对 pages 与 components 的反向 import 全部清零。**
 
-后果：**foundation 和 network 不可能脱离 UI 单独复用/测试**——headless 模式（`headless.dart`）也不得不被迫拖入 `pages/comic_source_page.dart`。
+补充（✅ 已解决，2026-07）：原 `headless.dart:7` import `pages/comic_source_page.dart`（仅为调用静态方法 `ComicSourcePage.update(source, false)`）。已将该方法的纯逻辑下沉为 `ComicSourceManager.updateSource()`（foundation/comic_source，含 URL 校验/拉取/解析/写文件，可选 `isCancelled` 轮询供 UI 取消），headless 改调 `updateSource()` + `reload()`；`ComicSourcePage.update` 保留为 UI 包装（loading dialog/toast/forceRebuild）。headless 不再 import pages。
+
+后果（✅ 已大幅缓解，2026-07）：原 foundation/network 反向 import UI 层使其无法脱离 UI 复用/测试，headless 也被迫拖入 `pages/comic_source_page.dart`。经 §3.1 各项解除，foundation/ 已零反向 import，headless 亦不再依赖 pages。**反向 import 仅剩 `network/cloudflare.dart:9`（#5 因无 Linux 环境取消，已知豁免）。**
 
 ### 3.2 import 循环依赖（4 组）
 
