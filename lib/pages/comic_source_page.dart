@@ -22,51 +22,33 @@ class ComicSourcePage extends StatelessWidget {
     ComicSource source, [
     bool showLoading = true,
   ]) async {
+    if (!showLoading) {
+      await ComicSourceManager().updateSource(source);
+      await ComicSourceManager().reload();
+      return;
+    }
     if (!source.url.isURL) {
-      if (showLoading) {
-        App.rootContext.showMessage(message: "Invalid url config");
-        return;
-      } else {
-        throw Exception("Invalid url config");
-      }
+      App.rootContext.showMessage(message: "Invalid url config");
+      return;
     }
-    ComicSourceManager().remove(source.key);
     bool cancel = false;
-    LoadingDialogController? controller;
-    if (showLoading) {
-      controller = showLoadingDialog(
-        App.rootContext,
-        onCancel: () => cancel = true,
-        barrierDismissible: false,
-      );
-    }
+    final controller = showLoadingDialog(
+      App.rootContext,
+      onCancel: () => cancel = true,
+      barrierDismissible: false,
+    );
     try {
-      var res = await AppDio().get<String>(
-        source.url,
-        options: Options(
-          responseType: ResponseType.plain,
-          headers: {"cache-time": "no"},
-        ),
-      );
-      if (cancel) return;
-      controller?.close();
-      await ComicSourceParser().parse(res.data!, source.filePath);
-      await io.File(source.filePath).writeAsString(res.data!);
-      if (ComicSourceManager().availableUpdates.containsKey(source.key)) {
-        ComicSourceManager().availableUpdates.remove(source.key);
-      }
+      await ComicSourceManager()
+          .updateSource(source, isCancelled: () => cancel);
     } catch (e) {
       if (cancel) return;
-      if (showLoading) {
-        App.rootContext.showMessage(message: e.toString());
-      } else {
-        rethrow;
-      }
+      App.rootContext.showMessage(message: e.toString());
+    } finally {
+      controller.close();
     }
+    if (cancel) return;
     await ComicSourceManager().reload();
-    if (showLoading) {
-      App.forceRebuild();
-    }
+    App.forceRebuild();
   }
 
   @override

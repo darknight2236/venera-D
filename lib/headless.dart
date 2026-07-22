@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 import 'package:venera/utils/data_sync.dart';
 import 'package:venera/foundation/comic_source/comic_source.dart';
 import 'package:venera/foundation/log.dart';
-import 'package:venera/pages/comic_source_page.dart';
 import 'package:venera/init.dart';
 import 'package:venera/foundation/follow_updates.dart';
 import 'package:venera/foundation/appdata.dart';
@@ -87,7 +86,8 @@ Future<void> runHeadlessMode(List<String> args) async {
                 }
               };
               try {
-                await ComicSourcePage.update(source, false);
+                await ComicSourceManager().updateSource(source);
+                await ComicSourceManager().reload();
                 updated++;
                 cliPrint({
                   'status': 'running',

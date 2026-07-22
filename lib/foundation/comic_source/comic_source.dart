@@ -138,6 +138,36 @@ class ComicSourceManager with ChangeNotifier, Init {
     return shouldUpdate.length;
   }
 
+  /// Downloads and installs the latest script for [source].
+  ///
+  /// This is the pure core shared by the UI (`ComicSourcePage.update`) and
+  /// headless mode: it performs no UI work. Callers invoke [reload] afterwards
+  /// to pick up the change. Throws on an invalid URL or a failed download /
+  /// parse. [isCancelled], when provided, is polled after the download so the
+  /// UI loading dialog can abort before parsing.
+  Future<void> updateSource(
+    ComicSource source, {
+    bool Function()? isCancelled,
+  }) async {
+    if (!source.url.isURL) {
+      throw Exception("Invalid url config");
+    }
+    remove(source.key);
+    var res = await AppDio().get<String>(
+      source.url,
+      options: Options(
+        responseType: ResponseType.plain,
+        headers: {"cache-time": "no"},
+      ),
+    );
+    if (isCancelled != null && isCancelled()) return;
+    await ComicSourceParser().parse(res.data!, source.filePath);
+    await File(source.filePath).writeAsString(res.data!);
+    if (availableUpdates.containsKey(source.key)) {
+      availableUpdates.remove(source.key);
+    }
+  }
+
   void notifyStateChange() {
     notifyListeners();
   }
