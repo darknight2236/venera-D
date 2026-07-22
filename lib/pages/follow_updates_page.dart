@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:venera/components/components.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/appdata.dart';
 import 'package:venera/foundation/favorites.dart';
-import 'package:venera/utils/data_sync.dart';
 import 'package:venera/utils/translations.dart';
 import '../foundation/global_state.dart';
 import 'package:venera/foundation/follow_updates.dart';
@@ -442,7 +439,7 @@ class _FollowUpdatesPageState extends AutomaticGlobalState<FollowUpdatesPage> {
   }
 
   void setFolder(String folder) async {
-    FollowUpdatesService._cancelChecking?.call();
+    FollowUpdatesService.cancelChecking();
     LocalFavoritesManager().prepareTableForFollowUpdates(folder);
 
     var count = LocalFavoritesManager().count(folder);
@@ -481,7 +478,7 @@ class _FollowUpdatesPageState extends AutomaticGlobalState<FollowUpdatesPage> {
   }
 
   void checkNow() async {
-    FollowUpdatesService._cancelChecking?.call();
+    FollowUpdatesService.cancelChecking();
 
     bool isCanceled = false;
     void onCancel() {
@@ -531,63 +528,6 @@ class _FollowUpdatesPageState extends AutomaticGlobalState<FollowUpdatesPage> {
 
   @override
   Object? get key => 'FollowUpdatesPage';
-}
-
-/// Background service for checking updates
-abstract class FollowUpdatesService {
-  static bool _isChecking = false;
-
-  static void Function()? _cancelChecking;
-
-  static bool _isInitialized = false;
-
-  static void _check() async {
-    if (_isChecking) {
-      return;
-    }
-    var folder = appdata.settings["followUpdatesFolder"];
-    if (folder == null) {
-      return;
-    }
-    bool isCanceled = false;
-    _cancelChecking = () {
-      isCanceled = true;
-    };
-
-    _isChecking = true;
-
-    while (DataSync().isDownloading) {
-      await Future.delayed(const Duration(milliseconds: 100));
-    }
-
-    int updated = 0;
-    try {
-      await for (var progress in updateFolder(folder, false)) {
-        if (isCanceled) {
-          return;
-        }
-        updated = progress.updated;
-      }
-    } finally {
-      _cancelChecking = null;
-      _isChecking = false;
-      if (updated > 0) {
-        updateFollowUpdatesUI();
-      }
-    }
-  }
-
-  /// Initialize the checker.
-  static void initChecker() {
-    if (_isInitialized) return;
-    _isInitialized = true;
-    _check();
-    DataSync().addListener(updateFollowUpdatesUI);
-    // A short interval will not affect the performance since every comic has a check time.
-    Timer.periodic(const Duration(minutes: 10), (timer) {
-      _check();
-    });
-  }
 }
 
 /// Update the UI of follow updates.

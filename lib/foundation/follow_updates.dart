@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:venera/foundation/appdata.dart';
 import 'package:venera/foundation/favorites.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/utils/channel.dart';
+import 'package:venera/utils/data_sync.dart';
 
 class ComicUpdateResult {
   final bool updated;
@@ -188,4 +190,67 @@ Future<String> getUpdatedComicsAsJson(String folder) async {
     'tags': c.tags,
   }).toList();
   return jsonEncode(jsonList);
+}
+
+/// Background service for checking follow updates.
+abstract class FollowUpdatesService {
+  static bool _isChecking = false;
+
+  static void Function()? _cancelChecking;
+
+  static bool _isInitialized = false;
+
+  /// Cancel the ongoing background check, if any.
+  static void cancelChecking() {
+    _cancelChecking?.call();
+  }
+
+  static void _check() async {
+    if (_isChecking) {
+      return;
+    }
+    var folder = appdata.settings["followUpdatesFolder"];
+    if (folder == null) {
+      return;
+    }
+    bool isCanceled = false;
+    _cancelChecking = () {
+      isCanceled = true;
+    };
+
+    _isChecking = true;
+
+    while (DataSync().isDownloading) {
+      await Future.delayed(const Duration(milliseconds: 100));
+    }
+
+    int updated = 0;
+    try {
+      await for (var progress in updateFolder(folder, false)) {
+        if (isCanceled) {
+          return;
+        }
+        updated = progress.updated;
+      }
+    } finally {
+      _cancelChecking = null;
+      _isChecking = false;
+      if (updated > 0) {
+        LocalFavoritesManager.onFollowUpdatesChanged?.call();
+      }
+    }
+  }
+
+  /// Initialize the checker.
+  static void initChecker() {
+    if (_isInitialized) return;
+    _isInitialized = true;
+    _check();
+    DataSync()
+        .addListener(() => LocalFavoritesManager.onFollowUpdatesChanged?.call());
+    // A short interval will not affect the performance since every comic has a check time.
+    Timer.periodic(const Duration(minutes: 10), (timer) {
+      _check();
+    });
+  }
 }
