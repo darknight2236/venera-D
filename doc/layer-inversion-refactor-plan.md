@@ -5,12 +5,14 @@
 > 通用原则：沿用项目现有风格——`App.rootContext.to(...)`（`lib/foundation/context.dart`）、`App.registerForceRebuild(...)` 式的静态注册回调（`lib/foundation/app.dart:104-108`）；不引入 DI 框架、不引入新包。
 > 统一注册点约定：凡需“UI 向 foundation 注册回调”的，注册代码放在 `lib/pages/main_page.dart` 的 `_MainPageState.initState`（:41，App 根 UI，早于一切用户交互）；仅 JS UI 委托例外（见第 2 条，须更早）。
 >
-> **进度（2026-07）**：#2、#3、#4、#6a、#6b 已完成；剩余：#1、#5、#6c。
+> **进度（2026-07）**：#1、#2、#3、#4、#6a、#6b、#6c 已完成；**仅剩 #5**。foundation 已零 pages import（只余已知豁免项 `context.dart:2` → components）；network 仅余 `cloudflare.dart:9` → webview（#5）。
 > 已知遗留：`foundation/context.dart:2` import `components/components.dart`（`showToast`），验收 grep 会命中，需豁免或将 `showMessage` 移出 context.dart。
 
 ---
 
-## 1. comic_source → pages：PageJumpTarget.jump() 在数据模型里 new 页面
+## 1. comic_source → pages：PageJumpTarget.jump() 在数据模型里 new 页面（已完成）
+
+> ✅ **已完成（2026-07）**：按 c) 方案实施。新建 `lib/pages/page_jump_target_ext.dart`（`extension PageJumpTargetExt on PageJumpTarget`），`jump()` 方法体整体搬入扩展；`models.dart` 删除 `jump()` 方法；`comic_source.dart` 删除两个 pages import。三个调用点（`categories_page.dart`、`explore_page.dart`、以及 `actions.dart` 的库文件 `comic_page.dart`——actions.dart 为 `part of` 无自身 import）各加 import，调用语法零变化。`flutter analyze` 通过；foundation 零 pages import。
 
 ### a) 精确 import
 `lib/foundation/comic_source/comic_source.dart:14-15`：
@@ -44,15 +46,16 @@ void jump(BuildContext context) {
 - `lib/pages/comic_details_page/actions.dart:301` `target?.jump(context)`
 - `lib/pages/explore_page.dart:445` `part.viewMore!.jump(context)`
 
-### c) 拆法：扩展方法下沉到 UI 层（调用语法零变化）
+### c) 拆法：扩展方法下沉到 UI 层（调用语法零变化）——✅ 已完成
 1. 新建 `lib/pages/page_jump.dart`（约 35 行）：把 `jump()` 原方法体搬入 `extension PageJump on PageJumpTarget`，import 两个页面 + `foundation/context.dart`（`context.to` 扩展来自这里）+ `foundation/log.dart`。
 2. `models.dart:537-560`：删除整个 `jump()` 方法。
 3. `comic_source.dart:14-15`：删除两个 import。
 4. 三个调用点文件顶部各加 `import 'package:venera/pages/page_jump.dart';`——`x.jump(context)` 调用点**一行不用改**。
 改动量：净 ~60 行（删 27 + 新文件 35 + 3 行 import）。风险最低的一项。
+**实际实现**：文件名为 `page_jump_target_ext.dart`、扩展名 `PageJumpTargetExt`（与原方案 `page_jump.dart`/`PageJump` 略异）；`actions.dart` 调用点的 import 加在其库文件 `comic_page.dart`（actions.dart 是 `part of`，无自身 import）。
 
 ### d) 风险点
-- Dart 中**成员方法优先于扩展方法**：必须确认 models.dart 里的 `jump` 已删干净，否则扩展静默失效。改完全局再 grep 一次 `\.jump(`（当前仅 3 个调用点 + 1 个定义，已核实）。
+- Dart 中**成员方法优先于扩展方法**：已核实 models.dart 的 `jump` 删净；全局 grep `\.jump(` 仅余 3 个调用点（均解析到扩展）。
 - 3 个调用点若漏加 import，编译期即报错，不会静默出错——安全。
 - `PageJumpTarget.parse` 等解析工厂保留在 foundation，不动。
 
@@ -158,32 +161,26 @@ import 'package:venera/pages/webview.dart';
 
 ---
 
-## 6. init → pages：初始化层调用页面类的静态方法（6a/6b 已完成）
+## 6. init → pages：初始化层调用页面类的静态方法（6a/6b/6c 全部完成）
 
 ### a) 精确 import
-`lib/init.dart:14-15`（原有 3 个，settings_page 已通过 6b 解除）：
-```dart
-import 'package:venera/pages/comic_source_page.dart';
-import 'package:venera/pages/follow_updates_page.dart';
-```
+`lib/init.dart` 原有的 pages import 已全部删除（settings_page 经 6b、comic_source_page 经 6a、follow_updates_page 经 6c 解除）；init.dart 现零 pages/components import。
 
 ### b) 反向依赖的实质（三个子项）
 - **6a** ✅ 已完成：原 `ComicSourcePage.checkComicSourceUpdate()`（纯逻辑：`AppDio` 拉取源列表 → `compareSemVer`（`parser.dart:4` 顶层函数，同属 comic_source 库）比对 → `updateAvailableUpdates`）已移入 `ComicSourceManager.checkUpdates()`（`comic_source.dart`，为此新增 `appdata`、`network/app_dio` 两个 import，均为合法的正向依赖，不产生新循环）。三处调用点（`init.dart`、`comic_source_page.dart`、`headless.dart`）已改调 `ComicSourceManager().checkUpdates()`，`init.dart` 的 comic_source_page import 已删除。
 - **6b** ✅ 已完成（实现与原方案不同）：未移到 main_page.initState，而是新增 `App.appUpdateUiHandler` 回调字段（`foundation/app.dart:113`），`main.dart:77` `_MyAppState.initState` 注册 `App.appUpdateUiHandler = checkUpdateUi;`，`init.dart:114-116` 改为 `await App.appUpdateUiHandler?.call(false, true);`。init.dart 的 settings_page import 已删除。注册（:77）早于 `checkUpdates()`（:80），时序安全。
-- **6c** `init.dart:121` `FollowUpdatesService.initChecker()`——服务类定义在 `follow_updates_page.dart:537-591`，但它的全部业务依赖（`updateFolder`）本就在 `foundation/follow_updates.dart:172`，服务类只是被错放在页面文件里；它还调 `updateFollowUpdatesUI()`（:575）和 `DataSync().addListener(updateFollowUpdatesUI)`（:585）。
+- **6c** ✅ 已完成：`FollowUpdatesService` 已移入 `foundation/follow_updates.dart`（追加于文件末尾，新增 `appdata`、`utils/data_sync` 两个正向 import）；内部两处 UI 调用改为 `LocalFavoritesManager.onFollowUpdatesChanged?.call()`（DataSync 监听以闭包包裹）。`init.dart` 改 import foundation/follow_updates.dart，follow_updates_page import 已删除。`updateFollowUpdatesUI()` 函数本体留在页面文件（依赖私有 State）。**原方案未计及的补充**：页面 `setFolder`/`checkNow` 原在 :445/:484 直接访问私有字段 `FollowUpdatesService._cancelChecking`，Dart 隐私为库级作用域，搬迁后不可访问，故为服务新增公共方法 `cancelChecking()`，页面两处改调它。
 调用链：`main.dart:80` → `checkUpdates()`（init.dart:119-122）→ 6a/6c。
 
-### c) 拆法（仅剩 6c，完成后删 init.dart:14-15）
+### c) 拆法（全部完成，init.dart 的 pages import 已删净）
 - **6a**：✅ 已完成，见 b) 节。
 - **6b**：✅ 已完成，见 b) 节。
-- **6c（~55 行，前置第 3 项已完成）**：`FollowUpdatesService` 整体（:537-591）移到 `foundation/follow_updates.dart`；内部两处 `updateFollowUpdatesUI()` 改为第 3 项引入的 `LocalFavoritesManager.onFollowUpdatesChanged?.call()`；`:585` 的 DataSync 监听改为 `DataSync().addListener(() => LocalFavoritesManager.onFollowUpdatesChanged?.call())`；`init.dart:121` 调用不变（foundation→foundation 合法）。注意 `updateFollowUpdatesUI()` 函数本体（:594-597）须留在页面文件。
-改动量：剩余 ~55 行（6c），删 init.dart:14-15。
+- **6c**：✅ 已完成，见 b) 节。
 
 ### d) 风险点
 - 6a：✅ 已完成。**修正原方案判断**：`headless.dart:90` 仍调用 `ComicSourcePage.update(source, false)`，因此 headless 的 comic_source_page import 无法随 #6a 删除——“headless 摆脱 UI”需另行处理 `update` 方法（其含 LoadingDialog/`App.rootContext` 等 UI 依赖，超出本项范围）。
 - 6b：✅ 已完成。回调注册在 main.dart:77，早于 checkUpdates()（:80），无时序问题。
-- 6c：前置第 3 项已完成（回调字段已存在）。`DataSync` 监听目前就是进程级一次性注册（`_isInitialized` 守卫），搬迁后语义不变；headless 模式下 `initChecker` 也会运行（main.dart:80 → checkUpdates），此时回调为 null，安全降级。
-- 删 `init.dart:15` 前确认 `follow_updates_page` 在 init 中没有其它隐式用途（已 grep，仅 :121 一处）。
+- 6c：✅ 已完成。`DataSync` 监听为进程级一次性注册（`_isInitialized` 守卫），搬迁后语义不变；headless 模式下回调为 null，安全降级。唯一超出原方案的处理：私有字段 `_cancelChecking` 封装为公共 `cancelChecking()`（见 b) 节）。
 
 ---
 
@@ -196,10 +193,10 @@ import 'package:venera/pages/follow_updates_page.dart';
 | — | ~~#2 JsEngine UI 委托~~ | ~35 行 | — | ✅ 已完成（实施中修复了注册缺失 bug） |
 | — | ~~#6a checkComicSourceUpdate 入 ComicSourceManager~~ | ~35 行 | — | ✅ 已完成（headless import 因 :90 仍用 `update` 而保留） |
 | — | ~~#4 LocalComic.read → ReaderLaunchData~~ | ~50 行 | — | ✅ 已完成（新增 reader_launcher.dart；章节选择逻辑从此可单测） |
-| 1 | **#6c** FollowUpdatesService 入 foundation | ~55 行 | 中 | 前置 #3 已完成；含 DataSync 监听语义 |
-| 2 | **#1** PageJumpTarget.jump → 扩展方法 | ~60 行 | 极低 | 语法零变化，纯体力活 |
-| 3 | **#5** cloudflare 交互验证注入 | ~110 行 | 中 | 最大项；需真实 Cloudflare 站点回归 |
+| — | ~~#6c FollowUpdatesService 入 foundation~~ | ~55 行 | — | ✅ 已完成（新增公共 cancelChecking；init.dart 的 pages import 已删净） |
+| — | ~~#1 PageJumpTarget.jump → 扩展方法~~ | ~60 行 | — | ✅ 已完成（新建 page_jump_target_ext.dart；foundation 零 pages import） |
+| 1 | **#5** cloudflare 交互验证注入 | ~110 行 | 中 | 最大项；需真实 Cloudflare 站点回归 |
 
 > 建议每项独立 commit。全部完成后跑一次 `grep -rn "import 'package:venera/pages/" lib/foundation/ lib/network/` 应为空；`grep -rn "import 'package:venera/components/" lib/foundation/ lib/network/` 会命中 `foundation/context.dart:2`（`showToast`）——作为已知项豁免，或将 `showMessage` 移出 context.dart。
 
-*行号于 2026-07 按当前工作区代码重新核实（venera 1.6.3 fork，#2/#3/#6b 实施后）。*
+*行号于 2026-07 按当前工作区代码重新核实（venera 1.6.3 fork，#1/#2/#3/#4/#6a/#6b/#6c 实施后）。*
