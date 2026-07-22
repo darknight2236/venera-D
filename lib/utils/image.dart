@@ -193,12 +193,12 @@ class Color {
   int get a => (value >> 24) & 0xFF;
 }
 
-class JsEngine {
-  static final JsEngine _instance = JsEngine._();
+class ImageProcessEngine {
+  static final ImageProcessEngine _instance = ImageProcessEngine._();
 
-  factory JsEngine() => _instance;
+  factory ImageProcessEngine() => _instance;
 
-  JsEngine._() {
+  ImageProcessEngine._() {
     _engine = FlutterQjs();
     _engine!.dispatch();
     var setGlobalFunc =
@@ -302,7 +302,7 @@ Future<Uint8List> modifyImageWithScript(Uint8List data, String script) async {
     var image = await Image.decodeImage(data);
     var initJs = await rootBundle.loadString('assets/init.js');
     return await Isolate.run(() {
-      var jsEngine = JsEngine();
+      var jsEngine = ImageProcessEngine();
       jsEngine.runCode(initJs, '<init>');
       jsEngine.runCode(script);
       var key = jsEngine.setImage(image);
