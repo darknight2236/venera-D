@@ -15,15 +15,15 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
         SliverAppbar(title: Text("Local Favorites".tl)),
         _SwitchSetting(
           title: "Show local favorites before network favorites".tl,
-          settingKey: "localFavoritesFirst",
+          settingKey: SettingKeys.localFavoritesFirst,
         ).toSliver(),
         _SwitchSetting(
           title: "Auto close favorite panel after operation".tl,
-          settingKey: "autoCloseFavoritePanel",
+          settingKey: SettingKeys.autoCloseFavoritePanel,
         ).toSliver(),
         SelectSetting(
           title: "Add new favorite to".tl,
-          settingKey: "newFavoriteAddTo",
+          settingKey: SettingKeys.newFavoriteAddTo,
           optionTranslation: {
             "start": "Start".tl,
             "end": "End".tl,
@@ -31,7 +31,7 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Move favorite after reading".tl,
-          settingKey: "moveFavoriteAfterRead",
+          settingKey: SettingKeys.moveFavoriteAfterRead,
           optionTranslation: {
             "none": "None".tl,
             "end": "End".tl,
@@ -40,7 +40,7 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Quick Favorite".tl,
-          settingKey: "quickFavorite",
+          settingKey: SettingKeys.quickFavorite,
           help:
               "Long press on the favorite button to quickly add to this folder"
                   .tl,
@@ -61,7 +61,7 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Click favorite".tl,
-          settingKey: "onClickFavorite",
+          settingKey: SettingKeys.onClickFavorite,
           optionTranslation: {
             "viewDetail": "View Detail".tl,
             "read": "Read".tl,

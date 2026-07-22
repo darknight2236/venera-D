@@ -146,7 +146,7 @@ class _AppSettingsState extends State<AppSettings> {
         ),
         SelectSetting(
           title: "Language".tl,
-          settingKey: "language",
+          settingKey: SettingKeys.language,
           optionTranslation: const {
             "system": "System",
             "zh-CN": "简体中文",
@@ -160,7 +160,7 @@ class _AppSettingsState extends State<AppSettings> {
         if (!App.isLinux)
           _SwitchSetting(
             title: "Authorization Required".tl,
-            settingKey: "authorizationRequired",
+            settingKey: SettingKeys.authorizationRequired,
             onChanged: () async {
               var current = appdata.settings[SettingKeys.authorizationRequired];
               if (current) {

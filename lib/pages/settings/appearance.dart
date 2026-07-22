@@ -15,7 +15,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
         SliverAppbar(title: Text("Appearance".tl)),
         SelectSetting(
           title: "Theme Mode".tl,
-          settingKey: "theme_mode",
+          settingKey: SettingKeys.themeMode,
           optionTranslation: {
             "system": "System".tl,
             "light": "Light".tl,
@@ -27,7 +27,7 @@ class _AppearanceSettingsState extends State<AppearanceSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Theme Color".tl,
-          settingKey: "color",
+          settingKey: SettingKeys.color,
           optionTranslation: {
             "system": "System".tl,
             "red": "Red".tl,

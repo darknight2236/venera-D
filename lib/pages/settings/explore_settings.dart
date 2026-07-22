@@ -15,7 +15,7 @@ class _ExploreSettingsState extends State<ExploreSettings> {
         SliverAppbar(title: Text("Explore".tl)),
         SelectSetting(
           title: "Display mode of comic tile".tl,
-          settingKey: "comicDisplayMode",
+          settingKey: SettingKeys.comicDisplayMode,
           optionTranslation: {
             "detailed": "Detailed".tl,
             "brief": "Brief".tl,
@@ -23,7 +23,7 @@ class _ExploreSettingsState extends State<ExploreSettings> {
         ).toSliver(),
         _SliderSetting(
           title: "Size of comic tile".tl,
-          settingsIndex: "comicTileScale",
+          settingsIndex: SettingKeys.comicTileScale,
           interval: 0.05,
           min: 0.5,
           max: 1.5,
@@ -46,15 +46,15 @@ class _ExploreSettingsState extends State<ExploreSettings> {
         ).toSliver(),
         _SwitchSetting(
           title: "Show favorite status on comic tile".tl,
-          settingKey: "showFavoriteStatusOnTile",
+          settingKey: SettingKeys.showFavoriteStatusOnTile,
         ).toSliver(),
         _SwitchSetting(
           title: "Show history on comic tile".tl,
-          settingKey: "showHistoryStatusOnTile",
+          settingKey: SettingKeys.showHistoryStatusOnTile,
         ).toSliver(),
         _SwitchSetting(
           title: "Reverse default chapter order".tl,
-          settingKey: "reverseChapterOrder",
+          settingKey: SettingKeys.reverseChapterOrder,
         ).toSliver(),
         _PopupWindowSetting(
           title: "Keyword blocking".tl,
@@ -66,7 +66,7 @@ class _ExploreSettingsState extends State<ExploreSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Default Search Target".tl,
-          settingKey: "defaultSearchTarget",
+          settingKey: SettingKeys.defaultSearchTarget,
           optionTranslation: {
             '_aggregated_': "Aggregated".tl,
             ...((){
@@ -80,7 +80,7 @@ class _ExploreSettingsState extends State<ExploreSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Auto Language Filters".tl,
-          settingKey: "autoAddLanguageFilter",
+          settingKey: SettingKeys.autoAddLanguageFilter,
           optionTranslation: {
             'none': "None".tl,
             'chinese': "Chinese",
@@ -90,7 +90,7 @@ class _ExploreSettingsState extends State<ExploreSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Initial Page".tl,
-          settingKey: "initialPage",
+          settingKey: SettingKeys.initialPage,
           optionTranslation: {
             '0': "Home Page".tl,
             '1': "Favorites Page".tl,
@@ -100,7 +100,7 @@ class _ExploreSettingsState extends State<ExploreSettings> {
         ).toSliver(),
         SelectSetting(
           title: "Display mode of comic list".tl,
-          settingKey: "comicListDisplayMode",
+          settingKey: SettingKeys.comicListDisplayMode,
           optionTranslation: {
             "paging": "Paging".tl,
             "Continuous": "Continuous".tl,
@@ -209,7 +209,7 @@ Widget setExplorePagesWidget() {
   }
   return _MultiPagesFilter(
     title: "Explore Pages".tl,
-    settingsIndex: "explore_pages",
+    settingsIndex: SettingKeys.explorePages,
     pages: pages,
   );
 }
@@ -223,7 +223,7 @@ Widget setCategoryPagesWidget() {
   }
   return _MultiPagesFilter(
     title: "Category Pages".tl,
-    settingsIndex: "categories",
+    settingsIndex: SettingKeys.categories,
     pages: pages,
   );
 }
@@ -237,7 +237,7 @@ Widget setFavoritesPagesWidget() {
   }
   return _MultiPagesFilter(
     title: "Network Favorite Pages".tl,
-    settingsIndex: "favorites",
+    settingsIndex: SettingKeys.favorites,
     pages: pages,
   );
 }
@@ -251,7 +251,7 @@ Widget setSearchSourcesWidget() {
   }
   return _MultiPagesFilter(
     title: "Search Sources".tl,
-    settingsIndex: "searchSources",
+    settingsIndex: SettingKeys.searchSources,
     pages: pages,
   );
 }

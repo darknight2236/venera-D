@@ -23,7 +23,7 @@ class _NetworkSettingsState extends State<NetworkSettings> {
         ).toSliver(),
         _SliderSetting(
           title: "Download Threads".tl,
-          settingsIndex: 'downloadThreads',
+          settingsIndex: SettingKeys.downloadThreads,
           interval: 1,
           min: 1,
           max: 16,
@@ -276,11 +276,11 @@ class __DNSOverridesState extends State<_DNSOverrides> {
           children: [
             _SwitchSetting(
               title: "Enable DNS Overrides".tl,
-              settingKey: "enableDnsOverrides",
+              settingKey: SettingKeys.enableDnsOverrides,
             ),
             _SwitchSetting(
               title: "Server Name Indication",
-              settingKey: "sni",
+              settingKey: SettingKeys.sni,
             ),
             const SizedBox(height: 8),
             Container(
