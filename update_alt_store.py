@@ -112,14 +112,14 @@ def update_json_file_release(json_file, latest_release):
     news_identifier = f"release-{full_version}"
     date_string = date_obj.strftime("%d/%m/%y")
     news_entry = {
-        "appID": "com.github.wgh136.venera",
-        "caption": f"Update of Venera just got released!",
+        "appID": "com.github.darknight2236.venera_d",
+        "caption": f"Update of Venera-D just got released!",
         "date": latest_release["published_at"],
         "identifier": news_identifier,
         "notify": True,
         "tintColor": "#0784FC",
-        "title": f"{full_version} - Venera  {date_string}",
-        "url": f"https://github.com/venera-app/venera/releases/tag/{tag}"
+        "title": f"{full_version} - Venera-D  {date_string}",
+        "url": f"https://github.com/darknight2236/venera-D/releases/tag/{tag}"
     }
 
     news_entry_exists = any(item["identifier"] == news_identifier for item in data["news"])
@@ -135,7 +135,7 @@ def update_json_file_release(json_file, latest_release):
         raise
 
 def main():
-    repo_url = "venera-app/venera"
+    repo_url = "darknight2236/venera-D"
     is_nightly = "NIGHTLY_LINK" in os.environ
 
     try:

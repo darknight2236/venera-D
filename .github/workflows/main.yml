@@ -38,15 +38,15 @@ jobs:
         run: |
           mkdir -p dist
           mkdir -p dist/dmg_contents
-          cp -R build/macos/Build/Products/Release/venera.app dist/dmg_contents/
+          cp -R build/macos/Build/Products/Release/venera-D.app dist/dmg_contents/
           ln -s /Applications dist/dmg_contents/Applications
-          hdiutil create -volname "venera" -srcfolder dist/dmg_contents -ov -format UDZO "dist/venera.dmg"
+          hdiutil create -volname "Venera-D" -srcfolder dist/dmg_contents -ov -format UDZO "dist/venera-D.dmg"
 
       - name: Add version to filename
         run: |
           APP_VERSION=$(grep "version:" pubspec.yaml | cut -d':' -f2 | tr -d ' ')
           mkdir -p result
-          mv dist/venera.dmg result/venera-$APP_VERSION.dmg
+          mv dist/venera-D.dmg result/Venera-D-$APP_VERSION.dmg
 
       # Step 4: Attach and upload artifacts (optional)
       - name: Upload DMG
