@@ -77,7 +77,7 @@ class FavoriteItem implements Comic {
   @override
   String get description {
     var time = this.time.substring(0, 10);
-    return appdata.settings['comicDisplayMode'] == 'detailed'
+    return appdata.settings[SettingKeys.comicDisplayMode] == 'detailed'
         ? "$time | ${type == ComicType.local ? 'local' : type.comicSource?.name ?? "Unknown"}"
         : "${type.comicSource?.name ?? "Unknown"} | $time";
   }
@@ -268,12 +268,12 @@ class LocalFavoritesManager with ChangeNotifier {
     }
     await appdata.ensureInit();
     // Make sure the follow updates folder is ready
-    var followUpdateFolder = appdata.settings['followUpdatesFolder'];
+    var followUpdateFolder = appdata.settings[SettingKeys.followUpdatesFolder];
     if (followUpdateFolder is String &&
         folderNames.contains(followUpdateFolder)) {
       prepareTableForFollowUpdates(followUpdateFolder, false);
     } else {
-      appdata.settings['followUpdatesFolder'] = null;
+      appdata.settings[SettingKeys.followUpdatesFolder] = null;
     }
     initCounts();
   }
@@ -629,7 +629,7 @@ class LocalFavoritesManager with ChangeNotifier {
         insert into "$folder" (id, name, author, type, tags, cover_path, time, translated_tags, display_order)
         values (?, ?, ?, ?, ?, ?, ?, ?, ?);
       """, [...params, order]);
-    } else if (appdata.settings['newFavoriteAddTo'] == "end") {
+    } else if (appdata.settings[SettingKeys.newFavoriteAddTo] == "end") {
       _db.execute("""
         insert into "$folder" (id, name, author, type, tags, cover_path, time, translated_tags, display_order)
         values (?, ?, ?, ?, ?, ?, ?, ?, ?);
@@ -937,11 +937,11 @@ class LocalFavoritesManager with ChangeNotifier {
   }
 
   void onRead(String id, ComicType type) async {
-    if (appdata.settings['moveFavoriteAfterRead'] == "none") {
+    if (appdata.settings[SettingKeys.moveFavoriteAfterRead] == "none") {
       markAsRead(id, type);
       return;
     }
-    var followUpdatesFolder = appdata.settings['followUpdatesFolder'];
+    var followUpdatesFolder = appdata.settings[SettingKeys.followUpdatesFolder];
     for (final folder in folderNames) {
       var rows = _db.select("""
         select * from "$folder"
@@ -953,13 +953,13 @@ class LocalFavoritesManager with ChangeNotifier {
             .replaceFirst("T", " ")
             .substring(0, 19);
         String updateLocationSql = "";
-        if (appdata.settings['moveFavoriteAfterRead'] == "end") {
+        if (appdata.settings[SettingKeys.moveFavoriteAfterRead] == "end") {
           int maxValue = _db.select("""
             SELECT MAX(display_order) AS max_value
             FROM "$folder";
           """).firstOrNull?["max_value"] ?? 0;
           updateLocationSql = "display_order = ${maxValue + 1},";
-        } else if (appdata.settings['moveFavoriteAfterRead'] == "start") {
+        } else if (appdata.settings[SettingKeys.moveFavoriteAfterRead] == "start") {
           int minValue = _db.select("""
             SELECT MIN(display_order) AS min_value
             FROM "$folder";
@@ -1232,7 +1232,7 @@ class LocalFavoritesManager with ChangeNotifier {
   }
 
   void markAsRead(String id, ComicType type) {
-    var folder = appdata.settings['followUpdatesFolder'];
+    var folder = appdata.settings[SettingKeys.followUpdatesFolder];
     if (!existsFolder(folder)) {
       return;
     }

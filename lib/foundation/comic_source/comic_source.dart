@@ -112,7 +112,7 @@ class ComicSourceManager with ChangeNotifier, Init {
       return 0;
     }
     var dio = AppDio();
-    var res = await dio.get<String>(appdata.settings['comicSourceListUrl']);
+    var res = await dio.get<String>(appdata.settings[SettingKeys.comicSourceListUrl]);
     if (res.statusCode != 200) {
       return -1;
     }

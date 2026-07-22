@@ -54,8 +54,8 @@ class ReaderImageProvider
     if (imageBytes == null) {
       throw "Error: Empty response body.";
     }
-    if (appdata.settings['enableCustomImageProcessing']) {
-      var script = appdata.settings['customImageProcessing'].toString();
+    if (appdata.settings[SettingKeys.enableCustomImageProcessing]) {
+      var script = appdata.settings[SettingKeys.customImageProcessing].toString();
       if (!script.contains('function processImage')) {
         return imageBytes;
       }

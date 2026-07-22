@@ -40,10 +40,10 @@ class _App {
         deviceLocale.scriptCode == "Hant") {
       deviceLocale = const Locale("zh", "TW");
     }
-    if (appdata.settings['language'] != 'system') {
+    if (appdata.settings[SettingKeys.language] != 'system') {
       return Locale(
-        appdata.settings['language'].split('-')[0],
-        appdata.settings['language'].split('-')[1],
+        appdata.settings[SettingKeys.language].split('-')[0],
+        appdata.settings[SettingKeys.language].split('-')[1],
       );
     }
     return deviceLocale;

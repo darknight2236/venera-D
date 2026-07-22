@@ -191,17 +191,17 @@ class RHttpAdapter implements HttpClientAdapter {
       throwOnStatusCode: false,
       dnsSettings: rhttp.DnsSettings.static(overrides: _getOverrides()),
       tlsSettings: rhttp.TlsSettings(
-        sni: appdata.settings['sni'] != false,
-        verifyCertificates: appdata.settings['ignoreBadCertificate'] != true,
+        sni: appdata.settings[SettingKeys.sni] != false,
+        verifyCertificates: appdata.settings[SettingKeys.ignoreBadCertificate] != true,
       ),
     );
   }
 
   static Map<String, List<String>> _getOverrides() {
-    if (!appdata.settings['enableDnsOverrides'] == true) {
+    if (!appdata.settings[SettingKeys.enableDnsOverrides] == true) {
       return {};
     }
-    var config = appdata.settings["dnsOverrides"];
+    var config = appdata.settings[SettingKeys.dnsOverrides];
     var result = <String, List<String>>{};
     if (config is Map) {
       for (var entry in config.entries) {

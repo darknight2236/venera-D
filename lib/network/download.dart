@@ -190,7 +190,7 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
   var tasks = <int, _ImageDownloadWrapper>{};
 
   int get _maxConcurrentTasks =>
-      (appdata.settings["downloadThreads"] as num).toInt();
+      (appdata.settings[SettingKeys.downloadThreads] as num).toInt();
 
   void _scheduleTasks() {
     var images = _images![_images!.keys.elementAt(_chapter)]!;

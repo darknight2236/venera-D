@@ -209,7 +209,7 @@ abstract class FollowUpdatesService {
     if (_isChecking) {
       return;
     }
-    var folder = appdata.settings["followUpdatesFolder"];
+    var folder = appdata.settings[SettingKeys.followUpdatesFolder];
     if (folder == null) {
       return;
     }

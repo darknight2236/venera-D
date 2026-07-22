@@ -122,7 +122,7 @@ class Appdata with Init {
       var settings = data['settings'] as Map<String, dynamic>;
 
       List<String> customDisableSync = splitField(
-        this.settings["disableSyncFields"] as String,
+        this.settings[SettingKeys.disableSyncFields] as String,
       );
 
       for (var key in settings.keys) {
@@ -165,8 +165,8 @@ class Appdata with Init {
       Log.info("Appdata", "Resetting appdata");
       file.deleteIgnoreError();
     }
-    if ((settings["deviceId"] as String).isEmpty) {
-      settings._data["deviceId"] = const Uuid().v4();
+    if ((settings[SettingKeys.deviceId] as String).isEmpty) {
+      settings._data[SettingKeys.deviceId] = const Uuid().v4();
       await saveData(false);
     }
     try {
@@ -190,6 +190,83 @@ Appdata get appdata => _appdata ??= Appdata._create();
 /// Allows tests to replace the global [appdata] instance.
 @visibleForTesting
 set appdata(Appdata value) => _appdata = value;
+
+/// Central registry of [Settings] keys.
+///
+/// Use these constants instead of bare string literals when reading or writing
+/// settings (including the reader-setting helpers, which take a `String` key),
+/// so a mistyped key becomes a compile-time error rather than a silent `null`.
+/// Constant names mirror the stored key strings; the two snake_case keys are
+/// exposed under camelCase names.
+abstract final class SettingKeys {
+  static const comicDisplayMode = 'comicDisplayMode';
+  static const comicTileScale = 'comicTileScale';
+  static const color = 'color';
+  static const themeMode = 'theme_mode';
+  static const newFavoriteAddTo = 'newFavoriteAddTo';
+  static const moveFavoriteAfterRead = 'moveFavoriteAfterRead';
+  static const proxy = 'proxy';
+  static const explorePages = 'explore_pages';
+  static const categories = 'categories';
+  static const favorites = 'favorites';
+  static const searchSources = 'searchSources';
+  static const showFavoriteStatusOnTile = 'showFavoriteStatusOnTile';
+  static const showHistoryStatusOnTile = 'showHistoryStatusOnTile';
+  static const blockedWords = 'blockedWords';
+  static const blockedCommentWords = 'blockedCommentWords';
+  static const defaultSearchTarget = 'defaultSearchTarget';
+  static const autoPageTurningInterval = 'autoPageTurningInterval';
+  static const readerMode = 'readerMode';
+  static const readerScreenPicNumberForLandscape =
+      'readerScreenPicNumberForLandscape';
+  static const readerScreenPicNumberForPortrait =
+      'readerScreenPicNumberForPortrait';
+  static const enableTapToTurnPages = 'enableTapToTurnPages';
+  static const reverseTapToTurnPages = 'reverseTapToTurnPages';
+  static const enablePageAnimation = 'enablePageAnimation';
+  static const language = 'language';
+  static const cacheSize = 'cacheSize';
+  static const downloadThreads = 'downloadThreads';
+  static const enableLongPressToZoom = 'enableLongPressToZoom';
+  static const longPressZoomPosition = 'longPressZoomPosition';
+  static const checkUpdateOnStart = 'checkUpdateOnStart';
+  static const limitImageWidth = 'limitImageWidth';
+  static const webdav = 'webdav';
+  static const disableSyncFields = 'disableSyncFields';
+  static const dataVersion = 'dataVersion';
+  static const quickFavorite = 'quickFavorite';
+  static const enableTurnPageByVolumeKey = 'enableTurnPageByVolumeKey';
+  static const enableClockAndBatteryInfoInReader =
+      'enableClockAndBatteryInfoInReader';
+  static const quickCollectImage = 'quickCollectImage';
+  static const authorizationRequired = 'authorizationRequired';
+  static const onClickFavorite = 'onClickFavorite';
+  static const enableDnsOverrides = 'enableDnsOverrides';
+  static const dnsOverrides = 'dnsOverrides';
+  static const enableCustomImageProcessing = 'enableCustomImageProcessing';
+  static const customImageProcessing = 'customImageProcessing';
+  static const sni = 'sni';
+  static const autoAddLanguageFilter = 'autoAddLanguageFilter';
+  static const comicSourceListUrl = 'comicSourceListUrl';
+  static const preloadImageCount = 'preloadImageCount';
+  static const followUpdatesFolder = 'followUpdatesFolder';
+  static const initialPage = 'initialPage';
+  static const comicListDisplayMode = 'comicListDisplayMode';
+  static const showPageNumberInReader = 'showPageNumberInReader';
+  static const showSingleImageOnFirstPage = 'showSingleImageOnFirstPage';
+  static const enableDoubleTapToZoom = 'enableDoubleTapToZoom';
+  static const reverseChapterOrder = 'reverseChapterOrder';
+  static const showSystemStatusBar = 'showSystemStatusBar';
+  static const comicSpecificSettings = 'comicSpecificSettings';
+  static const deviceSpecificSettings = 'deviceSpecificSettings';
+  static const deviceId = 'deviceId';
+  static const ignoreBadCertificate = 'ignoreBadCertificate';
+  static const readerScrollSpeed = 'readerScrollSpeed';
+  static const localFavoritesFirst = 'localFavoritesFirst';
+  static const autoCloseFavoritePanel = 'autoCloseFavoritePanel';
+  static const showChapterComments = 'showChapterComments';
+  static const showChapterCommentsAtEnd = 'showChapterCommentsAtEnd';
+}
 
 class Settings with ChangeNotifier {
   Settings._create();
