@@ -62,7 +62,7 @@ Future<void> importAppData(File file, [bool checkVersion = false]) async {
     if (checkVersion && appdataFile.existsSync()) {
       var data = jsonDecode(await appdataFile.readAsString());
       var version = data["settings"]["dataVersion"];
-      if (version is int && version <= appdata.settings["dataVersion"]) {
+      if (version is int && version <= appdata.settings[SettingKeys.dataVersion]) {
         return;
       }
     }

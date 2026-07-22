@@ -329,7 +329,7 @@ class _ComicSourceListState extends State<_ComicSourceList> {
   @override
   void initState() {
     super.initState();
-    controller.text = appdata.settings['comicSourceListUrl'];
+    controller.text = appdata.settings[SettingKeys.comicSourceListUrl];
     load();
   }
 
@@ -337,7 +337,7 @@ class _ComicSourceListState extends State<_ComicSourceList> {
   void dispose() {
     super.dispose();
     if (changed) {
-      appdata.settings['comicSourceListUrl'] = controller.text;
+      appdata.settings[SettingKeys.comicSourceListUrl] = controller.text;
       appdata.saveData();
     }
   }
@@ -432,7 +432,7 @@ class _ComicSourceListState extends State<_ComicSourceList> {
                   var url = json![index]["url"];
                   if (url == null || !(url.toString()).isURL) {
                     var listUrl =
-                        appdata.settings['comicSourceListUrl'] as String;
+                        appdata.settings[SettingKeys.comicSourceListUrl] as String;
                     if (listUrl
                         .replaceFirst("https://", "")
                         .replaceFirst("http://", "")
@@ -465,9 +465,9 @@ class _ComicSourceListState extends State<_ComicSourceList> {
 }
 
 void _validatePages() {
-  List explorePages = appdata.settings['explore_pages'];
-  List categoryPages = appdata.settings['categories'];
-  List networkFavorites = appdata.settings['favorites'];
+  List explorePages = appdata.settings[SettingKeys.explorePages];
+  List categoryPages = appdata.settings[SettingKeys.categories];
+  List networkFavorites = appdata.settings[SettingKeys.favorites];
 
   var totalExplorePages = ComicSource.all()
       .map((e) => e.explorePages.map((e) => e.title))
@@ -500,18 +500,18 @@ void _validatePages() {
     }
   }
 
-  appdata.settings['explore_pages'] = explorePages.toSet().toList();
-  appdata.settings['categories'] = categoryPages.toSet().toList();
-  appdata.settings['favorites'] = networkFavorites.toSet().toList();
+  appdata.settings[SettingKeys.explorePages] = explorePages.toSet().toList();
+  appdata.settings[SettingKeys.categories] = categoryPages.toSet().toList();
+  appdata.settings[SettingKeys.favorites] = networkFavorites.toSet().toList();
 
   appdata.saveData();
 }
 
 void _addAllPagesWithComicSource(ComicSource source) {
-  var explorePages = appdata.settings['explore_pages'];
-  var categoryPages = appdata.settings['categories'];
-  var networkFavorites = appdata.settings['favorites'];
-  var searchPages = appdata.settings['searchSources'];
+  var explorePages = appdata.settings[SettingKeys.explorePages];
+  var categoryPages = appdata.settings[SettingKeys.categories];
+  var networkFavorites = appdata.settings[SettingKeys.favorites];
+  var searchPages = appdata.settings[SettingKeys.searchSources];
 
   if (source.explorePages.isNotEmpty) {
     for (var page in source.explorePages) {
@@ -532,10 +532,10 @@ void _addAllPagesWithComicSource(ComicSource source) {
     searchPages.add(source.key);
   }
 
-  appdata.settings['explore_pages'] = explorePages.toSet().toList();
-  appdata.settings['categories'] = categoryPages.toSet().toList();
-  appdata.settings['favorites'] = networkFavorites.toSet().toList();
-  appdata.settings['searchSources'] = searchPages.toSet().toList();
+  appdata.settings[SettingKeys.explorePages] = explorePages.toSet().toList();
+  appdata.settings[SettingKeys.categories] = categoryPages.toSet().toList();
+  appdata.settings[SettingKeys.favorites] = networkFavorites.toSet().toList();
+  appdata.settings[SettingKeys.searchSources] = searchPages.toSet().toList();
 
   appdata.saveData();
 }

@@ -30,16 +30,16 @@ class _ReaderSettingsState extends State<ReaderSettings> {
       readerMode = appdata.settings.getReaderSetting(
         widget.comicId!,
         widget.comicSource!,
-        'readerMode',
+        SettingKeys.readerMode,
       );
       showChapterComments = appdata.settings.getReaderSetting(
         widget.comicId!,
         widget.comicSource!,
-        'showChapterComments',
+        SettingKeys.showChapterComments,
       );
     } else {
-      readerMode = appdata.settings['readerMode'] as String?;
-      showChapterComments = appdata.settings['showChapterComments'] as bool?;
+      readerMode = appdata.settings[SettingKeys.readerMode] as String?;
+      showChapterComments = appdata.settings[SettingKeys.showChapterComments] as bool?;
     }
 
     // Must have showChapterComments enabled and be in gallery mode
@@ -62,20 +62,20 @@ class _ReaderSettingsState extends State<ReaderSettings> {
       showChapterComments = appdata.settings.getReaderSetting(
         widget.comicId!,
         widget.comicSource!,
-        'showChapterComments',
+        SettingKeys.showChapterComments,
       );
       if (showChapterComments != true) {
         appdata.settings.setReaderSetting(
           widget.comicId!,
           widget.comicSource!,
-          'showChapterCommentsAtEnd',
+          SettingKeys.showChapterCommentsAtEnd,
           false,
         );
       }
     } else {
-      showChapterComments = appdata.settings['showChapterComments'] as bool?;
+      showChapterComments = appdata.settings[SettingKeys.showChapterComments] as bool?;
       if (showChapterComments != true) {
-        appdata.settings['showChapterCommentsAtEnd'] = false;
+        appdata.settings[SettingKeys.showChapterCommentsAtEnd] = false;
       }
     }
 
@@ -204,11 +204,11 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           },
           onChanged: () {
             setState(() {});
-            var readerMode = appdata.settings['readerMode'];
+            var readerMode = appdata.settings[SettingKeys.readerMode];
             if (readerMode?.toLowerCase().startsWith('continuous') ?? false) {
-              appdata.settings['readerScreenPicNumberForLandscape'] = 1;
+              appdata.settings[SettingKeys.readerScreenPicNumberForLandscape] = 1;
               widget.onChanged?.call('readerScreenPicNumberForLandscape');
-              appdata.settings['readerScreenPicNumberForPortrait'] = 1;
+              appdata.settings[SettingKeys.readerScreenPicNumberForPortrait] = 1;
               widget.onChanged?.call('readerScreenPicNumberForPortrait');
             }
             widget.onChanged?.call("readerMode");
@@ -232,7 +232,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SliverAnimatedVisibility(
-          visible: appdata.settings['readerMode']!.startsWith('gallery'),
+          visible: appdata.settings[SettingKeys.readerMode]!.startsWith('gallery'),
           child: _SliderSetting(
             title:
                 "The number of pic in screen for landscape (Only Gallery Mode)"
@@ -251,7 +251,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           ),
         ),
         SliverAnimatedVisibility(
-          visible: appdata.settings['readerMode']!.startsWith('gallery'),
+          visible: appdata.settings[SettingKeys.readerMode]!.startsWith('gallery'),
           child: _SliderSetting(
             title:
                 "The number of pic in screen for portrait (Only Gallery Mode)"
@@ -270,9 +270,9 @@ class _ReaderSettingsState extends State<ReaderSettings> {
         ),
         SliverAnimatedVisibility(
           visible:
-              appdata.settings['readerMode']!.startsWith('gallery') &&
-              (appdata.settings['readerScreenPicNumberForLandscape'] > 1 ||
-                  appdata.settings['readerScreenPicNumberForPortrait'] > 1),
+              appdata.settings[SettingKeys.readerMode]!.startsWith('gallery') &&
+              (appdata.settings[SettingKeys.readerScreenPicNumberForLandscape] > 1 ||
+                  appdata.settings[SettingKeys.readerScreenPicNumberForPortrait] > 1),
           child: _SwitchSetting(
             title: "Show single image on first page".tl,
             settingKey: "showSingleImageOnFirstPage",
@@ -285,7 +285,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           ),
         ),
         SliverAnimatedVisibility(
-          visible: appdata.settings['readerMode']!.startsWith('continuous'),
+          visible: appdata.settings[SettingKeys.readerMode]!.startsWith('continuous'),
           child: _SliderSetting(
             title: "Mouse scroll speed".tl,
             settingsIndex: "readerScrollSpeed",
@@ -323,7 +323,7 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SliverAnimatedVisibility(
-          visible: appdata.settings['enableLongPressToZoom'] == true,
+          visible: appdata.settings[SettingKeys.enableLongPressToZoom] == true,
           child: SelectSetting(
             title: "Long press zoom position".tl,
             settingKey: "longPressZoomPosition",
@@ -460,12 +460,12 @@ class __CustomImageProcessingState extends State<_CustomImageProcessing> {
   @override
   void initState() {
     super.initState();
-    current = appdata.settings['customImageProcessing'];
+    current = appdata.settings[SettingKeys.customImageProcessing];
   }
 
   @override
   void dispose() {
-    appdata.settings['customImageProcessing'] = current;
+    appdata.settings[SettingKeys.customImageProcessing] = current;
     appdata.saveData();
     super.dispose();
   }
@@ -481,7 +481,7 @@ class __CustomImageProcessingState extends State<_CustomImageProcessing> {
           TextButton(
             onPressed: () {
               current = defaultCustomImageProcessing;
-              appdata.settings['customImageProcessing'] = current;
+              appdata.settings[SettingKeys.customImageProcessing] = current;
               resetKey++;
               setState(() {});
             },
@@ -505,7 +505,7 @@ class __CustomImageProcessingState extends State<_CustomImageProcessing> {
               child: SizedBox.expand(
                 child: CodeEditor(
                   key: ValueKey(resetKey),
-                  initialValue: appdata.settings['customImageProcessing'],
+                  initialValue: appdata.settings[SettingKeys.customImageProcessing],
                   onChanged: (value) {
                     current = value;
                   },

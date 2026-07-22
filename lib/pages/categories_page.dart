@@ -28,7 +28,7 @@ class _CategoriesPageState extends State<CategoriesPage>
 
   void onSettingsChanged() {
     var categories = List.from(
-      appdata.settings["categories"],
+      appdata.settings[SettingKeys.categories]
     ).whereType<String>().toList();
     var allCategories = ComicSource.all()
         .map((e) => e.categoryData?.key)
@@ -50,7 +50,7 @@ class _CategoriesPageState extends State<CategoriesPage>
   void initState() {
     super.initState();
     var categories = List.from(
-      appdata.settings["categories"],
+      appdata.settings[SettingKeys.categories]
     ).whereType<String>().toList();
     var allCategories = ComicSource.all()
         .map((e) => e.categoryData?.key)

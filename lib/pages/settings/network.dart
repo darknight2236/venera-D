@@ -101,7 +101,7 @@ class _ProxySettingViewState extends State<_ProxySettingView> {
 
   @override
   void initState() {
-    var proxy = appdata.settings['proxy'];
+    var proxy = appdata.settings[SettingKeys.proxy];
     parseProxyString(proxy);
     super.initState();
   }
@@ -118,7 +118,7 @@ class _ProxySettingViewState extends State<_ProxySettingView> {
               type = v ?? type;
             });
             if (type != 'manual') {
-              appdata.settings['proxy'] = toProxyStr();
+              appdata.settings[SettingKeys.proxy] = toProxyStr();
               appdata.saveData();
             }
           },
@@ -219,7 +219,7 @@ class _ProxySettingViewState extends State<_ProxySettingView> {
           FilledButton(
             onPressed: () {
               if (formKey.currentState?.validate() ?? false) {
-                appdata.settings['proxy'] = toProxyStr();
+                appdata.settings[SettingKeys.proxy] = toProxyStr();
                 appdata.saveData();
                 App.rootContext.pop();
               }
@@ -244,7 +244,7 @@ class __DNSOverridesState extends State<_DNSOverrides> {
 
   @override
   void initState() {
-    for (var entry in (appdata.settings['dnsOverrides'] as Map).entries) {
+    for (var entry in (appdata.settings[SettingKeys.dnsOverrides] as Map).entries) {
       if (entry.key is String && entry.value is String) {
         overrides.add((
           TextEditingController(text: entry.key),
@@ -261,7 +261,7 @@ class __DNSOverridesState extends State<_DNSOverrides> {
     for (var entry in overrides) {
       map[entry.$1.text] = entry.$2.text;
     }
-    appdata.settings['dnsOverrides'] = map;
+    appdata.settings[SettingKeys.dnsOverrides] = map;
     appdata.saveData();
     JsEngine().resetDio();
     super.dispose();

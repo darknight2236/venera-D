@@ -150,13 +150,13 @@ class _ReaderState extends State<Reader>
     return appdata.settings.getReaderSetting(
               cid,
               type.sourceKey,
-              'showChapterComments',
+              SettingKeys.showChapterComments,
             ) ==
             true &&
         appdata.settings.getReaderSetting(
               cid,
               type.sourceKey,
-              'showChapterCommentsAtEnd',
+              SettingKeys.showChapterCommentsAtEnd,
             ) ==
             true;
   }
@@ -209,20 +209,20 @@ class _ReaderState extends State<Reader>
     }
     // mode = ReaderMode.fromKey(appdata.settings['readerMode']);
     mode = ReaderMode.fromKey(
-      appdata.settings.getReaderSetting(cid, type.sourceKey, 'readerMode'),
+      appdata.settings.getReaderSetting(cid, type.sourceKey, SettingKeys.readerMode),
     );
     history = widget.history;
     if (!appdata.settings.getReaderSetting(
       cid,
       type.sourceKey,
-      'showSystemStatusBar',
+      SettingKeys.showSystemStatusBar,
     )) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
     }
     if (appdata.settings.getReaderSetting(
       cid,
       type.sourceKey,
-      'enableTurnPageByVolumeKey',
+      SettingKeys.enableTurnPageByVolumeKey,
     )) {
       handleVolumeEvent();
     }

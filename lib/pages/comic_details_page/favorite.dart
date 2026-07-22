@@ -100,7 +100,7 @@ class _FavoriteList extends StatefulWidget {
 class _FavoriteListState extends State<_FavoriteList> {
   @override
   Widget build(BuildContext context) {
-    final localFavoritesFirst = appdata.settings['localFavoritesFirst'] ?? true;
+    final localFavoritesFirst = appdata.settings[SettingKeys.localFavoritesFirst] ?? true;
 
     final localSection = _LocalSection(
       cid: widget.cid,
@@ -336,7 +336,7 @@ class _NetworkSectionState extends State<_NetworkSection> {
                       App.rootContext.showMessage(
                         message: isFavorite ? "Removed".tl : "Added".tl,
                       );
-                      if (appdata.settings['autoCloseFavoritePanel'] ?? false) {
+                      if (appdata.settings[SettingKeys.autoCloseFavoritePanel] ?? false) {
                         context.pop();
                       }
                     } else {
@@ -426,7 +426,7 @@ class _NetworkSectionState extends State<_NetworkSection> {
                         // notify parent so page state updates when closing and reopening panel
                         widget.onFavorite(addedFolders.isNotEmpty);
                         context.showMessage(message: "Success".tl);
-                        if (appdata.settings['autoCloseFavoritePanel'] ?? false) {
+                        if (appdata.settings[SettingKeys.autoCloseFavoritePanel] ?? false) {
                           context.pop();
                         }
                       } else {
@@ -540,7 +540,7 @@ class _LocalSectionState extends State<_LocalSection> {
                   });
                   widget.onFavorite(true);
                 }
-                if (appdata.settings['autoCloseFavoritePanel'] ?? false) {
+                if (appdata.settings[SettingKeys.autoCloseFavoritePanel] ?? false) {
                   context.pop();
                 }
               },

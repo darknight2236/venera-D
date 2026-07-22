@@ -149,7 +149,7 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     findSearchSources();
-    var defaultSearchTarget = appdata.settings['defaultSearchTarget'];
+    var defaultSearchTarget = appdata.settings[SettingKeys.defaultSearchTarget];
     if (defaultSearchTarget == "_aggregated_") {
       aggregatedSearch = true;
     } else if (defaultSearchTarget != null &&
@@ -175,7 +175,7 @@ class _SearchPageState extends State<SearchPage> {
         .where((e) => e.searchPageData != null)
         .map((e) => e.key)
         .toList();
-    var settings = appdata.settings['searchSources'] as List;
+    var settings = appdata.settings[SettingKeys.searchSources] as List;
     var sources = <String>[];
     for (var source in settings) {
       if (all.contains(source)) {

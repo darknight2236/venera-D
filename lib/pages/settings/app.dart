@@ -78,7 +78,7 @@ class _AppSettingsState extends State<AppSettings> {
         ).toSliver(),
         _CallbackSetting(
           title: "Cache Limit".tl,
-          subtitle: "${appdata.settings['cacheSize']} MB",
+          subtitle: "${appdata.settings[SettingKeys.cacheSize]} MB",
           callback: () {
             showInputDialog(
               context: context,
@@ -86,10 +86,10 @@ class _AppSettingsState extends State<AppSettings> {
               hintText: "Size in MB".tl,
               inputValidator: RegExp(r"^\d+$"),
               onConfirm: (value) {
-                appdata.settings['cacheSize'] = int.parse(value);
+                appdata.settings[SettingKeys.cacheSize] = int.parse(value);
                 appdata.saveData();
                 setState(() {});
-                CacheManager().setLimitSize(appdata.settings['cacheSize']);
+                CacheManager().setLimitSize(appdata.settings[SettingKeys.cacheSize]);
                 return null;
               },
             );
@@ -162,7 +162,7 @@ class _AppSettingsState extends State<AppSettings> {
             title: "Authorization Required".tl,
             settingKey: "authorizationRequired",
             onChanged: () async {
-              var current = appdata.settings['authorizationRequired'];
+              var current = appdata.settings[SettingKeys.authorizationRequired];
               if (current) {
                 final auth = LocalAuthentication();
                 final bool canAuthenticateWithBiometrics =
@@ -172,7 +172,7 @@ class _AppSettingsState extends State<AppSettings> {
                 if (!canAuthenticate) {
                   context.showMessage(message: "Biometrics not supported".tl);
                   setState(() {
-                    appdata.settings['authorizationRequired'] = false;
+                    appdata.settings[SettingKeys.authorizationRequired] = false;
                   });
                   appdata.saveData();
                   return;
@@ -363,13 +363,13 @@ class _WebdavSettingState extends State<_WebdavSetting> {
   @override
   void initState() {
     super.initState();
-    if (appdata.settings['webdav'] is! List) {
-      appdata.settings['webdav'] = [];
+    if (appdata.settings[SettingKeys.webdav] is! List) {
+      appdata.settings[SettingKeys.webdav] = [];
     }
-    if (appdata.settings['disableSyncFields'].trim().isNotEmpty) {
-      disableSync = appdata.settings['disableSyncFields'];
+    if (appdata.settings[SettingKeys.disableSyncFields].trim().isNotEmpty) {
+      disableSync = appdata.settings[SettingKeys.disableSyncFields];
     }
-    var configs = appdata.settings['webdav'] as List;
+    var configs = appdata.settings[SettingKeys.webdav] as List;
     if (configs.whereType<String>().length != 3) {
       return;
     }
@@ -533,13 +533,13 @@ class _WebdavSettingState extends State<_WebdavSetting> {
               child: Button.filled(
                 isLoading: isTesting,
                 onPressed: () async {
-                  var oldConfig = appdata.settings['webdav'];
+                  var oldConfig = appdata.settings[SettingKeys.webdav];
                   var oldAutoSync = appdata.implicitData['webdavAutoSync'];
 
                   if (url.trim().isEmpty &&
                       user.trim().isEmpty &&
                       pass.trim().isEmpty) {
-                    appdata.settings['webdav'] = [];
+                    appdata.settings[SettingKeys.webdav] = [];
                     appdata.implicitData['webdavAutoSync'] = false;
                     appdata.writeImplicitData();
                     appdata.saveData();
@@ -548,8 +548,8 @@ class _WebdavSettingState extends State<_WebdavSetting> {
                     return;
                   }
 
-                  appdata.settings['webdav'] = [url, user, pass];
-                  appdata.settings['disableSyncFields'] = disableSync;
+                  appdata.settings[SettingKeys.webdav] = [url, user, pass];
+                  appdata.settings[SettingKeys.disableSyncFields] = disableSync;
                   appdata.implicitData['webdavAutoSync'] = autoSync;
                   appdata.writeImplicitData();
 
@@ -570,7 +570,7 @@ class _WebdavSettingState extends State<_WebdavSetting> {
                     setState(() {
                       isTesting = false;
                     });
-                    appdata.settings['webdav'] = oldConfig;
+                    appdata.settings[SettingKeys.webdav] = oldConfig;
                     appdata.implicitData['webdavAutoSync'] = oldAutoSync;
                     appdata.writeImplicitData();
                     appdata.saveData();

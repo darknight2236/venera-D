@@ -29,7 +29,7 @@ class _ExplorePageState extends State<ExplorePage>
   late List<String> pages;
 
   void onSettingsChanged() {
-    var explorePages = List<String>.from(appdata.settings["explore_pages"]);
+    var explorePages = List<String>.from(appdata.settings[SettingKeys.explorePages]);
     var all = ComicSource.all()
         .map((e) => e.explorePages)
         .expand((e) => e.map((e) => e.title))
@@ -62,7 +62,7 @@ class _ExplorePageState extends State<ExplorePage>
 
   @override
   void initState() {
-    pages = List<String>.from(appdata.settings["explore_pages"]);
+    pages = List<String>.from(appdata.settings[SettingKeys.explorePages]);
     var all = ComicSource.all()
         .map((e) => e.explorePages)
         .expand((e) => e.map((e) => e.title))
@@ -253,7 +253,7 @@ class _SingleExplorePageState extends AutomaticGlobalState<_SingleExplorePage>
   VoidCallback? refreshHandler;
 
   void onSettingsChanged() {
-    var explorePages = appdata.settings["explore_pages"];
+    var explorePages = appdata.settings[SettingKeys.explorePages];
     if (!explorePages.contains(widget.title)) {
       _wantKeepAlive = false;
       updateKeepAlive();

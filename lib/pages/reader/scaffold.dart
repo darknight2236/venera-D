@@ -52,7 +52,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
     var readerMode = context.reader.mode;
 
     // 横向阅读的时候, 如果纵向滑就触发收藏, 纵向阅读的时候, 如果横向滑动就触发收藏
-    if (appdata.settings['quickCollectImage'] == 'Swipe') {
+    if (appdata.settings[SettingKeys.quickCollectImage] == 'Swipe') {
       if (_imageFavoriteDragListener == null) {
         double distance = 0;
         _imageFavoriteDragListener = _DragListener(
@@ -107,7 +107,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
     if (!_isOpen) {
       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     } else {
-      if (!appdata.settings['showSystemStatusBar']) {
+      if (!appdata.settings[SettingKeys.showSystemStatusBar]) {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
       } else {
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -135,7 +135,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
             child: widget.child,
           ),
         ),
-        if (appdata.settings['showPageNumberInReader'] == true && !isOnChapterCommentsPage)
+        if (appdata.settings[SettingKeys.showPageNumberInReader] == true && !isOnChapterCommentsPage)
           buildPageInfoText(),
         if (!isOnChapterCommentsPage)
           buildStatusInfo(),
@@ -633,7 +633,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
   }
 
   Widget buildStatusInfo() {
-    if (appdata.settings['enableClockAndBatteryInfoInReader']) {
+    if (appdata.settings[SettingKeys.enableClockAndBatteryInfoInReader]) {
       return Positioned(
         bottom: 13,
         right: 25,
@@ -691,7 +691,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
         comicId: context.reader.cid,
         comicSource: context.reader.type.sourceKey,
         onChanged: (key) {
-          if (key == "readerMode") {
+          if (key == SettingKeys.readerMode) {
             context.reader.mode = ReaderMode.fromKey(
               appdata.settings.getReaderSetting(
                 context.reader.cid,
@@ -700,7 +700,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
               ),
             );
           }
-          if (key == "enableTurnPageByVolumeKey") {
+          if (key == SettingKeys.enableTurnPageByVolumeKey) {
             if (appdata.settings.getReaderSetting(
               context.reader.cid,
               context.reader.type.sourceKey,
@@ -711,10 +711,10 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
               context.reader.stopVolumeEvent();
             }
           }
-          if (key == "quickCollectImage") {
+          if (key == SettingKeys.quickCollectImage) {
             addDragListener();
           }
-          if (key == "showChapterComments" || key == "showChapterCommentsAtEnd") {
+          if (key == SettingKeys.showChapterComments || key == SettingKeys.showChapterCommentsAtEnd) {
             update();
           }
           context.reader.update();
@@ -747,7 +747,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
     var showChapterComments = appdata.settings.getReaderSetting(
       context.reader.cid,
       context.reader.type.sourceKey,
-      'showChapterComments',
+      SettingKeys.showChapterComments,
     );
     if (showChapterComments != true) return false;
 

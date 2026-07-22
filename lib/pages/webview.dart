@@ -92,7 +92,7 @@ class _AppWebviewState extends State<AppWebview> {
   late var future = _createWebviewEnvironment();
 
   Future<bool> _createWebviewEnvironment() async {
-    var proxy = appdata.settings['proxy'].toString();
+    var proxy = appdata.settings[SettingKeys.proxy].toString();
     if (proxy != "system" && proxy != "direct") {
       var proxyAvailable = await WebViewFeature.isFeatureSupported(
         WebViewFeature.PROXY_OVERRIDE,

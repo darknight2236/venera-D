@@ -87,7 +87,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!App.isMobile || !appdata.settings['authorizationRequired']) {
+    if (!App.isMobile || !appdata.settings[SettingKeys.authorizationRequired]) {
       return;
     }
     if (state == AppLifecycleState.inactive && hideContentOverlay == null) {
@@ -135,7 +135,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   }
 
   Color translateColorSetting() {
-    return switch (appdata.settings['color']) {
+    return switch (appdata.settings[SettingKeys.color]) {
       'red' => Colors.red,
       'pink' => Colors.pink,
       'purple' => Colors.purple,
@@ -185,7 +185,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     Widget home;
-    if (appdata.settings['authorizationRequired']) {
+    if (appdata.settings[SettingKeys.authorizationRequired]) {
       home = AuthPage(
         onSuccessfulAuth: () {
           App.rootContext.toReplacement(() => const MainPage());
@@ -196,7 +196,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     }
     return DynamicColorBuilder(builder: (light, dark) {
       Color? primary, secondary, tertiary;
-      if (appdata.settings['color'] != 'system' ||
+      if (appdata.settings[SettingKeys.color] != 'system' ||
           light == null ||
           dark == null) {
         primary = translateColorSetting();
@@ -212,7 +212,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         theme: getTheme(primary, secondary, tertiary, Brightness.light),
         navigatorKey: App.rootNavigatorKey,
         darkTheme: getTheme(primary, secondary, tertiary, Brightness.dark),
-        themeMode: switch (appdata.settings['theme_mode']) {
+        themeMode: switch (appdata.settings[SettingKeys.themeMode]) {
           'light' => ThemeMode.light,
           'dark' => ThemeMode.dark,
           _ => ThemeMode.system
@@ -223,7 +223,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
           GlobalCupertinoLocalizations.delegate,
         ],
         locale: () {
-          var lang = appdata.settings['language'];
+          var lang = appdata.settings[SettingKeys.language];
           if (lang == 'system') {
             return null;
           }

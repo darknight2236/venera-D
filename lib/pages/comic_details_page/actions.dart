@@ -71,7 +71,7 @@ abstract mixin class _ComicPageActions {
   }
 
   void quickFavorite() {
-    var folder = appdata.settings['quickFavorite'];
+    var folder = appdata.settings[SettingKeys.quickFavorite];
     if (folder is! String) {
       return;
     }

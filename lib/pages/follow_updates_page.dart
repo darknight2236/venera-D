@@ -18,7 +18,7 @@ class _FollowUpdatesWidgetState
     extends AutomaticGlobalState<FollowUpdatesWidget> {
   int _count = 0;
 
-  String? get folder => appdata.settings["followUpdatesFolder"];
+  String? get folder => appdata.settings[SettingKeys.followUpdatesFolder];
 
   void getCount() {
     if (folder == null) {
@@ -27,7 +27,7 @@ class _FollowUpdatesWidgetState
     }
     if (!LocalFavoritesManager().folderNames.contains(folder)) {
       _count = 0;
-      appdata.settings["followUpdatesFolder"] = null;
+      appdata.settings[SettingKeys.followUpdatesFolder] = null;
       Future.microtask(() {
         appdata.saveData();
       });
@@ -116,7 +116,7 @@ class FollowUpdatesPage extends StatefulWidget {
 }
 
 class _FollowUpdatesPageState extends AutomaticGlobalState<FollowUpdatesPage> {
-  String? get folder => appdata.settings["followUpdatesFolder"];
+  String? get folder => appdata.settings[SettingKeys.followUpdatesFolder];
 
   var updatedComics = <FavoriteItemWithUpdateInfo>[];
   var allComics = <FavoriteItemWithUpdateInfo>[];
@@ -408,7 +408,7 @@ class _FollowUpdatesPageState extends AutomaticGlobalState<FollowUpdatesPage> {
               ],
             ),
             actions: [
-              if (appdata.settings["followUpdatesFolder"] != null)
+              if (appdata.settings[SettingKeys.followUpdatesFolder] != null)
                 TextButton(
                   onPressed: () {
                     disable();
@@ -433,7 +433,7 @@ class _FollowUpdatesPageState extends AutomaticGlobalState<FollowUpdatesPage> {
   }
 
   void disable() {
-    appdata.settings["followUpdatesFolder"] = null;
+    appdata.settings[SettingKeys.followUpdatesFolder] = null;
     appdata.saveData();
     updateFollowUpdatesUI();
   }
@@ -469,7 +469,7 @@ class _FollowUpdatesPageState extends AutomaticGlobalState<FollowUpdatesPage> {
     }
 
     setState(() {
-      appdata.settings["followUpdatesFolder"] = folder;
+      appdata.settings[SettingKeys.followUpdatesFolder] = folder;
       updatedComics = [];
       allComics = LocalFavoritesManager().getComicsWithUpdatesInfo(folder);
       sortComics();

@@ -1,7 +1,7 @@
 part of 'reader.dart';
 
 bool _shouldBlockComment(Comment comment) {
-  var blockedWords = appdata.settings["blockedCommentWords"] as List;
+  var blockedWords = appdata.settings[SettingKeys.blockedCommentWords] as List;
   if (blockedWords.isEmpty) return false;
   
   var content = comment.content.toLowerCase();

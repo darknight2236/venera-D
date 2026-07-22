@@ -122,7 +122,7 @@ class _ManageBlockingWordView extends StatefulWidget {
 class _ManageBlockingWordViewState extends State<_ManageBlockingWordView> {
   @override
   Widget build(BuildContext context) {
-    assert(appdata.settings["blockedWords"] is List);
+    assert(appdata.settings[SettingKeys.blockedWords] is List);
     return PopUpWidgetScaffold(
       title: "Keyword blocking".tl,
       tailing: [
@@ -133,14 +133,14 @@ class _ManageBlockingWordViewState extends State<_ManageBlockingWordView> {
         ),
       ],
       body: ListView.builder(
-        itemCount: appdata.settings["blockedWords"].length,
+        itemCount: appdata.settings[SettingKeys.blockedWords].length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(appdata.settings["blockedWords"][index]),
+            title: Text(appdata.settings[SettingKeys.blockedWords][index]),
             trailing: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () {
-                appdata.settings["blockedWords"].removeAt(index);
+                appdata.settings[SettingKeys.blockedWords].removeAt(index);
                 appdata.saveData();
                 setState(() {});
               },
@@ -178,14 +178,14 @@ class _ManageBlockingWordViewState extends State<_ManageBlockingWordView> {
             actions: [
               Button.filled(
                 onPressed: () {
-                  if (appdata.settings["blockedWords"]
+                  if (appdata.settings[SettingKeys.blockedWords]
                       .contains(controller.text)) {
                     setState(() {
                       error = "Keyword already exists".tl;
                     });
                     return;
                   }
-                  appdata.settings["blockedWords"].add(controller.text);
+                  appdata.settings[SettingKeys.blockedWords].add(controller.text);
                   appdata.saveData();
                   this.setState(() {});
                   context.pop();
@@ -267,7 +267,7 @@ class _ManageBlockingCommentWordView extends StatefulWidget {
 class _ManageBlockingCommentWordViewState extends State<_ManageBlockingCommentWordView> {
   @override
   Widget build(BuildContext context) {
-    assert(appdata.settings["blockedCommentWords"] is List);
+    assert(appdata.settings[SettingKeys.blockedCommentWords] is List);
     return PopUpWidgetScaffold(
       title: "Comment keyword blocking".tl,
       tailing: [
@@ -278,14 +278,14 @@ class _ManageBlockingCommentWordViewState extends State<_ManageBlockingCommentWo
         ),
       ],
       body: ListView.builder(
-        itemCount: appdata.settings["blockedCommentWords"].length,
+        itemCount: appdata.settings[SettingKeys.blockedCommentWords].length,
         itemBuilder: (context, index) {
           return ListTile(
-            title: Text(appdata.settings["blockedCommentWords"][index]),
+            title: Text(appdata.settings[SettingKeys.blockedCommentWords][index]),
             trailing: IconButton(
               icon: const Icon(Icons.close),
               onPressed: () {
-                appdata.settings["blockedCommentWords"].removeAt(index);
+                appdata.settings[SettingKeys.blockedCommentWords].removeAt(index);
                 appdata.saveData();
                 setState(() {});
               },
@@ -323,14 +323,14 @@ class _ManageBlockingCommentWordViewState extends State<_ManageBlockingCommentWo
             actions: [
               Button.filled(
                 onPressed: () {
-                  if (appdata.settings["blockedCommentWords"]
+                  if (appdata.settings[SettingKeys.blockedCommentWords]
                       .contains(controller.text)) {
                     setState(() {
                       error = "Keyword already exists".tl;
                     });
                     return;
                   }
-                  appdata.settings["blockedCommentWords"].add(controller.text);
+                  appdata.settings[SettingKeys.blockedCommentWords].add(controller.text);
                   appdata.saveData();
                   this.setState(() {});
                   context.pop();

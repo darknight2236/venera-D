@@ -44,7 +44,7 @@ class _MainPageState extends State<MainPage> {
     _observer = NaviObserver();
     _navigatorKey = GlobalKey();
     App.mainNavigatorKey = _navigatorKey;
-    index = int.tryParse(appdata.settings['initialPage'].toString()) ?? 0;
+    index = int.tryParse(appdata.settings[SettingKeys.initialPage].toString()) ?? 0;
     // Register UI-layer callbacks used by the foundation layer.
     LocalFavoritesManager.onFollowUpdatesChanged = updateFollowUpdatesUI;
     LocalComic.readerLauncher = launchReader;

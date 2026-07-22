@@ -77,13 +77,13 @@ class DataSync with ChangeNotifier {
   String? get lastError => _lastError;
 
   bool get isEnabled {
-    var config = appdata.settings['webdav'];
+    var config = appdata.settings[SettingKeys.webdav];
     var autoSync = appdata.implicitData['webdavAutoSync'] ?? false;
     return autoSync && config is List && config.isNotEmpty;
   }
 
   List<String>? _validateConfig() {
-    var config = appdata.settings['webdav'];
+    var config = appdata.settings[SettingKeys.webdav];
     if (config is! List) {
       return null;
     }
@@ -128,16 +128,16 @@ class DataSync with ChangeNotifier {
       );
 
       try {
-        appdata.settings['dataVersion']++;
+        appdata.settings[SettingKeys.dataVersion]++;
         await appdata.saveData(false);
         var data = await exportAppData(
-            appdata.settings['disableSyncFields'].toString().isNotEmpty
+            appdata.settings[SettingKeys.disableSyncFields].toString().isNotEmpty
         );
         var time =
             (DateTime.now().millisecondsSinceEpoch ~/ 86400000).toString();
         var filename = time;
         filename += '-';
-        filename += appdata.settings['dataVersion'].toString();
+        filename += appdata.settings[SettingKeys.dataVersion].toString();
         filename += '.venera';
         var files = await client.readDir('/');
         files = files.where((e) => e.name!.endsWith('.venera')).toList();
@@ -204,7 +204,7 @@ class DataSync with ChangeNotifier {
         var version =
             file.name!.split('-').elementAtOrNull(1)?.split('.').first;
         if (version != null && int.tryParse(version) != null) {
-          var currentVersion = appdata.settings['dataVersion'];
+          var currentVersion = appdata.settings[SettingKeys.dataVersion];
           if (currentVersion != null && int.parse(version) <= currentVersion) {
             Log.info("Data Sync", 'No new data to download');
             return const Res(true);

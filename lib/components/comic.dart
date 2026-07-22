@@ -132,17 +132,17 @@ class ComicTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var type = appdata.settings['comicDisplayMode'];
+    var type = appdata.settings[SettingKeys.comicDisplayMode];
 
     Widget child = type == 'detailed'
         ? _buildDetailedMode(context)
         : _buildBriefMode(context);
 
-    var isFavorite = appdata.settings['showFavoriteStatusOnTile']
+    var isFavorite = appdata.settings[SettingKeys.showFavoriteStatusOnTile]
         ? LocalFavoritesManager()
             .isExist(comic.id, ComicType(comic.sourceKey.hashCode))
         : false;
-    var history = appdata.settings['showHistoryStatusOnTile']
+    var history = appdata.settings[SettingKeys.showHistoryStatusOnTile]
         ? HistoryManager().find(comic.id, ComicType(comic.sourceKey.hashCode))
         : null;
     if (history?.page == 0) {
@@ -492,7 +492,7 @@ class ComicTile extends StatelessWidget {
                 onPressed: () {
                   context.pop();
                   for (var word in words) {
-                    appdata.settings['blockedWords'].add(word);
+                    appdata.settings[SettingKeys.blockedWords].add(word);
                   }
                   appdata.saveData();
                   context.showMessage(message: 'Blocked'.tl);
@@ -908,7 +908,7 @@ class _SliverGridComics extends StatelessWidget {
 
 /// return the first blocked keyword, or null if not blocked
 String? isBlocked(Comic item) {
-  for (var word in appdata.settings['blockedWords']) {
+  for (var word in appdata.settings[SettingKeys.blockedWords]) {
     if (item.title.contains(word)) {
       return word;
     }
@@ -1207,7 +1207,7 @@ class ComicListState extends State<ComicList> {
 
   @override
   Widget build(BuildContext context) {
-    var type = appdata.settings['comicListDisplayMode'];
+    var type = appdata.settings[SettingKeys.comicListDisplayMode];
     return type == 'paging' ? buildPagingMode() : buildContinuousMode();
   }
 

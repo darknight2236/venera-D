@@ -680,7 +680,7 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
                     );
                   },
                 ),
-                if (appdata.settings["onClickFavorite"] == "viewDetail")
+                if (appdata.settings[SettingKeys.onClickFavorite] == "viewDetail")
                   MenuEntry(
                     icon: Icons.menu_book_outlined,
                     text: "Read".tl,
@@ -706,7 +706,7 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
                   }
                   lastSelectedIndex = comics.indexOf(c);
                 });
-              } else if (appdata.settings["onClickFavorite"] == "viewDetail") {
+              } else if (appdata.settings[SettingKeys.onClickFavorite] == "viewDetail") {
                 App.mainNavigatorKey?.currentContext?.to(
                   () => ComicPage(
                     id: c.id,
@@ -986,7 +986,7 @@ class _ReorderComicsPageState extends State<_ReorderComicsPage> {
 
   @override
   Widget build(BuildContext context) {
-    var type = appdata.settings['comicDisplayMode'];
+    var type = appdata.settings[SettingKeys.comicDisplayMode];
     var tiles = comics.map(
       (e) {
         var comicSource = e.type.comicSource;

@@ -50,7 +50,7 @@ Future<void> init() async {
   } catch (e, s) {
     Log.error("init", "$e\n$s");
   }
-  CacheManager().setLimitSize(appdata.settings['cacheSize']);
+  CacheManager().setLimitSize(appdata.settings[SettingKeys.cacheSize]);
   _checkOldConfigs();
   if (App.isAndroid) {
     handleLinks();
@@ -75,15 +75,15 @@ Future<void> init() async {
 }
 
 void _checkOldConfigs() {
-  if (appdata.settings['searchSources'] == null) {
-    appdata.settings['searchSources'] = ComicSource.all()
+  if (appdata.settings[SettingKeys.searchSources] == null) {
+    appdata.settings[SettingKeys.searchSources] = ComicSource.all()
         .where((e) => e.searchPageData != null)
         .map((e) => e.key)
         .toList();
   }
 
   if (appdata.implicitData['webdavAutoSync'] == null) {
-    var webdavConfig = appdata.settings['webdav'];
+    var webdavConfig = appdata.settings[SettingKeys.webdav];
     if (webdavConfig is List &&
         webdavConfig.length == 3 &&
         webdavConfig.whereType<String>().length == 3) {
@@ -94,9 +94,9 @@ void _checkOldConfigs() {
     appdata.writeImplicitData();
   }
 
-  if (appdata.settings['comicSourceListUrl'].toString().contains("git.nyne.dev")) {
+  if (appdata.settings[SettingKeys.comicSourceListUrl].toString().contains("git.nyne.dev")) {
     // migrate to jsdelivr cdn
-    appdata.settings['comicSourceListUrl'] = "https://cdn.jsdelivr.net/gh/venera-app/venera-configs@main/index.json";
+    appdata.settings[SettingKeys.comicSourceListUrl] = "https://cdn.jsdelivr.net/gh/venera-app/venera-configs@main/index.json";
     appdata.saveData();
   }
 }
@@ -110,7 +110,7 @@ Future<void> _checkAppUpdates() async {
   appdata.implicitData['lastCheckUpdate'] = now;
   appdata.writeImplicitData();
   ComicSourceManager().checkUpdates();
-  if (appdata.settings['checkUpdateOnStart']) {
+  if (appdata.settings[SettingKeys.checkUpdateOnStart]) {
     await App.appUpdateUiHandler?.call(false, true);
   }
 }

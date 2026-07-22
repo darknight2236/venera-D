@@ -83,7 +83,7 @@ void addFavorite(List<Comic> comics) {
   showDialog(
     context: App.rootContext,
     builder: (context) {
-      String? selectedFolder = appdata.settings['quickFavorite'];
+      String? selectedFolder = appdata.settings[SettingKeys.quickFavorite];
 
       return StatefulBuilder(builder: (context, setState) {
         return ContentDialog(
@@ -494,7 +494,7 @@ Future<void> importNetworkFolder(
     }
   }
   try {
-    if (appdata.settings['newFavoriteAddTo'] == "start" && !isOldToNewSort) {
+    if (appdata.settings[SettingKeys.newFavoriteAddTo] == "start" && !isOldToNewSort) {
       // 如果是插到最前, 并且是从新到旧, 反转一下
       comics = comics.reversed.toList();
     }

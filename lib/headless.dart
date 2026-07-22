@@ -124,7 +124,7 @@ Future<void> runHeadlessMode(List<String> args) async {
       break;
     case 'updatesubscribe':
       cliPrint({'status': 'running', 'message': 'Updating subscribed comics...'});
-      var folder = appdata.settings["followUpdatesFolder"];
+      var folder = appdata.settings[SettingKeys.followUpdatesFolder];
       if (folder == null) {
         cliPrint({'status': 'error', 'message': 'Follow updates folder is not configured.'});
         exit(1);

@@ -26,7 +26,7 @@ class _LeftBarState extends State<_LeftBar> implements FolderList {
         .where((e) => e.favoriteData != null)
         .map((e) => e.favoriteData!.key)
         .toList();
-    var settings = appdata.settings['favorites'] as List;
+    var settings = appdata.settings[SettingKeys.favorites] as List;
     for (var p in settings) {
       if (all.contains(p) && !networkFolders.contains(p)) {
         networkFolders.add(p);

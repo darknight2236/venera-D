@@ -38,7 +38,7 @@ class _NormalComicChaptersState extends State<_NormalComicChapters> {
   @override
   void initState() {
     super.initState();
-    reverse = appdata.settings["reverseChapterOrder"] ?? false;
+    reverse = appdata.settings[SettingKeys.reverseChapterOrder] ?? false;
     history = widget.history;
   }
 
@@ -192,7 +192,7 @@ class _GroupedComicChaptersState extends State<_GroupedComicChapters>
   @override
   void initState() {
     super.initState();
-    reverse = appdata.settings["reverseChapterOrder"] ?? false;
+    reverse = appdata.settings[SettingKeys.reverseChapterOrder] ?? false;
     history = widget.history;
     if (history?.group != null) {
       index = history!.group! - 1;

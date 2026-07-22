@@ -94,7 +94,7 @@ class _SearchResultPageState extends State<SearchResultPage> {
   }
 
   String checkAutoLanguage(String text) {
-    var setting = appdata.settings["autoAddLanguageFilter"] ?? 'none';
+    var setting = appdata.settings[SettingKeys.autoAddLanguageFilter] ?? 'none';
     if (setting == 'none') {
       return text;
     }
@@ -446,7 +446,7 @@ class _SearchSettingsDialogState extends State<_SearchSettingsDialog> {
   @override
   Widget build(BuildContext context) {
     var sources = ComicSource.all();
-    var enabled = appdata.settings['searchSources'] as List;
+    var enabled = appdata.settings[SettingKeys.searchSources] as List;
     sources.removeWhere((e) {
       return !enabled.contains(e.key);
     });
