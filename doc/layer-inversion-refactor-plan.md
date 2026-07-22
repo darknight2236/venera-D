@@ -5,7 +5,7 @@
 > 通用原则：沿用项目现有风格——`App.rootContext.to(...)`（`lib/foundation/context.dart`）、`App.registerForceRebuild(...)` 式的静态注册回调（`lib/foundation/app.dart:104-108`）；不引入 DI 框架、不引入新包。
 > 统一注册点约定：凡需“UI 向 foundation 注册回调”的，注册代码放在 `lib/pages/main_page.dart` 的 `_MainPageState.initState`（:41，App 根 UI，早于一切用户交互）；仅 JS UI 委托例外（见第 2 条，须更早）。
 >
-> **进度（2026-07）**：#1、#2、#3、#4、#6a、#6b、#6c 已完成；**仅剩 #5**。foundation 已零 pages import（只余已知豁免项 `context.dart:2` → components）；network 仅余 `cloudflare.dart:9` → webview（#5）。
+> **进度（2026-07）**：#1、#2、#3、#4、#6a、#6b、#6c 已完成；**#5 已取消**（无 Linux 测试环境，无法回归 DesktopWebview 分支）。foundation 已零 pages import（只余已知豁免项 `context.dart:2` → components）；network 保留 `cloudflare.dart:9` → webview（#5 取消，作为已知豁免项）。
 > 已知遗留：`foundation/context.dart:2` import `components/components.dart`（`showToast`），验收 grep 会命中，需豁免或将 `showMessage` 移出 context.dart。
 
 ---
@@ -131,7 +131,9 @@ App.rootContext.to(
 
 ---
 
-## 5. cloudflare → webview：网络层直接开 WebView 页做人机验证
+## 5. cloudflare → webview：网络层直接开 WebView 页做人机验证（已取消）
+
+> ❌ **已取消（2026-07）**：本项需将 ~90 行 WebView 交互逻辑（含 Linux 的 `DesktopWebview` 分支与移动/桌面的 `AppWebview` 分支）从 network 搬入 UI 层。其成功路径的原子性（cookie 保存/UA 写入/`rootPop`/`onFinished` 顺序）与 Linux 手动关窗（`onClose`）路径无法用编译器验证，必须用真实 Cloudflare 站点回归。因无 Linux 测试环境覆盖 `DesktopWebview` 分支，决定取消改造，保留 `cloudflare.dart:9` → webview 作为已知豁免项。原方案分析保留供参考。
 
 ### a) 精确 import
 `lib/network/cloudflare.dart:9`：
@@ -195,8 +197,8 @@ import 'package:venera/pages/webview.dart';
 | — | ~~#4 LocalComic.read → ReaderLaunchData~~ | ~50 行 | — | ✅ 已完成（新增 reader_launcher.dart；章节选择逻辑从此可单测） |
 | — | ~~#6c FollowUpdatesService 入 foundation~~ | ~55 行 | — | ✅ 已完成（新增公共 cancelChecking；init.dart 的 pages import 已删净） |
 | — | ~~#1 PageJumpTarget.jump → 扩展方法~~ | ~60 行 | — | ✅ 已完成（新建 page_jump_target_ext.dart；foundation 零 pages import） |
-| 1 | **#5** cloudflare 交互验证注入 | ~110 行 | 中 | 最大项；需真实 Cloudflare 站点回归 |
+| — | ~~#5 cloudflare 交互验证注入~~ | ~110 行 | — | ❌ 已取消（无 Linux 测试环境，无法回归 DesktopWebview 分支） |
 
-> 建议每项独立 commit。全部完成后跑一次 `grep -rn "import 'package:venera/pages/" lib/foundation/ lib/network/` 应为空；`grep -rn "import 'package:venera/components/" lib/foundation/ lib/network/` 会命中 `foundation/context.dart:2`（`showToast`）——作为已知项豁免，或将 `showMessage` 移出 context.dart。
+> 建议每项独立 commit。已完成项验收：`grep -rn "import 'package:venera/pages/" lib/foundation/` 应为空；`grep -rn "import 'package:venera/components/" lib/foundation/ lib/network/` 会命中 `foundation/context.dart:2`（`showToast`）——作为已知项豁免。#5 取消后，`grep -rn "import 'package:venera/pages/" lib/network/` 会命中 `network/cloudflare.dart:9`（webview）——作为已知豁免项保留。
 
 *行号于 2026-07 按当前工作区代码重新核实（venera 1.6.3 fork，#1/#2/#3/#4/#6a/#6b/#6c 实施后）。*
