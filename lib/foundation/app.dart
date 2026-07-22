@@ -113,5 +113,21 @@ class _App {
       appUpdateUiHandler;
 }
 
-// ignore: non_constant_identifier_names
-final App = _App();
+_App? _app;
+
+// ignore: non_constant_identifier_names, library_private_types_in_public_api
+_App get App => _app ??= _App();
+
+/// Allows tests to replace the global [App] instance.
+@visibleForTesting
+// ignore: non_constant_identifier_names, library_private_types_in_public_api
+set App(_App value) => _app = value;
+
+/// Creates a fresh app instance for tests.
+///
+/// [_App] is library-private; this factory lets tests obtain a constructible
+/// instance (via type inference) to assign to the global [App]. Construction
+/// is I/O-free: the manager singletons defer their database work to `init()`.
+@visibleForTesting
+// ignore: library_private_types_in_public_api
+_App createAppForTesting() => _App();
