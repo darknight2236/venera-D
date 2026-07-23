@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:venera/components/components.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/comic_source/comic_source.dart';
 import 'package:window_manager/window_manager.dart';
@@ -659,6 +660,7 @@ TransitionBuilder VirtualWindowFrameInit() {
   };
 }
 
-void debug() {
-  ComicSourceManager().reload();
+void debug() async {
+  await ComicSourceManager().reload();
+  App.rootContext.showMessage(message: "Comic sources reloaded");
 }
