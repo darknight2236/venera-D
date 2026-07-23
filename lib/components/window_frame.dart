@@ -117,17 +117,14 @@ class _WindowFrameState extends State<WindowFrame> {
                     height: _kTitleBarHeight,
                     child: Row(
                       children: [
-                        if (App.isMacOS)
+                        if (App.isMacOS) ...[
                           const DragToMoveArea(
                             child: SizedBox(
                               height: double.infinity,
                               width: 16,
                             ),
-                          ).paddingRight(52)
-                        else
-                          const SizedBox(width: 12),
-                        Expanded(
-                          child: DragToMoveArea(
+                          ).paddingRight(52),
+                          DragToMoveArea(
                             child: Text(
                               'Venera-D',
                               style: TextStyle(
@@ -139,9 +136,32 @@ class _WindowFrameState extends State<WindowFrame> {
                               ),
                             )
                                 .toAlign(Alignment.centerLeft)
-                                .paddingLeft(4 + (App.isMacOS ? 25 : 0)),
+                                .paddingLeft(25),
                           ),
-                        ),
+                          const Expanded(child: DragToMoveArea(child: SizedBox.expand())),
+                        ] else ...[
+                          // 标题在与折叠侧栏同宽(72)的槽内水平居中，长度无关
+                          DragToMoveArea(
+                            child: SizedBox(
+                              width: 72,
+                              height: double.infinity,
+                              child: Center(
+                                child: Text(
+                                  'Venera-D',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: (useDarkTheme ||
+                                            context.brightness ==
+                                                Brightness.dark)
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Expanded(child: DragToMoveArea(child: SizedBox.expand())),
+                        ],
                         if (kDebugMode)
                           const TextButton(
                             onPressed: debug,
