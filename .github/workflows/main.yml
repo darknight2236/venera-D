@@ -8,6 +8,8 @@ on:
 jobs:
   Build_MacOS:
     runs-on: macos-15
+    env:
+      MACOS_CERTIFICATE: ${{ secrets.CERTIFICATE }}
     steps:
       - uses: actions/checkout@v3
       - name: Redirect SSH git dependencies to HTTPS
@@ -22,6 +24,7 @@ jobs:
       - run: flutter pub get
         # Step 1: Decode and install the certificate
       - name: Decode and install certificate
+        if: ${{ env.MACOS_CERTIFICATE != '' }}
         env:
           CERTIFICATE: ${{ secrets.CERTIFICATE }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
@@ -32,9 +35,14 @@ jobs:
       - name: Check rust-toolchain.toml
         run: rustup show
 
-      # Step 2: Build the Flutter macOS app
+      # Step 2: Build the Flutter macOS app (signed if a certificate is configured, unsigned otherwise)
       - name: Build Flutter macOS App
-        run: flutter build macos --release
+        run: |
+          if [ -n "$MACOS_CERTIFICATE" ]; then
+            flutter build macos --release
+          else
+            flutter build macos --release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
+          fi
 
       # Step 3: Create the DMG file
       - name: Create DMG
