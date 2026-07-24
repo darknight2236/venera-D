@@ -3,7 +3,7 @@ import subprocess
 import os
 import httpx
 
-file = open('pubspec.yaml', 'r')
+file = open('pubspec.yaml', 'r', encoding='utf-8')
 content = file.read()
 file.close()
 
@@ -20,13 +20,13 @@ subprocess.run(["tar", "-a", "-c", "-f", f"build/windows/Venera-D-{version}-wind
 issPath = "windows/build_arm64.iss"
 
 issContent = ""
-file = open(issPath, 'r')
+file = open(issPath, 'r', encoding='utf-8')
 issContent = file.read()
 newContent = issContent
 newContent = newContent.replace("{{version}}", version)
 newContent = newContent.replace("{{root_path}}", os.getcwd())
 file.close()
-file = open(issPath, 'w')
+file = open(issPath, 'w', encoding='utf-8')
 file.write(newContent)
 file.close()
 
@@ -39,5 +39,5 @@ if not os.path.exists("windows/ChineseSimplified.isl"):
 
 subprocess.run(["iscc", issPath], shell=True)
 
-with open(issPath, 'w') as file:
+with open(issPath, 'w', encoding='utf-8') as file:
     file.write(issContent)
