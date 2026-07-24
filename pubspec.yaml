@@ -101,6 +101,11 @@ dev_dependencies:
       url: https://github.com/venera-app/flutter_to_debian.git
   archive: any
 
+# rhttp fork 的生成代码由 flutter_rust_bridge codegen 2.11.1 生成，
+# 运行时版本必须与之完全一致，否则 RustLib.init() 会因版本校验失败而抛异常。
+dependency_overrides:
+  flutter_rust_bridge: 2.11.1
+
 flutter:
   uses-material-design: true
   assets:
