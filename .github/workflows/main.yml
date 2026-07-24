@@ -35,14 +35,11 @@ jobs:
       - name: Check rust-toolchain.toml
         run: rustup show
 
-      # Step 2: Build the Flutter macOS app (signed if a certificate is configured, unsigned otherwise)
+      # Step 2: Build the Flutter macOS app. The Xcode project defaults to ad-hoc signing
+      # (CODE_SIGN_IDENTITY = "-"), which needs no certificate or team, so a plain release
+      # build works whether or not a signing certificate is configured.
       - name: Build Flutter macOS App
-        run: |
-          if [ -n "$MACOS_CERTIFICATE" ]; then
-            flutter build macos --release
-          else
-            flutter build macos --release CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""
-          fi
+        run: flutter build macos --release
 
       # Step 3: Create the DMG file
       - name: Create DMG
