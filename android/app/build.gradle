@@ -26,7 +26,15 @@ if (flutterVersionName == null) {
 
 def keystorePropertiesFile = rootProject.file("key.properties")
 def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+// Custom signing is only used when a valid keystore is available (maintainer's machine or
+// CI with signing secrets). Forks/CI without secrets fall back to the default debug keystore
+// so the release APK still builds and stays installable for testing.
+def useCustomSigning = false
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    def storeFilePath = keystoreProperties['storeFile']
+    useCustomSigning = storeFilePath != null && file(storeFilePath).exists()
+}
 
 android {
     namespace = "com.github.darknight2236.venera_d"
@@ -57,17 +65,19 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     signingConfigs {
-        debug {
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-        }
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
+        if (useCustomSigning) {
+            debug {
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
+            release {
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+                storeFile file(keystoreProperties['storeFile'])
+                storePassword keystoreProperties['storePassword']
+            }
         }
     }
 
@@ -88,7 +98,7 @@ android {
             ndk {
                 abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
             }
-            signingConfig signingConfigs.release
+            signingConfig useCustomSigning ? signingConfigs.release : signingConfigs.debug
         }
         debug {
             ndk {
