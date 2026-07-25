@@ -39,6 +39,14 @@ class ComicSourceManager with ChangeNotifier, Init {
 
   ComicSourceManager._create();
 
+  /// Creates an instance without any I/O, for unit tests.
+  ///
+  /// Skips [doInit] (JS engine, file-system scan) so tests can exercise
+  /// pure in-memory logic such as [add], [remove], [find], and
+  /// [updateAvailableUpdates].
+  @visibleForTesting
+  ComicSourceManager.forTesting();
+
   factory ComicSourceManager() => _instance ??= ComicSourceManager._create();
 
   List<ComicSource> all() => List.from(_sources);
@@ -172,6 +180,11 @@ class ComicSourceManager with ChangeNotifier, Init {
     notifyListeners();
   }
 }
+
+/// Allows tests to replace the [ComicSourceManager] singleton.
+@visibleForTesting
+set comicSourceManager(ComicSourceManager value) =>
+    ComicSourceManager._instance = value;
 
 class ComicSource {
   static List<ComicSource> all() => ComicSourceManager().all();
