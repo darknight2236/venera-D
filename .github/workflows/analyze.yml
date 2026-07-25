@@ -6,6 +6,63 @@ on:
       - master
 
 jobs:
+  foundation-test-guard:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check that lib/foundation/ changes include related test/ changes
+        run: |
+          BASE=${{ github.event.pull_request.base.sha }}
+          HEAD=${{ github.event.pull_request.head.sha }}
+          CHANGED=$(git diff --name-only "$BASE".."$HEAD")
+          FOUNDATION_CHANGED=$(echo "$CHANGED" | grep '^lib/foundation/.*\.dart$' || true)
+          if [ -z "$FOUNDATION_CHANGED" ]; then
+            echo "No lib/foundation/ changes. Foundation test guard passed."
+            exit 0
+          fi
+          TEST_CHANGED=$(echo "$CHANGED" | grep '^test/.*\.dart$' || true)
+          if [ -z "$TEST_CHANGED" ]; then
+            echo "::error::PR modifies lib/foundation/ but has no corresponding changes in test/. See AGENTS.md testing requirements."
+            exit 1
+          fi
+          # Map each changed foundation file to the import path tests would use:
+          # top-level files must be imported exactly (package:venera/foundation/app.dart);
+          # files inside a submodule match any import from that submodule directory
+          # (package:venera/foundation/comic_source/), so tests importing a barrel
+          # file such as comic_source.dart still count as related.
+          PATTERNS=$(for f in $FOUNDATION_CHANGED; do
+            rel="${f#lib/}"
+            dir=$(dirname "$rel")
+            if [ "$dir" = "foundation" ]; then
+              echo "package:venera/$rel"
+            else
+              echo "package:venera/$dir/"
+            fi
+          done | sort -u)
+          MATCHED=0
+          for t in $TEST_CHANGED; do
+            CONTENT=$(git show "$HEAD:$t" 2>/dev/null || true)
+            [ -n "$CONTENT" ] || continue
+            for p in $PATTERNS; do
+              if echo "$CONTENT" | grep -qF "$p"; then
+                echo "Related test change: $t imports $p"
+                MATCHED=1
+              fi
+            done
+          done
+          if [ "$MATCHED" -eq 0 ]; then
+            echo "::error::PR modifies lib/foundation/ but none of the changed test/ files import the changed foundation modules. See AGENTS.md testing requirements."
+            echo "Changed foundation files:"
+            echo "$FOUNDATION_CHANGED"
+            echo "Changed test files (none import the modules above):"
+            echo "$TEST_CHANGED"
+            exit 1
+          fi
+          echo "Foundation test guard passed."
+
   analyze:
     runs-on: ubuntu-latest
     steps:
@@ -19,4 +76,5 @@ jobs:
           flutter-version-file: pubspec.yaml
           architecture: x64
       - run: flutter pub get
+      - run: flutter test
       - uses: invertase/github-action-dart-analyzer@v1
