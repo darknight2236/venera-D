@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 part of 'comic_page.dart';
 
 abstract mixin class _ComicPageActions {

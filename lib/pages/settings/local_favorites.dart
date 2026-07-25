@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 part of 'settings_page.dart';
 
 class LocalFavoritesSettings extends StatefulWidget {
