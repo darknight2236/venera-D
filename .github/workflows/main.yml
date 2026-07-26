@@ -211,7 +211,9 @@ jobs:
   Release:
     runs-on: ubuntu-22.04
     needs: [Build_MacOS, Build_IOS, Build_Android, Build_Windows, Build_Linux, Build_Linux_ARM64]
-    if: github.event_name == 'release'  # 仅在 push 事件时执行
+    if: github.event_name == 'release'  # 仅在 release 发布事件时执行
+    permissions:
+      contents: write  # 上传 assets 需要对 release 的写权限（默认 GITHUB_TOKEN 为只读）
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -254,4 +256,5 @@ jobs:
             outputs/*.zst
             outputs/*.AppImage
         env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_GITHUB_TOKEN }}
+          # fork 中不存在上游的 ACTION_GITHUB_TOKEN secret，使用默认 token + contents:write 权限
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

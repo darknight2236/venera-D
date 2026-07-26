@@ -10,6 +10,9 @@ jobs:
   update-source:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: write       # 推送更新分支需要写权限（默认 GITHUB_TOKEN 为只读）
+      pull-requests: write  # gh pr create 需要 PR 写权限
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
