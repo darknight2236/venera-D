@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/app_icon.png" width="120" alt="Venera-D app icon"/>
+</p>
+
 # venera-D
 
 **English** · [简体中文](README_zh.md)
