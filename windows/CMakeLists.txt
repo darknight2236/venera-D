@@ -32,6 +32,12 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
 
+# MSVC 14.5x (VS 18) turns <experimental/coroutine> usage (/await) into a hard
+# error (STL1011). Plugins such as flutter_inappwebview_windows and
+# local_auth_windows still compile with /await, so silence the error until they
+# migrate to C++20 <coroutine>. This applies to all plugin subdirectories.
+add_definitions(-D_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+
 # Compilation settings that should be applied to most targets.
 #
 # Be cautious about adding new options here, as plugins use this function by
