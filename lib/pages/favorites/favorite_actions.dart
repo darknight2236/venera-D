@@ -280,10 +280,8 @@ Future<void> sortFolders() async {
           )
         ],
         body: ReorderableListView.builder(
-          onReorder: (oldIndex, newIndex) {
-            if (oldIndex < newIndex) {
-              newIndex--;
-            }
+          // onReorderItem 已对移除项做过 newIndex 修正，无需手动调整
+          onReorderItem: (oldIndex, newIndex) {
             setState(() {
               var item = folders.removeAt(oldIndex);
               folders.insert(newIndex, item);
