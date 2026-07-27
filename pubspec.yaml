@@ -105,6 +105,10 @@ dev_dependencies:
 # 运行时版本必须与之完全一致，否则 RustLib.init() 会因版本校验失败而抛异常。
 dependency_overrides:
   flutter_rust_bridge: 2.11.1
+  # jni 1.0.1 (2026-07 发布) 的 android/build.gradle 使用 kotlin() 方法，
+  # 与本项目 AGP 9 构建环境不兼容；CI 因 pub 源 URL 与 lock 不一致会重新解析
+  # hosted 包版本，故在此钉死为已验证的 1.0.0。
+  jni: 1.0.0
 
 flutter:
   uses-material-design: true
