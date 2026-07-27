@@ -319,7 +319,7 @@ class _CommentTileState extends State<_CommentTile> {
               height: 36,
               clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(AppRadius.full),
                   color: Theme.of(context).colorScheme.secondaryContainer),
               child: widget.comment.avatar == null
                   ? null

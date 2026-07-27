@@ -529,7 +529,7 @@ class _SingleBottomNaviWidgetState extends State<_SingleBottomNaviWidget>
         width: 64,
         height: 28,
         decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(32)),
+          borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
           color: isHovering ? colorScheme.surfaceContainer : Colors.transparent,
         ),
         child: Center(
@@ -537,7 +537,7 @@ class _SingleBottomNaviWidgetState extends State<_SingleBottomNaviWidget>
             width: 32 + value * 32,
             height: 28,
             decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(32)),
+              borderRadius: const BorderRadius.all(Radius.circular(AppRadius.full)),
               color: value != 0
                   ? colorScheme.secondaryContainer
                   : Colors.transparent,

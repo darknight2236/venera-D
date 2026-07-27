@@ -58,9 +58,9 @@ class _SearchBar extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         child: Material(
           color: context.colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(32),
+          borderRadius: BorderRadius.circular(AppRadius.full),
           child: InkWell(
-            borderRadius: BorderRadius.circular(32),
+            borderRadius: BorderRadius.circular(AppRadius.full),
             onTap: () {
               context.to(() => const SearchPage());
             },
@@ -1120,7 +1120,7 @@ class __ChartLineState extends State<_ChartLine>
                   width: width * _controller.value,
                   height: 18,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(AppRadius.xs),
                     gradient: LinearGradient(
                       colors: context.isDarkMode
                           ? [

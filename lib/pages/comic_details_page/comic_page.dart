@@ -815,7 +815,7 @@ class _ActionButton extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.full),
         border: Border.all(
           color: context.colorScheme.outlineVariant,
           width: 0.6,
@@ -828,7 +828,7 @@ class _ActionButton extends StatelessWidget {
           }
         },
         onLongPress: onLongPressed,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.full),
         child: IconTheme.merge(
           data: IconThemeData(size: 20, color: iconColor),
           child: Row(

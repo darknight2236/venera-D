@@ -24,7 +24,7 @@ class _AboutSettingsState extends State<AboutSettings> {
               width: 112,
               height: 112,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(136),
+                borderRadius: BorderRadius.circular(AppRadius.full),
               ),
               clipBehavior: Clip.antiAlias,
               child: const Image(

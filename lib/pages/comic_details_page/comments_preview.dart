@@ -122,7 +122,7 @@ class _CommentWidget extends StatelessWidget {
                   width: 36,
                   height: 36,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: BorderRadius.circular(AppRadius.full),
                     color: context.colorScheme.surfaceContainer,
                   ),
                   clipBehavior: Clip.antiAlias,
