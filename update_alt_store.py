@@ -61,8 +61,7 @@ def update_json_file_release(json_file, latest_release):
     if version_match:
         version = version_match.group(1)
     else:
-        print("Error: Could not parse version from tag_name.")
-        return
+        raise ValueError("Could not parse version from tag_name.")
     version_date = latest_release["published_at"]
     date_obj = datetime.strptime(version_date, "%Y-%m-%dT%H:%M:%SZ")
     version_date = date_obj.strftime("%Y-%m-%d")
@@ -74,15 +73,14 @@ def update_json_file_release(json_file, latest_release):
     download_url = None
     size = None
     for asset in assets:
-        # venera-ios-1.4.5+145.ipa
-        if asset["name"] == f"venera-ios-{version}+{version.replace('.', '')}.ipa":
+        # venera-D-ios-1.7.0+170.ipa
+        if asset["name"] == f"venera-D-ios-{version}+{version.replace('.', '')}.ipa":
             download_url = asset["browser_download_url"]
             size = asset["size"]
             break
 
     if download_url is None or size is None:
-        print("Error: IPA file not found in release assets.")
-        return
+        raise ValueError("IPA file not found in release assets.")
 
     version_entry = {
         "version": version,
