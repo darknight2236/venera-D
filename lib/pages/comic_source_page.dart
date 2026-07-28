@@ -776,7 +776,7 @@ class _SliverComicSourceState extends State<_SliverComicSource> {
                   ),
                   child: Text(
                     source.version,
-                    style: const TextStyle(fontSize: 13),
+                    style: const TextStyle(fontSize: 12),
                   ),
                 ),
                 if (hasUpdate)
@@ -793,7 +793,7 @@ class _SliverComicSourceState extends State<_SliverComicSource> {
                       ),
                       child: Text(
                         "New Version".tl,
-                        style: const TextStyle(fontSize: 13),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   ).paddingLeft(4),

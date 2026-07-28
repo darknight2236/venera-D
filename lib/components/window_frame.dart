@@ -130,7 +130,7 @@ class _WindowFrameState extends State<WindowFrame> {
                             child: Text(
                               'Venera-D',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 12,
                                 color: (useDarkTheme ||
                                         context.brightness == Brightness.dark)
                                     ? Colors.white
@@ -151,7 +151,7 @@ class _WindowFrameState extends State<WindowFrame> {
                                 child: Text(
                                   'Venera-D',
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     color: (useDarkTheme ||
                                             context.brightness ==
                                                 Brightness.dark)

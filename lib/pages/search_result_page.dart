@@ -341,7 +341,7 @@ class _SuggestionsState extends State<_Suggestions> {
         subtitle: (showMethod && showTranslation) ? Text(subTitle) : null,
         trailing: Text(
           value.right.name,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 12),
         ),
         onTap: () => onSelected(value.left, value.right),
       );
