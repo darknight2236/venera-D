@@ -64,6 +64,15 @@ The following 25 files have a legacy `// ignore_for_file: use_build_context_sync
 
 When touching these files, prefer removing the file-level ignore and adding per-site `mounted` guards instead.
 
+## Visual Conventions
+
+All existing code complies with these rules (converged in 2026-07); new UI code must not regress them.
+
+- **Colors:** use `Theme.of(context).colorScheme` / `context.colorScheme` semantic colors. When text sits on a `*Container` background, use the paired `on*` color (e.g. `primaryContainer` → `onPrimaryContainer`) — never hard-coded `Colors.white`/`Colors.black`. Hard-coded colors are acceptable only for theme-independent overlays: barriers, shadows, and content drawn on top of images or fixed-color badges.
+- **Corner radius:** use `AppRadius` tokens (`lib/components/consts.dart`): `xs`4 / `sm`8 / `md`12 / `lg`16 / `xl`24 / `full`. Pills, capsules and circular clips (avatars, pill buttons, track bars) must use `AppRadius.full` instead of a "half of the size" literal.
+- **Spacing:** prefer `AppSpacing` tokens (4/8/12/16/24) for paddings, margins and gaps.
+- **Font sizes:** stay on the scale 8/10/12/14/16/18/20/24 (helpers: `ts.sXX` in `foundation/widget_utils.dart`). Caption/secondary text is 12, body is 14–16, titles are 20 (both page Appbar and popup titles). Oversized display text (reader page numbers etc.) is exempt.
+
 ## Dependency Management
 
 - All `git:` dependencies in `pubspec.yaml` **must** pin a `ref:` (commit SHA). Bare branch references are not allowed.
