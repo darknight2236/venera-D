@@ -187,6 +187,21 @@ class HistoryManager with ChangeNotifier {
 
   HistoryManager.create();
 
+  /// Creates a manager backed by an in-memory database, skipping file I/O
+  /// and [ImageFavoriteManager] initialization. For unit tests only.
+  @visibleForTesting
+  HistoryManager.forTesting() {
+    _db = sqlite3.openInMemory();
+    _createTables();
+    isInitialized = true;
+  }
+
+  /// Replaces (or clears) the factory singleton. For unit tests only.
+  @visibleForTesting
+  static void debugSetInstance(HistoryManager? instance) {
+    cache = instance;
+  }
+
   factory HistoryManager() =>
       cache == null ? (cache = HistoryManager.create()) : cache!;
 
@@ -208,6 +223,20 @@ class HistoryManager with ChangeNotifier {
     }
     _db = sqlite3.open("${App.dataPath}/history.db");
 
+    _createTables();
+
+    var columns = _db.select("PRAGMA table_info(history);");
+    if (!columns.any((element) => element["name"] == "chapter_group")) {
+      _db.execute("alter table history add column chapter_group int;");
+    }
+
+    notifyListeners();
+    ImageFavoriteManager().init();
+    isInitialized = true;
+  }
+
+  /// Schema shared by [init] and [HistoryManager.forTesting].
+  void _createTables() {
     _db.execute("""
         create table if not exists history  (
           id text primary key,
@@ -223,15 +252,6 @@ class HistoryManager with ChangeNotifier {
           chapter_group int
         );
       """);
-
-    var columns = _db.select("PRAGMA table_info(history);");
-    if (!columns.any((element) => element["name"] == "chapter_group")) {
-      _db.execute("alter table history add column chapter_group int;");
-    }
-
-    notifyListeners();
-    ImageFavoriteManager().init();
-    isInitialized = true;
   }
 
   static const _insertHistorySql = """
