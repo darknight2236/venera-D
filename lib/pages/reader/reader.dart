@@ -2,7 +2,6 @@
 library;
 
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -33,6 +32,7 @@ import 'package:venera/foundation/local.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/foundation/res.dart';
 import 'package:venera/network/images.dart';
+import 'package:venera/pages/reader/page_math.dart' as page_math;
 import 'package:venera/pages/settings/settings_page.dart';
 import 'package:venera/utils/clipboard_image.dart';
 import 'package:venera/utils/data_sync.dart';
@@ -121,9 +121,11 @@ class _ReaderState extends State<Reader>
   @override
   int get maxPage {
     if (images == null) return 1;
-    return !showSingleImageOnFirstPage()
-        ? (images!.length / imagesPerPage).ceil()
-        : 1 + ((images!.length - 1) / imagesPerPage).ceil();
+    return page_math.calcMaxPage(
+      imageCount: images!.length,
+      imagesPerPage: imagesPerPage,
+      singleImageOnFirstPage: showSingleImageOnFirstPage(),
+    );
   }
 
   /// Total pages including chapter comments page (used for internal page control).
@@ -336,15 +338,13 @@ class _ReaderState extends State<Reader>
         history!.page = images?.length ?? 1;
       } else {
         /// Record the first image of the page
-        if (!showSingleImageOnFirstPage() || imagesPerPage == 1) {
-          history!.page = (page - 1) * imagesPerPage + 1;
-        } else {
-          if (page == 1) {
-            history!.page = 1;
-          } else {
-            history!.page = (page - 2) * imagesPerPage + 2;
-          }
-        }
+        var (start, _) = page_math.getPageImagesRange(
+          page: page,
+          imagesPerPage: imagesPerPage,
+          totalImages: images?.length ?? 1,
+          singleImageOnFirstPage: showSingleImageOnFirstPage(),
+        );
+        history!.page = start + 1;
       }
       history!.maxPage = images?.length ?? 1;
       if (widget.chapters?.isGrouped ?? false) {
@@ -446,11 +446,11 @@ abstract mixin class _ImagePerPageHandler {
     _lastOrientation = isPortrait;
     _wasOnCommentsPage = false;
     if (imagesPerPage != 1) {
-      if (showSingleImageOnFirstPage()) {
-        page = ((initialPage - 1) / imagesPerPage).ceil() + 1;
-      } else {
-        page = (initialPage / imagesPerPage).ceil();
-      }
+      page = page_math.imageIndexToPage(
+        imageIndex: initialPage,
+        imagesPerPage: imagesPerPage,
+        singleImageOnFirstPage: showSingleImageOnFirstPage(),
+      );
     }
   }
 
@@ -483,9 +483,11 @@ abstract mixin class _ImagePerPageHandler {
   /// Calculate maxPage with a specific imagesPerPage value
   int _calcMaxPage(int imagesPerPageValue) {
     if (images == null) return 1;
-    return !showSingleImageOnFirstPage()
-        ? (images!.length / imagesPerPageValue).ceil()
-        : 1 + ((images!.length - 1) / imagesPerPageValue).ceil();
+    return page_math.calcMaxPage(
+      imageCount: images!.length,
+      imagesPerPage: imagesPerPageValue,
+      singleImageOnFirstPage: showSingleImageOnFirstPage(),
+    );
   }
 
   /// Check if the number of images per page has changed
@@ -514,37 +516,18 @@ abstract mixin class _ImagePerPageHandler {
     int oldImagesPerPage,
     int newImagesPerPage,
   ) {
-    int previousImageIndex = 1;
-    if (!showSingleImageOnFirstPage() || oldImagesPerPage == 1) {
-      previousImageIndex = (page - 1) * oldImagesPerPage + 1;
-    } else {
-      if (page == 1) {
-        previousImageIndex = 1;
-      } else {
-        previousImageIndex = (page - 2) * oldImagesPerPage + 2;
-      }
-    }
-
-    int newPage;
-    if (newImagesPerPage != 1) {
-      if (showSingleImageOnFirstPage()) {
-        newPage = ((previousImageIndex - 1) / newImagesPerPage).ceil() + 1;
-      } else {
-        newPage = (previousImageIndex / newImagesPerPage).ceil();
-      }
-    } else {
-      newPage = previousImageIndex;
-    }
-
-    // Clamp to valid range (1 to maxPage)
-    newPage = newPage.clamp(1, maxPage);
-    
     // If we were on the comments page, stay on the comments page
     if (_wasOnCommentsPage) {
       page = maxPage + 1;
-    } else {
-      page = newPage;
+      return;
     }
+    page = page_math.adjustPageForImagesPerPageChange(
+      currentPage: page,
+      oldImagesPerPage: oldImagesPerPage,
+      newImagesPerPage: newImagesPerPage,
+      singleImageOnFirstPage: showSingleImageOnFirstPage(),
+      totalImages: images?.length ?? 0,
+    );
   }
 }
 

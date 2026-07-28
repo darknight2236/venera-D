@@ -185,9 +185,11 @@ class _GalleryModeState extends State<_GalleryMode>
   }
 
   int get totalImagePages {
-    return !reader.showSingleImageOnFirstPage()
-        ? (reader.images!.length / reader.imagesPerPage).ceil()
-        : 1 + ((reader.images!.length - 1) / reader.imagesPerPage).ceil();
+    return page_math.calcMaxPage(
+      imageCount: reader.images!.length,
+      imagesPerPage: reader.imagesPerPage,
+      singleImageOnFirstPage: reader.showSingleImageOnFirstPage(),
+    );
   }
 
   int get totalPages => reader.totalPages;
@@ -215,26 +217,12 @@ class _GalleryModeState extends State<_GalleryMode>
 
   /// Get the range of images for the given page. [page] is 1-based.
   (int start, int end) getPageImagesRange(int page) {
-    var imagesPerPage = reader.imagesPerPage;
-    if (reader.showSingleImageOnFirstPage()) {
-      if (page == 1) {
-        return (0, 1);
-      } else {
-        int startIndex = (page - 2) * imagesPerPage + 1;
-        int endIndex = math.min(
-          startIndex + imagesPerPage,
-          reader.images!.length,
-        );
-        return (startIndex, endIndex);
-      }
-    } else {
-      int startIndex = (page - 1) * imagesPerPage;
-      int endIndex = math.min(
-        startIndex + imagesPerPage,
-        reader.images!.length,
-      );
-      return (startIndex, endIndex);
-    }
+    return page_math.getPageImagesRange(
+      page: page,
+      imagesPerPage: reader.imagesPerPage,
+      totalImages: reader.images!.length,
+      singleImageOnFirstPage: reader.showSingleImageOnFirstPage(),
+    );
   }
 
   /// Get the image indices for current page. Returns null if no images.
