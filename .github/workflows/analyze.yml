@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+# 与本地开发环境使用同一 pub 源，保证 pubspec.lock 精确生效（详见 main.yml 注释）。
+env:
+  PUB_HOSTED_URL: https://pub.flutter-io.cn
+
 jobs:
   foundation-test-guard:
     if: github.event_name == 'pull_request'

@@ -44,6 +44,8 @@ These forks are **public** repositories. SSH URLs are used because the maintaine
 
 GitHub Actions runners have no SSH key and HTTPS works normally. Each build job runs the same `git config insteadOf` rewrite (see workflow files) to clone the public forks via HTTPS anonymously.
 
+All workflows that run `flutter pub get` set `PUB_HOSTED_URL: https://pub.flutter-io.cn` (workflow-level `env`), matching the mirror recorded in `pubspec.lock`. Without this, pub treats the lock's hosted entries as coming from a different source and silently re-resolves them, which has pulled in freshly released incompatible versions (jni 1.0.1, dio > 5.10.0). Keep local development and CI on the same pub source.
+
 ## Lint Rules
 
 ### `use_build_context_synchronously` (enabled)

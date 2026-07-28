@@ -5,6 +5,12 @@ on:
   release:
     types: [published]
 
+# 与本地开发环境使用同一 pub 源。pubspec.lock 记录的是 pub.flutter-io.cn 的
+# 源 URL，若 CI 使用默认 pub.dev，源不一致会使 pub get 无视 lock 重新解析
+# hosted 依赖，曾导致 jni/dio 被解析到刚发布的不兼容新版本。
+env:
+  PUB_HOSTED_URL: https://pub.flutter-io.cn
+
 jobs:
   Build_MacOS:
     runs-on: macos-15
