@@ -109,6 +109,9 @@ dependency_overrides:
   # 与本项目 AGP 9 构建环境不兼容；CI 因 pub 源 URL 与 lock 不一致会重新解析
   # hosted 包版本，故在此钉死为已验证的 1.0.0。
   jni: 1.0.0
+  # dio 5.10 之后的版本在 DioMixin 中调用 Interceptor 私有方法，曾使 CI 解析
+  # 到的新版与代码不兼容（见 MyLogInterceptor 注释）；钉死为本地验证过的版本。
+  dio: 5.10.0
 
 flutter:
   uses-material-design: true

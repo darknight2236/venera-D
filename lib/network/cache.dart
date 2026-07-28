@@ -24,7 +24,8 @@ class NetworkCache {
   });
 }
 
-class NetworkCacheManager implements Interceptor {
+// extends（而非 implements）Interceptor：原因见 app_dio.dart 的 MyLogInterceptor 注释。
+class NetworkCacheManager extends Interceptor {
   NetworkCacheManager._();
 
   static final NetworkCacheManager instance = NetworkCacheManager._();

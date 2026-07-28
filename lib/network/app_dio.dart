@@ -15,7 +15,9 @@ import 'cookie_jar.dart';
 
 export 'package:dio/dio.dart';
 
-class MyLogInterceptor implements Interceptor {
+// extends（而非 implements）Interceptor：dio 内部会调用基类的私有方法
+// （如 _invokeError），implements 无法继承私有成员，dio 升级后会运行时崩溃。
+class MyLogInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     Log.error("Network",
