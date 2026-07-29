@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -220,6 +219,7 @@ class _ComicPageState extends LoadingState<ComicPage, ComicDetails>
       var history = HistoryManager().find(widget.id, ComicType.local);
       if (isFirst) {
         Future.microtask(() {
+          if (!App.rootContext.mounted) return;
           App.rootContext.to(() {
             return Reader(
               type: ComicType.local,

@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'comic_page.dart';
 
 abstract mixin class _ComicPageActions {
@@ -20,7 +19,9 @@ abstract mixin class _ComicPageActions {
     update();
     var res = await comicSource.likeOrUnlikeComic!(comic.id, isLiked);
     if (res.error) {
-      App.rootContext.showMessage(message: res.errorMessage!);
+      if (App.rootContext.mounted) {
+        App.rootContext.showMessage(message: res.errorMessage!);
+      }
     } else {
       isLiked = !isLiked;
     }
@@ -187,8 +188,10 @@ abstract mixin class _ComicPageActions {
                               if (value.success) {
                                 archives = value.data;
                               } else {
-                                App.rootContext
-                                    .showMessage(message: value.errorMessage!);
+                                if (App.rootContext.mounted) {
+                                  App.rootContext
+                                      .showMessage(message: value.errorMessage!);
+                                }
                               }
                               setState(() {
                                 isLoading = false;
@@ -229,7 +232,9 @@ abstract mixin class _ComicPageActions {
                         archives![selected].id,
                       );
                       if (res.error) {
-                        App.rootContext.showMessage(message: res.errorMessage!);
+                        if (App.rootContext.mounted) {
+                          App.rootContext.showMessage(message: res.errorMessage!);
+                        }
                         setState(() {
                           isGettingLink = false;
                         });
@@ -274,6 +279,7 @@ abstract mixin class _ComicPageActions {
           }
         }
       }
+      if (!App.rootContext.mounted) return;
       await showSideBar(
         App.rootContext,
         _SelectDownloadChapter(
@@ -292,6 +298,7 @@ abstract mixin class _ComicPageActions {
         }).toList(),
       ));
     }
+    if (!App.rootContext.mounted) return;
     App.rootContext.showMessage(message: "Download started".tl);
     update();
   }
@@ -397,12 +404,18 @@ abstract mixin class _ComicPageActions {
                           comicSource.starRatingFunc!(comic.id, rating.round())
                               .then((value) {
                             if (value.success) {
-                              App.rootContext
-                                  .showMessage(message: "Success".tl);
-                              Navigator.of(dialogContext).pop();
+                              if (App.rootContext.mounted) {
+                                App.rootContext
+                                    .showMessage(message: "Success".tl);
+                              }
+                              if (dialogContext.mounted) {
+                                Navigator.of(dialogContext).pop();
+                              }
                             } else {
-                              App.rootContext
-                                  .showMessage(message: value.errorMessage!);
+                              if (App.rootContext.mounted) {
+                                App.rootContext
+                                    .showMessage(message: value.errorMessage!);
+                              }
                               setState(() {
                                 isLoading = false;
                               });

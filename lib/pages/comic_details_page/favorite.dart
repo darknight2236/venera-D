@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'comic_page.dart';
 
 class _FavoritePanel extends StatefulWidget {
@@ -189,7 +188,9 @@ class _NetworkSectionState extends State<_NetworkSection> {
   void loadFolders() async {
     var res = await widget.comicSource.favoriteData!.loadFolders!(widget.cid);
     if (res.error) {
-      context.showMessage(message: res.errorMessage!);
+      if (mounted) {
+        context.showMessage(message: res.errorMessage!);
+      }
       setState(() {
         isLoadingFolders = false;
       });
@@ -334,14 +335,18 @@ class _NetworkSectionState extends State<_NetworkSection> {
                         localIsFavorite = !isFavorite;
                       });
                       widget.onFavorite(!isFavorite);
-                      App.rootContext.showMessage(
-                        message: isFavorite ? "Removed".tl : "Added".tl,
-                      );
-                      if (appdata.settings[SettingKeys.autoCloseFavoritePanel] ?? false) {
-                        context.pop();
+                      if (mounted) {
+                        context.showMessage(
+                          message: isFavorite ? "Removed".tl : "Added".tl,
+                        );
+                        if (appdata.settings[SettingKeys.autoCloseFavoritePanel] ?? false) {
+                          context.pop();
+                        }
                       }
                     } else {
-                      context.showMessage(message: res.errorMessage!);
+                      if (mounted) {
+                        context.showMessage(message: res.errorMessage!);
+                      }
                     }
                     setState(() {
                       isLoading = false;
@@ -426,12 +431,16 @@ class _NetworkSectionState extends State<_NetworkSection> {
                         });
                         // notify parent so page state updates when closing and reopening panel
                         widget.onFavorite(addedFolders.isNotEmpty);
-                        context.showMessage(message: "Success".tl);
-                        if (appdata.settings[SettingKeys.autoCloseFavoritePanel] ?? false) {
-                          context.pop();
+                        if (mounted) {
+                          context.showMessage(message: "Success".tl);
+                          if (appdata.settings[SettingKeys.autoCloseFavoritePanel] ?? false) {
+                            context.pop();
+                          }
                         }
                       } else {
-                        context.showMessage(message: res.errorMessage!);
+                        if (mounted) {
+                          context.showMessage(message: res.errorMessage!);
+                        }
                       }
                       setState(() {
                         _itemLoading[id] = false;
