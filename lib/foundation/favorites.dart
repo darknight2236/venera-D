@@ -207,7 +207,27 @@ class LocalFavoritesManager with ChangeNotifier {
 
   LocalFavoritesManager._create();
 
+  /// Creates a manager backed by an in-memory database, skipping file I/O,
+  /// appdata dependencies and isolate usage. For unit tests only.
+  @visibleForTesting
+  LocalFavoritesManager.forTesting() {
+    counts = {};
+    _computeHashedIdsSynchronously = true;
+    _db = sqlite3.openInMemory();
+    _createBaseTables();
+  }
+
+  /// Replaces (or clears) the factory singleton. For unit tests only.
+  @visibleForTesting
+  static void debugSetInstance(LocalFavoritesManager? instance) {
+    cache = instance;
+  }
+
   static LocalFavoritesManager? cache;
+
+  /// In tests the sqlite3 native library override does not propagate to new
+  /// isolates, so hashed ids are computed synchronously instead.
+  bool _computeHashedIdsSynchronously = false;
 
   /// Called when a comic in the follow-updates folder is updated.
   /// Registered by the UI layer (main_page) to refresh follow-updates UI.
@@ -230,19 +250,7 @@ class LocalFavoritesManager with ChangeNotifier {
   Future<void> init() async {
     counts = {};
     _db = sqlite3.open("${App.dataPath}/local_favorite.db");
-    _db.execute("""
-      create table if not exists folder_order (
-        folder_name text primary key,
-        order_value int
-      );
-    """);
-    _db.execute("""
-      create table if not exists folder_sync (
-        folder_name text primary key,
-        source_key text,
-        source_folder text
-      );
-    """);
+    _createBaseTables();
     var folderNames = _getFolderNamesWithDB();
     for (var folder in folderNames) {
       var columns = _db.select("""
@@ -278,9 +286,31 @@ class LocalFavoritesManager with ChangeNotifier {
     initCounts();
   }
 
+  /// Schema shared by [init] and [LocalFavoritesManager.forTesting].
+  void _createBaseTables() {
+    _db.execute("""
+      create table if not exists folder_order (
+        folder_name text primary key,
+        order_value int
+      );
+    """);
+    _db.execute("""
+      create table if not exists folder_sync (
+        folder_name text primary key,
+        source_key text,
+        source_folder text
+      );
+    """);
+  }
+
   void initCounts() {
     for (var folder in folderNames) {
       counts[folder] = count(folder);
+    }
+    if (_computeHashedIdsSynchronously) {
+      _hashedIds = _hashedIdsOf(_db, folderNames);
+      notifyListeners();
+      return;
     }
     _initHashedIds(folderNames, _db.handle).then((value) {
       _hashedIds = value;
@@ -289,6 +319,11 @@ class LocalFavoritesManager with ChangeNotifier {
   }
 
   void refreshHashedIds() {
+    if (_computeHashedIdsSynchronously) {
+      _hashedIds = _hashedIdsOf(_db, folderNames);
+      notifyListeners();
+      return;
+    }
     _initHashedIds(folderNames, _db.handle).then((value) {
       _hashedIds = value;
       notifyListeners();
@@ -306,23 +341,27 @@ class LocalFavoritesManager with ChangeNotifier {
     }
   }
 
+  static Map<int, int> _hashedIdsOf(Database db, List<String> folders) {
+    var hashedIds = <int, int>{};
+    for (var folder in folders) {
+      var rows = db.select("""
+        select id, type from "$folder";
+      """);
+      for (var row in rows) {
+        var id = row["id"] as String;
+        var type = row["type"] as int;
+        var hash = id.hashCode ^ type;
+        hashedIds[hash] = (hashedIds[hash] ?? 0) + 1;
+      }
+    }
+    return hashedIds;
+  }
+
   static Future<Map<int, int>> _initHashedIds(
       List<String> folders, Pointer<void> p) {
     return Isolate.run(() {
       var db = sqlite3.fromPointer(p);
-      var hashedIds = <int, int>{};
-      for (var folder in folders) {
-        var rows = db.select("""
-          select id, type from "$folder";
-        """);
-        for (var row in rows) {
-          var id = row["id"] as String;
-          var type = row["type"] as int;
-          var hash = id.hashCode ^ type;
-          hashedIds[hash] = (hashedIds[hash] ?? 0) + 1;
-        }
-      }
-      return hashedIds;
+      return _hashedIdsOf(db, folders);
     });
   }
 
