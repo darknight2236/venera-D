@@ -213,13 +213,30 @@ class ImageFavoritesComic {
 }
 
 class ImageFavoriteManager with ChangeNotifier {
-  Database get _db => HistoryManager()._db;
+  Database get _db => (_testHost ?? HistoryManager())._db;
+
+  /// When set, the manager reads the database from this host instead of the
+  /// [HistoryManager] singleton. For unit tests only.
+  HistoryManager? _testHost;
 
   List<ImageFavoritesComic> get comics => getAll();
 
   static ImageFavoriteManager? _cache;
 
   ImageFavoriteManager._();
+
+  /// Creates a manager bound to [host]'s database (typically a
+  /// `HistoryManager.forTesting()` instance). For unit tests only.
+  @visibleForTesting
+  ImageFavoriteManager.forTesting(HistoryManager host) : _testHost = host {
+    init();
+  }
+
+  /// Replaces (or clears) the factory singleton. For unit tests only.
+  @visibleForTesting
+  static void debugSetInstance(ImageFavoriteManager? value) {
+    _cache = value;
+  }
 
   factory ImageFavoriteManager() => (_cache ??= ImageFavoriteManager._());
 

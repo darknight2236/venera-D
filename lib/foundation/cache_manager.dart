@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:isolate';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:venera/utils/io.dart';
 
@@ -71,6 +72,33 @@ class CacheManager {
   CacheManager._create() {
     Directory(cachePath).createSync(recursive: true);
     _db = sqlite3.open('${App.dataPath}/cache.db');
+    _createTables();
+    _scanDir(_db.handle, cachePath).then((value) {
+      _currentSize = value;
+      checkCache();
+    });
+  }
+
+  /// Creates a manager backed by an in-memory database, skipping the
+  /// isolate-based directory scan. Cache files still resolve under
+  /// [cachePath]; tests should point [App.cachePath] at a temp directory.
+  /// For unit tests only.
+  @visibleForTesting
+  CacheManager.forTesting() {
+    Directory(cachePath).createSync(recursive: true);
+    _db = sqlite3.openInMemory();
+    _createTables();
+    _currentSize = 0;
+  }
+
+  /// Replaces (or clears) the factory singleton. For unit tests only.
+  @visibleForTesting
+  static void debugSetInstance(CacheManager? value) {
+    instance = value;
+  }
+
+  /// Schema shared by [CacheManager._create] and [CacheManager.forTesting].
+  void _createTables() {
     _db.execute('''
       CREATE TABLE IF NOT EXISTS cache (
         key TEXT PRIMARY KEY NOT NULL,
@@ -80,10 +108,10 @@ class CacheManager {
         type TEXT
       )
     ''');
-    _scanDir(_db.handle, cachePath).then((value) {
-      _currentSize = value;
-      checkCache();
-    });
+  }
+
+  void close() {
+    _db.dispose();
   }
 
   /// Get the singleton instance of CacheManager.
