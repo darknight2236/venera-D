@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -642,7 +641,7 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
       int() => true,
     };
     if (result) {
-      context.pop();
+      if (mounted) context.pop();
     } else {
       setState(() {
         loading = false;
@@ -983,6 +982,7 @@ class _ImageFavoritesState extends State<ImageFavorites> {
           displayType = type;
         });
         await Future.delayed(const Duration(milliseconds: 20));
+        if (!mounted) return;
         var scrollController = ScrollState.of(context).controller;
         scrollController.animateTo(
           scrollController.position.maxScrollExtent,

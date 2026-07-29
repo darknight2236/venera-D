@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:venera/components/components.dart';
 import 'package:venera/foundation/app.dart';
@@ -87,14 +86,11 @@ class _HistoryPageState extends State<HistoryPage> {
 
   void _refreshHistory(History comic) async {
     var result = await HistoryManager().refreshHistoryInfo(comic);
+    if (!App.rootContext.mounted) return;
     if (result) {
-      if (mounted) {
-        App.rootContext.showMessage(message: "Refresh Success".tl);
-      }
+      App.rootContext.showMessage(message: "Refresh Success".tl);
     } else {
-      if (mounted) {
-        App.rootContext.showMessage(message: "Refresh Failed".tl);
-      }
+      App.rootContext.showMessage(message: "Refresh Failed".tl);
     }
   }
 

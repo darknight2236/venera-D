@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'dart:convert';
 import 'dart:io' as io;
 import 'package:flutter/material.dart';
@@ -43,7 +42,9 @@ class ComicSourcePage extends StatelessWidget {
           .updateSource(source, isCancelled: () => cancel);
     } catch (e) {
       if (cancel) return;
-      App.rootContext.showMessage(message: e.toString());
+      if (App.rootContext.mounted) {
+        App.rootContext.showMessage(message: e.toString());
+      }
     } finally {
       controller.close();
     }
@@ -123,6 +124,7 @@ class _BodyState extends State<_Body> {
     if (App.isDesktop) {
       try {
         await Process.run("code", [source.filePath], runInShell: true);
+        if (!App.rootContext.mounted) return;
         await showDialog(
           context: App.rootContext,
           builder: (context) => AlertDialog(
@@ -147,6 +149,7 @@ class _BodyState extends State<_Body> {
         //
       }
     }
+    if (!mounted) return;
     context.to(
       () => _EditFilePage(source.filePath, () async {
         await ComicSourceManager().reload();
@@ -229,7 +232,9 @@ class _BodyState extends State<_Body> {
       var content = utf8.decode(bytes);
       await addSource(content, fileName);
     } catch (e, s) {
-      App.rootContext.showMessage(message: e.toString());
+      if (App.rootContext.mounted) {
+        App.rootContext.showMessage(message: e.toString());
+      }
       Log.error("Add comic source", "$e\n$s");
     }
   }
@@ -266,7 +271,7 @@ class _BodyState extends State<_Body> {
       await addSource(res.data!, fileName);
     } catch (e, s) {
       if (cancel) return;
-      context.showMessage(message: e.toString());
+      if (mounted) context.showMessage(message: e.toString());
       Log.error("Add comic source", "$e\n$s");
     }
   }
@@ -318,7 +323,7 @@ class _ComicSourceListState extends State<_ComicSourceList> {
         });
       }
     } catch (e) {
-      context.showMessage(message: "Network error".tl);
+      if (mounted) context.showMessage(message: "Network error".tl);
       if (mounted) {
         setState(() {
           json = [];
@@ -602,6 +607,7 @@ class _CheckUpdatesButtonState extends State<_CheckUpdatesButton> {
       isLoading = true;
     });
     var count = await ComicSourceManager().checkUpdates();
+    if (!mounted) return;
     if (count == -1) {
       context.showMessage(message: "Network error".tl);
     } else if (count == 0) {
@@ -640,6 +646,7 @@ class _CheckUpdatesButtonState extends State<_CheckUpdatesButton> {
       },
     );
     if (doUpdate) {
+      if (!mounted) return;
       var loadingController = showLoadingDialog(
         context,
         message: "Updating".tl,
@@ -656,7 +663,7 @@ class _CheckUpdatesButtonState extends State<_CheckUpdatesButton> {
           loadingController.setProgress(current / total);
         }
       } catch (e) {
-        context.showMessage(message: e.toString());
+        if (mounted) context.showMessage(message: e.toString());
       }
       loadingController.close();
     }
@@ -992,6 +999,7 @@ class _SliverComicSourceState extends State<_SliverComicSource> {
             });
             final List account = source.data["account"];
             var res = await source.account!.login!(account[0], account[1]);
+            if (!mounted) return;
             if (res.error) {
               context.showMessage(message: res.errorMessage!);
             } else {
@@ -1158,15 +1166,14 @@ class _LoginPageState extends State<_LoginPage> {
         loading = true;
       });
       widget.config.login!(username, password).then((value) {
+        if (!mounted) return;
         if (value.error) {
           context.showMessage(message: value.errorMessage!);
           setState(() {
             loading = false;
           });
         } else {
-          if (mounted) {
-            context.pop();
-          }
+          context.pop();
         }
       });
     } else if (widget.config.validateCookies != null) {
@@ -1177,6 +1184,7 @@ class _LoginPageState extends State<_LoginPage> {
           .map((e) => _cookies[e] ?? '')
           .toList();
       widget.config.validateCookies!(cookies).then((value) {
+        if (!mounted) return;
         if (value) {
           widget.source.data['account'] = 'ok';
           widget.source.saveData();
@@ -1236,14 +1244,14 @@ class _LoginPageState extends State<_LoginPage> {
     if (success) {
       widget.source.data['account'] = 'ok';
       widget.source.saveData();
-      context.pop();
+      if (mounted) context.pop();
     }
   }
 
   // for linux
   void loginWithWebview2() async {
     if (!await DesktopWebview.isAvailable()) {
-      context.showMessage(message: "Webview is not available".tl);
+      if (mounted) context.showMessage(message: "Webview is not available".tl);
     }
 
     var url = widget.config.loginWebsite!;
