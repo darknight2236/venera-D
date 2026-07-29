@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'reader.dart';
 
 class _ReaderScaffold extends StatefulWidget {
@@ -271,6 +270,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
       int maxPage = context.reader.images!.length;
       int? page = await selectImage();
       if (page == null) return;
+      if (!mounted) return;
       page += 1;
       String sourceKey = context.reader.type.sourceKey;
       String imageKey = context.reader.images![page - 1];
@@ -669,6 +669,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
     var fileType = detectFileType(data);
     // Save file name: ComicName_EP{chapter}_P{page}.{ext} to avoid conflict.
     // The chapter index of different group is continuous, so we use chapter number is enough.
+    if (!mounted) return;
     var filename =
         "${context.reader.widget.name}_EP${context.reader.chapter}_P${imageIndex + 1}${fileType.ext}";
     saveFile(data: data, filename: filename);
@@ -681,6 +682,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
     }
     var (imageIndex, data) = result;
     var fileType = detectFileType(data);
+    if (!mounted) return;
     var filename =
         "${context.reader.widget.name}_EP${context.reader.chapter}_P${imageIndex + 1}${fileType.ext}";
     Share.shareFile(data: data, filename: filename, mime: fileType.mime);
@@ -899,6 +901,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
     if (i == null) {
       return null;
     }
+    if (!mounted) return null;
     var imageKey = context.reader.images![i];
     Uint8List data;
     if (imageKey.startsWith("file://")) {

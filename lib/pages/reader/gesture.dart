@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'reader.dart';
 
 class _ReaderGestureDetector extends StatefulWidget {
@@ -349,7 +348,7 @@ class _ReaderGestureDetectorState extends AutomaticGlobalState<_ReaderGestureDet
     if (image != null) {
       writeImageToClipboard(image);
     } else {
-      context.showMessage(message: "No Image");
+      if (mounted) context.showMessage(message: "No Image");
     }
   }
 
@@ -360,7 +359,7 @@ class _ReaderGestureDetectorState extends AutomaticGlobalState<_ReaderGestureDet
       var filetype = detectFileType(image);
       saveFile(filename: "image${filetype.ext}", data: image);
     } else {
-      context.showMessage(message: "No Image");
+      if (mounted) context.showMessage(message: "No Image");
     }
   }
 }

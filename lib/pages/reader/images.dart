@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'reader.dart';
 
 class _ReaderImages extends StatefulWidget {
@@ -92,7 +91,7 @@ class _ReaderImagesState extends State<_ReaderImages> {
         });
       }
     }
-    context.readerScaffold.update();
+    if (mounted) context.readerScaffold.update();
   }
 
   @override
@@ -210,7 +209,7 @@ class _GalleryModeState extends State<_GalleryMode>
     controller = PageController(initialPage: reader.page);
     reader._imageViewController = this;
     Future.microtask(() {
-      context.readerScaffold.setFloatingButton(0);
+      if (mounted) context.readerScaffold.setFloatingButton(0);
     });
     super.initState();
   }
