@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'dart:collection';
 
 import 'package:flutter/gestures.dart';
@@ -105,7 +104,9 @@ class _Tag {
   static void handleLink(String link) async {
     if (link.isURL) {
       if (await handleAppLink(Uri.parse(link), App.comicPageBuilder)) {
-        Navigator.of(App.rootContext).maybePop();
+        if (App.rootContext.mounted) {
+          Navigator.of(App.rootContext).maybePop();
+        }
       } else {
         launchUrlString(link);
       }

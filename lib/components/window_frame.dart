@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -663,5 +662,6 @@ TransitionBuilder VirtualWindowFrameInit() {
 
 void debug() async {
   await ComicSourceManager().reload();
+  if (!App.rootContext.mounted) return;
   App.rootContext.showMessage(message: "Comic sources reloaded");
 }

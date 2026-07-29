@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of "components.dart";
 
 void showToast({
@@ -421,7 +420,7 @@ Future<void> showInputDialog({
                     result = futureOr;
                   }
                   if (result == null) {
-                    context.pop();
+                    if (context.mounted) context.pop();
                   } else {
                     setState(() => error = result.toString());
                   }
