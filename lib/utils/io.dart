@@ -1,11 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
 import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:flutter_saf/flutter_saf.dart';
-import 'package:venera/components/components.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/utils/ext.dart';
 import 'package:path/path.dart' as p;
@@ -251,14 +249,14 @@ class DirectoryPicker {
 class IOSDirectoryPicker {
   static const MethodChannel _channel = MethodChannel("venera/method_channel");
 
-  // 调用 iOS 目录选择方法
+  // 璋冪敤 iOS 鐩綍閫夋嫨鏂规硶
   static Future<String?> selectDirectory() async {
     IO._isSelectingFiles = true;
     try {
       final String? path = await _channel.invokeMethod('selectDirectory');
       return path;
     } catch (e) {
-      // 返回报错信息
+      // 杩斿洖鎶ラ敊淇℃伅
       return e.toString();
     } finally {
       Future.delayed(const Duration(milliseconds: 100), () {
@@ -268,7 +266,7 @@ class IOSDirectoryPicker {
   }
 }
 
-Future<FileSelectResult?> selectFile({required List<String> ext}) async {
+Future<FileSelectResult?> selectFile({required List<String> ext, void Function(String message)? onError}) async {
   IO._isSelectingFiles = true;
   try {
     var extensions = App.isMacOS || App.isIOS ? null : ext;
@@ -300,9 +298,7 @@ Future<FileSelectResult?> selectFile({required List<String> ext}) async {
       file = FileSelectResult(xFile.path);
     }
     if (!ext.contains(file.path.split(".").last)) {
-      App.rootContext.showMessage(
-        message: "Invalid file type: ${file.path.split(".").last}",
-      );
+      onError?.call("Invalid file type: ${file.path.split(".").last}");
       return null;
     }
     return file;

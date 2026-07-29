@@ -8,8 +8,10 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:venera/foundation/js_engine.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/pages/auth_page.dart';
+import 'package:venera/pages/comic_details_page/comic_page.dart';
 import 'package:venera/pages/main_page.dart';
 import 'package:venera/pages/settings/settings_page.dart';
+import 'package:venera/utils/data_sync.dart';
 import 'package:venera/utils/io.dart';
 import 'package:window_manager/window_manager.dart';
 import 'components/components.dart';
@@ -75,6 +77,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   void initState() {
     App.registerForceRebuild(forceRebuild);
     App.appUpdateUiHandler = checkUpdateUi;
+    App.comicPageBuilder = (id, sourceKey) => ComicPage(id: id, sourceKey: sourceKey);
+    DataSync.registerWindowCloseListener = (listener) {
+      WindowFrame.of(App.rootContext).addCloseListener(listener);
+    };
+    DataSync.loadingDialogBuilder = ({message, cancelButtonText = "Cancel", onCancel, barrierDismissible = true}) {
+      return showLoadingDialog(
+        App.rootContext,
+        message: message,
+        cancelButtonText: cancelButtonText,
+        onCancel: onCancel,
+        barrierDismissible: barrierDismissible,
+      );
+    };
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     WidgetsBinding.instance.addObserver(this);
     checkUpdates();

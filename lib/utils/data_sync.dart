@@ -1,7 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
 import 'package:flutter/foundation.dart';
-import 'package:venera/components/components.dart';
-import 'package:venera/components/window_frame.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/appdata.dart';
 import 'package:venera/foundation/comic_source/comic_source.dart';
@@ -17,6 +14,13 @@ import 'package:venera/utils/translations.dart';
 import 'io.dart';
 
 class DataSync with ChangeNotifier {
+  /// Called to register a window close listener (desktop only).
+  /// The listener returns true to allow close, false to prevent it.
+  static void Function(bool Function() listener)? registerWindowCloseListener;
+
+  /// Called to show a loading dialog with cancel button.
+  static dynamic Function({String? message, String cancelButtonText, VoidCallback? onCancel, bool barrierDismissible})? loadingDialogBuilder;
+
   DataSync._() {
     if (isEnabled) {
       downloadData();
@@ -25,8 +29,7 @@ class DataSync with ChangeNotifier {
     ComicSourceManager().addListener(onDataChanged);
     if (App.isDesktop) {
       Future.delayed(const Duration(seconds: 1), () {
-        var controller = WindowFrame.of(App.rootContext);
-        controller.addCloseListener(_handleWindowClose);
+        registerWindowCloseListener?.call(_handleWindowClose);
       });
     }
   }
@@ -46,8 +49,7 @@ class DataSync with ChangeNotifier {
   }
 
   void _showWindowCloseDialog() async {
-    showLoadingDialog(
-      App.rootContext,
+    loadingDialogBuilder?.call(
       cancelButtonText: "Shut Down".tl,
       onCancel: () => exit(0),
       barrierDismissible: false,

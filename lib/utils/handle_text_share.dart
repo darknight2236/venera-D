@@ -1,13 +1,14 @@
-// ignore_for_file: use_build_context_synchronously
+import 'package:flutter/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:venera/foundation/app.dart';
-import 'package:venera/pages/aggregated_search_page.dart';
 
 bool _isHandling = false;
 
 /// Handle text share event.
-/// App will navigate to [AggregatedSearchPage] with the shared text as keyword.
-void handleTextShare() async {
+/// [pageBuilder] creates the search page widget from the shared keyword.
+/// The caller (in the UI layer) provides the builder to avoid a reverse
+/// dependency on pages/.
+void handleTextShare(Widget Function(String keyword) pageBuilder) async {
   if (_isHandling) return;
   _isHandling = true;
 
@@ -17,7 +18,8 @@ void handleTextShare() async {
       await Future.delayed(const Duration(milliseconds: 200));
     }
     if (event is String) {
-      App.rootContext.to(() => AggregatedSearchPage(keyword: event));
+      if (!App.rootContext.mounted) continue;
+      App.rootContext.to(() => pageBuilder(event));
     }
   }
 }

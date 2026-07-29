@@ -112,6 +112,10 @@ class _App {
   /// so that init.dart does not depend on pages/.
   Future<void> Function(bool showMessageIfNoUpdate, bool delay)?
       appUpdateUiHandler;
+
+  /// Builds a comic detail page widget. Registered by the UI layer
+  /// so that utils/ and components/ do not depend on pages/.
+  Widget Function(String id, String sourceKey)? comicPageBuilder;
 }
 
 _App? _app;

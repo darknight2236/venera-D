@@ -625,7 +625,13 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
       loading = true;
     });
     var importer = ImportComic(
-        selectedFolder: selectedFolder, copyToLocal: copyToLocalFolder);
+        selectedFolder: selectedFolder,
+        copyToLocal: copyToLocalFolder,
+        showMessage: (msg) => App.rootContext.showMessage(message: msg),
+        showLoading: ({message, allowCancel = true, onCancel}) =>
+            showLoadingDialog(App.rootContext,
+                message: message, allowCancel: allowCancel, onCancel: onCancel),
+    );
     var result = switch (type) {
       0 => await importer.directory(true),
       1 => await importer.directory(false),

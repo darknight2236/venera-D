@@ -7,13 +7,13 @@ import 'package:path/path.dart' as p;
 /// AGENTS.md are enforced automatically.
 ///
 /// Rules:
-/// - lib/foundation/ and lib/network/ must NOT import from lib/pages/ or
-///   lib/components/.
+/// - lib/foundation/, lib/network/, and lib/utils/ must NOT import from
+///   lib/pages/ or lib/components/.
 /// - Known exemption: network/cloudflare.dart → pages/webview.dart (issue #5).
 void main() {
   group('Architecture constraints', () {
     test(
-        'lib/foundation/ and lib/network/ do not import from pages or components',
+        'lib/foundation/, lib/network/, and lib/utils/ do not import from pages or components',
         () {
       final projectRoot = _findProjectRoot();
       final violations = <String>[];
@@ -21,6 +21,7 @@ void main() {
       final dirsToCheck = [
         Directory(p.join(projectRoot, 'lib', 'foundation')),
         Directory(p.join(projectRoot, 'lib', 'network')),
+        Directory(p.join(projectRoot, 'lib', 'utils')),
       ];
 
       for (final dir in dirsToCheck) {
@@ -51,7 +52,7 @@ void main() {
 
       if (violations.isNotEmpty) {
         fail(
-          'Architecture violation: foundation/network must not import from '
+          'Architecture violation: foundation/network/utils must not import from '
           'pages/components.\n'
           'Found ${violations.length} violation(s):\n'
           '  ${violations.join('\n  ')}',

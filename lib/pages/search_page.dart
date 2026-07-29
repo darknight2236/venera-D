@@ -410,7 +410,7 @@ class _SearchPageState extends State<SearchPage> {
             setState(() {
               suggestions.clear();
             });
-            handleAppLink(Uri.parse(controller.text));
+            handleAppLink(Uri.parse(controller.text), (id, sourceKey) => ComicPage(id: id, sourceKey: sourceKey));
           },
         );
       }

@@ -10,7 +10,7 @@ flutter test
 
 ## Architecture Constraints
 
-- `lib/foundation/` and `lib/network/` **must not** import from `lib/pages/` or `lib/components/`.
+- `lib/foundation/`, `lib/network/`, and `lib/utils/` **must not** import from `lib/pages/` or `lib/components/`.
   - Sole known exemption: `network/cloudflare.dart` → `pages/webview.dart` (tracked as #5, deferred due to missing Linux test environment).
 - Dependency direction: `pages/components` → `foundation/network` → `utils`. Never reverse.
 

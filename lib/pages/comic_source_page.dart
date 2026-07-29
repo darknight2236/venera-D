@@ -221,7 +221,7 @@ class _BodyState extends State<_Body> {
   }
 
   void _selectFile() async {
-    final file = await selectFile(ext: ["js"]);
+    final file = await selectFile(ext: ["js"], onError: (msg) => context.showMessage(message: msg));
     if (file == null) return;
     try {
       var fileName = file.name;

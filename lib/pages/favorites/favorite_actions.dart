@@ -34,7 +34,7 @@ Future<void> newFolder() async {
               TextButton(
                 child: Text("Import from file".tl),
                 onPressed: () async {
-                  var file = await selectFile(ext: ['json']);
+                  var file = await selectFile(ext: ['json'], onError: (msg) => App.rootContext.showMessage(message: msg));
                   if (file == null) return;
                   var data = await file.readAsBytes();
                   try {

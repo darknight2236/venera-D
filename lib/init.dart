@@ -12,6 +12,8 @@ import 'package:venera/foundation/follow_updates.dart';
 import 'package:venera/foundation/js_engine.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/network/cookie_jar.dart';
+import 'package:venera/pages/aggregated_search_page.dart';
+import 'package:venera/pages/comic_details_page/comic_page.dart';
 import 'package:venera/utils/app_links.dart';
 import 'package:venera/utils/handle_text_share.dart';
 import 'package:venera/utils/opencc.dart';
@@ -53,8 +55,8 @@ Future<void> init() async {
   CacheManager().setLimitSize(appdata.settings[SettingKeys.cacheSize]);
   _checkOldConfigs();
   if (App.isAndroid) {
-    handleLinks();
-    handleTextShare();
+    handleLinks((id, sourceKey) => ComicPage(id: id, sourceKey: sourceKey));
+    handleTextShare((keyword) => AggregatedSearchPage(keyword: keyword));
     try {
       await FlutterDisplayMode.setHighRefreshRate();
     } catch(e) {
