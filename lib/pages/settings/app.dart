@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'settings_page.dart';
 
 class AppSettings extends StatefulWidget {
@@ -43,6 +42,7 @@ class _AppSettingsState extends State<AppSettings> {
               result = await selectDirectory();
             }
             if (result == null) return;
+            if (!App.rootContext.mounted) return;
             var loadingDialog = showLoadingDialog(
               App.rootContext,
               barrierDismissible: false,
@@ -50,6 +50,7 @@ class _AppSettingsState extends State<AppSettings> {
             );
             var res = await LocalManager().setNewPath(result);
             loadingDialog.close();
+            if (!context.mounted) return;
             if (res != null) {
               context.showMessage(message: res);
             } else {
@@ -73,6 +74,7 @@ class _AppSettingsState extends State<AppSettings> {
             );
             await CacheManager().clear();
             loadingDialog.close();
+            if (!context.mounted) return;
             context.showMessage(message: "Cache cleared".tl);
             setState(() {});
           },
@@ -124,7 +126,9 @@ class _AppSettingsState extends State<AppSettings> {
                 }
               } catch (e, s) {
                 Log.error("Import data", e.toString(), s);
-                context.showMessage(message: "Failed to import data".tl);
+                if (context.mounted) {
+                  context.showMessage(message: "Failed to import data".tl);
+                }
               } finally {
                 cacheFile.deleteIgnoreError();
                 App.forceRebuild();
@@ -171,6 +175,7 @@ class _AppSettingsState extends State<AppSettings> {
                 final bool canAuthenticate = canAuthenticateWithBiometrics ||
                     await auth.isDeviceSupported();
                 if (!canAuthenticate) {
+                  if (!context.mounted) return;
                   context.showMessage(message: "Biometrics not supported".tl);
                   setState(() {
                     appdata.settings[SettingKeys.authorizationRequired] = false;
@@ -578,10 +583,12 @@ class _WebdavSettingState extends State<_WebdavSetting> {
                     appdata.implicitData['webdavAutoSync'] = oldAutoSync;
                     appdata.writeImplicitData();
                     appdata.saveData();
+                    if (!context.mounted) return;
                     context.showMessage(message: testResult.errorMessage!);
                     context.showMessage(message: "Saved Failed".tl);
                   } else {
                     appdata.saveData();
+                    if (!context.mounted) return;
                     context.showMessage(message: "Saved".tl);
                     App.rootPop();
                   }

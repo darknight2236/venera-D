@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'settings_page.dart';
 
 class LocalFavoritesSettings extends StatefulWidget {
@@ -55,6 +54,7 @@ class _LocalFavoritesSettingsState extends State<LocalFavoritesSettings> {
             var controller = showLoadingDialog(context);
             var count = await LocalFavoritesManager().removeInvalid();
             controller.close();
+            if (!context.mounted) return;
             context.showMessage(
                 message: "Deleted @a favorite items".tlParams({'a': count}));
           },

@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'settings_page.dart';
 
 class AboutSettings extends StatefulWidget {
@@ -97,6 +96,7 @@ Future<void> checkUpdateUi([bool showMessageIfNoUpdate = true, bool delay = fals
       if (delay) {
         await Future.delayed(const Duration(seconds: 2));
       }
+      if (!App.rootContext.mounted) return;
       showDialog(
           context: App.rootContext,
           builder: (context) {
@@ -119,6 +119,7 @@ Future<void> checkUpdateUi([bool showMessageIfNoUpdate = true, bool delay = fals
             );
           });
     } else if (showMessageIfNoUpdate) {
+      if (!App.rootContext.mounted) return;
       App.rootContext.showMessage(message: "No new version available".tl);
     }
   } catch (e, s) {
