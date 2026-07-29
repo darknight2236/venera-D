@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'favorites_page.dart';
 
 /// Open a dialog to create a new favorite folder.
@@ -40,10 +39,12 @@ Future<void> newFolder() async {
                   try {
                     LocalFavoritesManager().fromJson(utf8.decode(data));
                   } catch (e) {
-                    context.showMessage(message: "Failed to import".tl);
+                    if (context.mounted) {
+                      context.showMessage(message: "Failed to import".tl);
+                    }
                     return;
                   }
-                  context.pop();
+                  if (context.mounted) context.pop();
                 },
               ).paddingRight(4),
               FilledButton(
@@ -428,6 +429,7 @@ Future<void> importNetworkFolder(
   void Function()? updateDialog;
   void Function()? closeDialog;
 
+  if (!App.rootContext.mounted) return;
   showDialog(
     context: App.rootContext,
     builder: (context) {

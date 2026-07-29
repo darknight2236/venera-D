@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
 part of 'favorites_page.dart';
 
 Future<bool> _deleteComic(
@@ -39,6 +38,7 @@ Future<bool> _deleteComic(
                 if (res.success) {
                   // Invalidate network cache so next loads fetch fresh data
                   NetworkCacheManager().clear();
+                  if (!context.mounted) return;
                   context.showMessage(message: "Deleted".tl);
                   result = true;
                   context.pop();
@@ -46,7 +46,9 @@ Future<bool> _deleteComic(
                   setState(() {
                     loading = false;
                   });
-                  context.showMessage(message: res.errorMessage!);
+                  if (context.mounted) {
+                    context.showMessage(message: res.errorMessage!);
+                  }
                 }
               },
               child: Text("Confirm".tl),
@@ -453,6 +455,7 @@ class _FolderTile extends StatelessWidget {
                   });
                   var res = await deleteFolder!();
                   if (res.success) {
+                    if (!context.mounted) return;
                     context.showMessage(message: "Deleted".tl);
                     context.pop();
                     updateState?.call();
@@ -460,7 +463,9 @@ class _FolderTile extends StatelessWidget {
                     setState(() {
                       loading = false;
                     });
-                    context.showMessage(message: res.errorMessage!);
+                    if (context.mounted) {
+                      context.showMessage(message: res.errorMessage!);
+                    }
                   }
                 },
                 child: Text("Confirm".tl),
@@ -517,6 +522,7 @@ class _CreateFolderDialogState extends State<_CreateFolderDialog> {
               loading = true;
             });
             widget.data.addFolder!(controller.text).then((b) {
+              if (!context.mounted) return;
               if (b.error) {
                 context.showMessage(message: b.errorMessage!);
                 setState(() {
