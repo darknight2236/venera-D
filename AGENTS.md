@@ -73,3 +73,14 @@ All existing code complies with these rules (converged in 2026-07); new UI code 
 
 - All `git:` dependencies in `pubspec.yaml` **must** pin a `ref:` (commit SHA). Bare branch references are not allowed.
 - `flutter_rust_bridge` runtime version must exactly match the codegen version used by the rhttp fork (currently `2.11.1`); see `dependency_overrides`.
+
+## Release Process
+
+Versions follow `major.minor.patch+build`, where the build number is the version without dots (e.g. `1.7.2+172`). Steps to cut a release:
+
+1. **Bump both version sources together**: `pubspec.yaml` `version:` and `App.version` in `lib/foundation/app.dart` (a hard-coded constant read by the About page, update check, User-Agent, JS engine and PDF metadata). `test/version_consistency_test.dart` fails CI if they diverge, so run `flutter test` after bumping.
+2. Push to `master`; then on GitHub create a release with tag `vX.Y.Z` targeting `master`. The `main.yml` (Build ALL) workflow triggers on `release: published` and builds every platform.
+3. The release workflow uses `secrets.GITHUB_TOKEN` with `permissions: contents: write` to upload assets. After it finishes, verify the release has all platform assets (APK ×4 / IPA / Windows zip + installer exe / macOS dmg / Debian deb ×2 / Arch zst ×2).
+4. `update_alt_store.yml` runs after Build ALL and commits the regenerated `alt_store.json` **directly to master** (no PR). Because it pushes to master, `git pull` locally before the next work session. The updater matches the IPA asset named `venera-D-ios-{version}+{build}.ipa`; if the release asset naming changes, update `update_alt_store.py` accordingly.
+
+Notes: a release triggers workflows from the workflow files **at the tagged commit**, so any workflow fix must be committed (and the tag re-pointed) before it takes effect. This is a single-maintainer fork — direct pushes to `master` are the norm; there is no PR gate.
