@@ -49,6 +49,10 @@ part 'scaffold.dart';
 
 part 'images.dart';
 
+part 'gallery_mode.dart';
+
+part 'continuous_mode.dart';
+
 part 'gesture.dart';
 
 part 'comic_image.dart';
