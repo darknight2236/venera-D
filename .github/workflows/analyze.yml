@@ -5,10 +5,6 @@ on:
     branches:
       - master
 
-# 与本地开发环境使用同一 pub 源，保证 pubspec.lock 精确生效（详见 main.yml 注释）。
-env:
-  PUB_HOSTED_URL: https://pub.flutter-io.cn
-
 jobs:
   foundation-test-guard:
     if: github.event_name == 'pull_request'
@@ -79,6 +75,10 @@ jobs:
           channel: "stable"
           flutter-version-file: pubspec.yaml
           architecture: x64
+      # PUB_HOSTED_URL 只作用于 pub get，与本地镜像源一致使 pubspec.lock 精确生效；
+      # 不能放 workflow/job 级 env，否则会污染 flutter-action 的 SDK 下载（curl exit 35）。
       - run: flutter pub get
+        env:
+          PUB_HOSTED_URL: https://pub.flutter-io.cn
       - run: flutter test
       - uses: invertase/github-action-dart-analyzer@v1

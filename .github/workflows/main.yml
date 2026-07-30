@@ -5,11 +5,8 @@ on:
   release:
     types: [published]
 
-# 与本地开发环境使用同一 pub 源。pubspec.lock 记录的是 pub.flutter-io.cn 的
-# 源 URL，若 CI 使用默认 pub.dev，源不一致会使 pub get 无视 lock 重新解析
-# hosted 依赖，曾导致 jni/dio 被解析到刚发布的不兼容新版本。
-env:
-  PUB_HOSTED_URL: https://pub.flutter-io.cn
+# PUB_HOSTED_URL 只在各 job 的 pub get 步骤内设置（见下），不放 workflow 级 env，
+# 否则会污染 subosito/flutter-action 的 SDK 下载导致 curl exit 35。
 
 jobs:
   Build_MacOS:
@@ -28,6 +25,8 @@ jobs:
           architecture: x64
       - run: sudo xcode-select --switch /Applications/Xcode_16.4.app
       - run: flutter pub get
+        env:
+          PUB_HOSTED_URL: https://pub.flutter-io.cn
         # Step 1: Decode and install the certificate
       - name: Decode and install certificate
         if: ${{ env.MACOS_CERTIFICATE != '' }}
@@ -82,6 +81,8 @@ jobs:
           architecture: x64
       - run: sudo xcode-select --switch /Applications/Xcode_16.4.app
       - run: flutter pub get
+        env:
+          PUB_HOSTED_URL: https://pub.flutter-io.cn
       - run: flutter build ios --release --no-codesign
       - run: |
           mkdir -p build/ios/iphoneos/Payload
@@ -124,6 +125,8 @@ jobs:
       - name: Check rust-toolchain.toml
         run: rustup show
       - run: flutter pub get
+        env:
+          PUB_HOSTED_URL: https://pub.flutter-io.cn
       - run: flutter build apk --release
       - uses: actions/upload-artifact@v4
         with:
@@ -148,6 +151,8 @@ jobs:
           flutter-version-file: pubspec.yaml
           architecture: x64
       - name: build
+        env:
+          PUB_HOSTED_URL: https://pub.flutter-io.cn
         run: |
           flutter pub get
           python windows/build.py
@@ -200,7 +205,9 @@ jobs:
         with:
           channel: 'master'
           flutter-version-file: pubspec.yaml
-      - run: |
+      - env:
+          PUB_HOSTED_URL: https://pub.flutter-io.cn
+        run: |
           flutter pub get
           sudo apt-get update -y
           sudo apt-get install -y ninja-build libgtk-3-dev webkit2gtk-4.1
