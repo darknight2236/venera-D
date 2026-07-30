@@ -12,7 +12,8 @@ flutter test
 
 - `lib/foundation/`, `lib/network/`, and `lib/utils/` **must not** import from `lib/pages/` or `lib/components/`.
   - Sole known exemption: `network/cloudflare.dart` → `pages/webview.dart` (tracked as #5, deferred due to missing Linux test environment).
-- Dependency direction: `pages/components` → `foundation/network` → `utils`. Never reverse.
+  - This is the only dependency-direction rule that is enforced (see `test/architecture_test.dart`).
+- Layering model: the UI layer (`pages` + `components`) depends on the non-UI layer (`foundation` + `network` + `utils`); the non-UI layer must never depend back on the UI layer. Within the non-UI layer there is **no** further linear ordering — `foundation`/`network` and `utils` intentionally import each other (e.g. `foundation/appdata.dart` uses `utils/`, while `utils/data_sync.dart` uses `foundation/`), so `utils` is a peer of `foundation`/`network`, not a lower tier.
 
 ## Testing Requirements
 
