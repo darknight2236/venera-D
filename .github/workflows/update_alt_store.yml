@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     permissions:
-      contents: write       # 推送更新分支需要写权限（默认 GITHUB_TOKEN 为只读）
-      pull-requests: write  # gh pr create 需要 PR 写权限
+      contents: write  # 直接推送 alt_store.json 更新到 master
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -43,19 +42,11 @@ jobs:
         if git diff --staged --quiet; then
           echo "changes=false" >> $GITHUB_OUTPUT
         else
-          # Create a new branch for the PR
-          branch_name="update-altstore-$(date +%Y%m%d-%H%M%S)"
-          git checkout -b "$branch_name"
-          git commit -m "Updated source with latest release"
-          git push -u origin "$branch_name"
-          
-          # Create PR using GitHub CLI
-          gh pr create \
-          --title "Update AltStore source with latest release" \
-          --body "This PR updates the alt_store.json file with the latest release information." \
-          --head "$branch_name" \
-          --base master
-          
+          # Commit directly to master: the file is machine-generated and PRs
+          # opened with GITHUB_TOKEN require manual approval to run checks,
+          # which defeats the automation. analyze still runs on the push.
+          git commit -m "chore: update AltStore source with latest release"
+          git push
           echo "changes=true" >> $GITHUB_OUTPUT
         fi
 
