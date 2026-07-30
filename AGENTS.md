@@ -50,21 +50,14 @@ All workflows that run `flutter pub get` set `PUB_HOSTED_URL: https://pub.flutte
 
 ### `use_build_context_synchronously` (enabled)
 
-This rule is globally enabled in `analysis_options.yaml`. **New code must comply** — add a `mounted` check before using `BuildContext` after an async gap.
+This rule is globally enabled in `analysis_options.yaml` and **fully enforced across the codebase — there are no `// ignore_for_file: use_build_context_synchronously` exemptions left** (the 25 legacy exemptions were all cleared in 2026-07). New code must comply: guard every `BuildContext` use after an async gap with a `mounted` check.
 
-The following 25 files have a legacy `// ignore_for_file: use_build_context_synchronously` exemption (pre-existing violations, to be fixed incrementally):
+Match the guard to the context being used, or the analyzer flags an "unrelated mounted check":
+- A `State.context` use (context used directly inside a `State` method or a no-argument closure) → guard with `mounted`.
+- A dialog/builder local `context` parameter → guard with `context.mounted`.
+- `App.rootContext` → guard with `App.rootContext.mounted`.
 
-| Area | Files |
-|------|-------|
-| components | `message.dart`, `rich_comment_content.dart`, `window_frame.dart` |
-| pages/comic_details_page | `actions.dart`, `comic_page.dart`, `comments_page.dart`, `favorite.dart` |
-| pages/favorites | `favorite_actions.dart`, `network_favorites_page.dart` |
-| pages/reader | `chapter_comments.dart`, `gesture.dart`, `images.dart`, `reader.dart`, `scaffold.dart` |
-| pages/settings | `about.dart`, `app.dart`, `local_favorites.dart` |
-| pages (root) | `comic_source_page.dart`, `history_page.dart`, `home_page.dart`, `local_comics_page.dart` |
-| utils | `data_sync.dart`, `handle_text_share.dart`, `import_comic.dart`, `io.dart` |
-
-When touching these files, prefer removing the file-level ignore and adding per-site `mounted` guards instead.
+When one async method has many downstream context uses, a single `if (!mounted) return;` right after the `await` covers them all.
 
 ## Visual Conventions
 
