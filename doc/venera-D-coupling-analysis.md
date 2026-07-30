@@ -2,7 +2,7 @@
 
 > 分析对象：`D:\CodingProjects\venera-D`（venera 1.6.3 fork）
 > 规模：lib/ 共 135 个 Dart 文件，约 47.9k 行（foundation 9,305 / network 2,538 / pages 23,773 / components 8,731 / utils 3,337）；test/ 仅 1 个文件。
-> **2026-07 更新**：层级倒置改造已部分完成（原 6 处 → 现存 4 处）：`js_engine→components` 已通过 `JsUiHandler` 接口委托解除，`favorites→follow_updates_page` 已通过静态回调解除，`init.dart` 的 settings_page import 已通过 `App.appUpdateUiHandler` 回调解除。reader 大库行数等统计数字已按当前代码重新核实。
+> **2026-07 更新**：P0/P1/P2/P3 四项优先级任务均已完成或达到够用状态（详见文末优先级表）。P0 层级倒置：原 6 处 →pages 倒置已解除 5 处，foundation/network/utils 对 pages 与 components 的反向 import 已全部清零并由 `test/architecture_test.dart` 守卫，仅剩 `network/cloudflare.dart→pages/webview.dart`（#5 因无 Linux 环境取消，已知豁免）。P1 测试接缝：6 个全局单例/管理器全覆盖 + sqlite 测试设施，测试总数达 102。P2 reader：`images.dart` 已按类拆分（1389→180 行），part 架构刻意保留。P3 Settings key 收敛已完成。此外本轮还完成了 `use_build_context_synchronously` 全库启用（25 处豁免清零）、UI 设计 token 化、CI 依赖源统一等工程健壮性改进。reader 大库行数等统计数字系历史快照，未随拆分更新。
 
 ---
 
@@ -163,8 +163,8 @@ Dart 的 `part/part of` 让多个文件共享同一个私有作用域。项目�
 |---|---|---|---|
 | **P0** | **层级倒置**（🟢 基本完成，2026-07）：原 6 处 →pages 倒置已解除 5 处（`js_engine`/`favorites`/`comic_source`/`local`/`init`，机制见 §3.1 表），foundation 对 pages 与 **components** 的反向 import 已**全部清零**（context.dart 的 `showMessage` 移至 `components/message.dart`）。**仅剩** `network/cloudflare.dart:9`→`pages/webview.dart`（#5 因无 Linux 环境取消，已知豁免）。详见 `layer-inversion-refactor-plan.md` | 1 天 | foundation/network 恢复可独立编译，headless 和未来的测试解锁 |
 | ~~P1~~ | ~~重命名 `utils/image.dart` 的 `JsEngine`~~（✅ 已完成，改为 `ImageProcessEngine`） | 半天 | 消除随时会爆的混淆 |
-| **P1** | **给单例加测试接缝**（🟡 两个全局对象已完成，2026-07）：`Appdata`（`forTesting()` 无 I/O 构造 + 纯 `loadFromJson()` + `appdata` getter+setter，测试见 `test/appdata_test.dart`）与 `App`（`final App` 改 getter+`@visibleForTesting` setter + `createAppForTesting()` 工厂，测试见 `test/app_test.dart`）均已落地，共 5 项测试通过。**剩余（受阻）**：factory managers（HistoryManager/CacheManager/LocalFavoritesManager/LocalManager）的接缝本身易加（已有 static 字段），但其数据逻辑测试需 sqlite，而 `flutter test` VM 无法加载 `sqlite3.dll`（已实证，error 126）——需先解决测试环境的 sqlite native 库供给（如 `open.overrideFor` 指定 dll）方能推进。不需要 DI 框架 | 1 天 | 让“为核心逻辑写回归测试”成为可能——接手停更 fork 最需要的安全网 |
-| **P2** | **reader 拆 part**：先把 `images.dart` 里的加载/预读逻辑（`load()`、`preCacheCount` 两处重复）抽成普通类 `ReaderImageLoader`（依赖注入 LocalManager/CacheManager），UI State 只持有它。不必一次拆完，先切断"State 直接调 5 个单例" | 2-3 天 | 阅读器 bug 定位成本大幅下降 |
+| **P1** | **给单例加测试接缝**（✅ 已完成，2026-07）：`Appdata`（`forTesting()` + `loadFromJson()` + getter/setter）与 `App`（getter+setter + `createAppForTesting()`）；`test/helpers/sqlite3_test_setup.dart` 的 `ensureSqlite3ForTests()` 用 `open.overrideFor` 解决了 sqlite native 库供给（原 error 126 阻塞已消除，不可用时优雅跳过）；在此基础上 `ComicSourceManager`、`HistoryManager`、`LocalFavoritesManager`、`CacheManager`、`ImageFavoriteManager` 均已加 `forTesting()`/`debugSetInstance()` 接缝并配套单元测试。测试总数达 102，analyze 0 issue | 1 天 | 让"为核心逻辑写回归测试"成为可能——接手停更 fork 最需要的安全网 |
+| ~~P2~~ | **reader 拆 part**（🟢 够用完成，2026-07）：`images.dart` 曾达 1389 行、混装三个不相关的类，已将 `_GalleryMode`/`_GalleryModeState` 拆到 `gallery_mode.dart`、`_ContinuousMode`/`_ContinuousModeState`（含辅助常量、`_SwipeChangeChapterProgress`、`_ProgressPainter`）拆到 `continuous_mode.dart`，均仍为 `part of 'reader.dart'`——纯物理切分，私有成员跨文件访问不变、行为一致，`images.dart` 降至 180 行。**刻意不做的两项**：①`ReaderImageLoader` 抽取（可选、无紧迫性）；②把 part 改为独立 import 文件（评估为高风险低收益——reader 的 part 私有耦合是合理的同层内聚，拆独立文件会把 `_imageViewController` 等私有成员暴露成公共 API）。scaffold.dart（1104 行）是单一大类，不适合同类物理切分，保持不动 | 已完成主体 | 阅读器最大文件从 1389→180 行，导航成本大幅下降 |
 | **P3** | ~~**Settings key 收敛**~~（✅ 已完成，2026-07）：定义 `SettingKeys`（64 常量，`appdata.dart`），全量替换 lib/ 下所有 `appdata.settings['key']` 裸字符串（含 `getReaderSetting`/`setReaderSetting` 字面量 key 及 scaffold key 比较），覆盖 foundation/network/utils/components/pages/main/init/headless 共 40 个文件、~120 处替换。拼写错误现为编译期错误。仅剩一行注释保留旧形式 | 渐进 | 消除魔法字符串，重构敢动手 |
 
 ### 不建议做（过度工程）
