@@ -1,0 +1,1709 @@
+[
+  {
+    "number": 845,
+    "title": "[Bug]: 无法删除本地文件",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-03-30T17:58:46Z",
+    "updated_at": "2026-03-30T18:08:35Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/845",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n没反应，点了删除还是存在，操作无效\n\n### Version\n\n1.6.3\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n![Image](https://github.com/user-attachments/assets/fcf6d46b-8043-4840-b63f-38b46bccb14b)"
+  },
+  {
+    "number": 843,
+    "title": "[Enhancement]: Winget 支持",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-30T12:40:47Z",
+    "updated_at": "2026-03-30T12:40:59Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/843",
+    "body": "### Description\n\n希望可以在 Windows 平台支持 Winget 包管理，方便下载和更新\n\n### Operating System\n\nWindows\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 840,
+    "title": "[Enhancement]: 希望在长按漫画显示二级菜单时，能有标题文字用来自由复制标题",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-29T07:04:10Z",
+    "updated_at": "2026-03-29T07:04:21Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/840",
+    "body": "### Description\n\n长按菜单只有复制整段标题，希望增加自由复制\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 839,
+    "title": "[Bug]: 阅读时翻页有明显卡顿",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-03-29T07:00:18Z",
+    "updated_at": "2026-03-29T07:00:37Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/839",
+    "body": "### Bug type\n\nReader\n\n### Description\n\n阅读模式是画廊从右到左，设备是ipad pro 2021\n\n### Version\n\n1.6.3\n\n### Operating system\n\niOS\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 834,
+    "title": "[Enhancement]: 漫画翻页时增加白屏闪烁选项，用于消除墨水屏残影",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-25T06:52:37Z",
+    "updated_at": "2026-03-25T06:52:51Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/834",
+    "body": "### Description\n\n问题描述\n在墨水屏设备上阅读漫画时，随着翻页次数增加，残影会逐渐累积，尤其是在图像内容较多或灰度复杂的页面上，残影问题更为明显，影响阅读体验。\n\n建议的解决方案\n建议在漫画阅读模式中增加一个可选功能：翻页时短暂闪烁一次白屏（即进行一次全屏白色刷新）。这样可以在翻页的同时自动消除残影，无需用户手动触发全局刷新或退出应用。\n\n替代方案\n目前用户只能依赖设备的系统级全局刷新，但这种方式与翻页操作不同步，会打断阅读的连贯性。\n\n补充说明\n该功能对墨水屏设备（如文石、Kindle 等）用户尤为实用。建议在设置中提供一个简单的开关，让用户根据个人偏好选择是否启用。\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 833,
+    "title": "[Enhancement]: GPU加速功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-22T02:01:33Z",
+    "updated_at": "2026-03-22T02:01:45Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/833",
+    "body": "### Description\n\n电脑端的动画很卡 想提高流畅度\n\n### Operating System\n\nWindows\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 832,
+    "title": "[Enhancement]: 显示阅读章节进度",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-21T17:47:15Z",
+    "updated_at": "2026-03-21T17:47:28Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/832",
+    "body": "### Description\n\n像连载漫画，仅仅显示当前阅读页数进度而不知道章节进度，不太合理，或许可以灵活调整。例如：\n\n![Image](https://github.com/user-attachments/assets/98e7a6c8-ce20-4823-b6cc-156f685b305d)\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 831,
+    "title": "[Enhancement]: 推出以图搜图",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-21T13:14:06Z",
+    "updated_at": "2026-03-21T13:14:16Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/831",
+    "body": "### Description\n\n希望像隔壁pica那样推出图片搜索功能\n\n### Operating System\n\n_No response_\n\n### picture\n\n![Image](https://github.com/user-attachments/assets/9d9fbee9-33e7-4945-979c-9c6730fe4616)"
+  },
+  {
+    "number": 825,
+    "title": "[Bug]: 点下一话一直转圈加载不显示",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-03-16T17:36:23Z",
+    "updated_at": "2026-04-03T02:41:12Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/825",
+    "body": "### Bug type\n\nReader\n\n### Description\n\n![Image](https://github.com/user-attachments/assets/bb89b532-110f-490e-a626-803040c32724)\n\n### Version\n\n1.6.3\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 821,
+    "title": "[Enhancement]: 希望在导出cbz文件时，能够分卷分话导出。",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-13T07:48:00Z",
+    "updated_at": "2026-03-13T07:48:32Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/821",
+    "body": "### Description\n\n希望在导出cbz文件时，能够分卷分话导出。目前是如果你一下下载了很多卷的话，会一下输出一个巨大的聚合了所有卷的cbz文件，很不方便，希望能够一卷一卷导出这样\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 819,
+    "title": "[Enhancement]: 希望备份文件能记录漫画下载状态",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-12T04:49:42Z",
+    "updated_at": "2026-03-12T04:50:26Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/819",
+    "body": "### Description\n\n这个漫画下载状态是指：漫画已下载/未下载、已下载多少章节/未下载多少章节。\n\n目前软件的备份文件是无法记录这种数据的，这就会导致以下的情况：\n\n1、假如我下载了某些漫画，并且对软件的数据进行备份，漫画的数据我可能会存在存储卡里头，也有可能会打包成压缩文件。然后如果出现我需要把数据跟下载的漫画转移到别的设备上，或者是这个设备上不小心删除了软件，然后需要进行数据还原的情况，那么就会出现以下的可能：\n\n（1）数据还原完，然后也把漫画的文件处理好（设备插上sd卡或者漫画数据解压到某个目录下），此时我需要选择一下下载文件夹，那么就会发现由于文件夹不是空的导致软件无法允许选择该文件夹；\n（2）就算我通过先新建一个别的文件夹，将软件的下载文件夹设置好，再把数据移动进去的话，那么会出现一种状况，就是你打开一些已经下载过的漫画，它会告知你这个漫画没有被下载，如果你想阅读下载到本地的漫画文件，要么只能进行本地漫画导入（但是没有详情页），要么就只能重新下载。\n\n所以希望能增加一个漫画的下载状态到备份文件里，这样哪怕出现以上的使用状态，也能够保证我不需要重新下载漫画，如果是一两部漫画还好，如果是几十部几百部的话，那么需要花很多的时间下载，太浪费时间了。\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 816,
+    "title": "[Enhancement]: 希望修改一下阅读模式中关于下一话的设置",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-10T00:56:45Z",
+    "updated_at": "2026-03-10T00:56:58Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/816",
+    "body": "### Description\n\n在选择连续（从上到下）时，个人感觉每次下一话的拖动判定距离有点过长了（至少在我设备上要从底部滑动到屏幕中部，比较刻意了），希望能自定义或者修改一下逻辑。\n画廊模式在最后一个图片的时候继续滑动就可以进下一话，和话内翻页感受一致，阅读上不会明显的停滞。\n希望连续模式下可以像画廊模式一样无感，或者调整一下判定的长度，或者改成最后一页连续两次滑动后下一话？\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 813,
+    "title": "[Bug]: 下载时，如果图片列表下载失败会导致误认为章节已下载",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-03-07T16:40:21Z",
+    "updated_at": "2026-03-07T16:40:32Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/813",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n也许图片下载失败会滞空，然后之后检测是否完成的时候就会认为是完成了。\n打开这样的章节会报错：Invalid argument: 1\n\n看了下载目录，没有相应章节的文件夹，但是软件中显示已下载。\n\n### Version\n\n1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n未找到相关logs，只能通过行为猜测\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 811,
+    "title": "[Enhancement]: 希望可以通过webdav看网盘保存的漫画",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-06T12:39:53Z",
+    "updated_at": "2026-03-06T12:40:05Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/811",
+    "body": "### Description\n\n希望webdav不止能够同步，还可以直接看保存在网盘的漫画\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 807,
+    "title": "[Enhancement]: 功能请求，本地收藏添加排序功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-03-03T15:56:32Z",
+    "updated_at": "2026-03-13T04:40:53Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/807",
+    "body": "### Description\n\n当前本地收藏的漫画没有排序功能，希望后续可以新增。例如按照收藏时间升序或者降序排序，不然有些漫画本地收藏后必须手动拖动进度条到最下方查看。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 801,
+    "title": "功能请求:",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-28T05:59:50Z",
+    "updated_at": "2026-02-28T06:00:07Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/801",
+    "body": "### Description\n\n手机版能不能在看漫画时自动加载下一章节，而不是下载的需要自己手动点击下一章\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 799,
+    "title": "[Enhancement]: 下载会卡在获取图像list",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-26T14:35:03Z",
+    "updated_at": "2026-02-26T14:35:15Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/799",
+    "body": "### Description\n\n下载会卡在获取图像list，想加速就只能暂停下载然后重启，但是这种会有问题就是下载不完全，导致后面章节没有相应文件报错，希望可以优化一下。\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 798,
+    "title": "[Bug]: 极小部分的.avif图片打不开",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-02-24T15:17:02Z",
+    "updated_at": "2026-03-23T07:53:57Z",
+    "comments": 4,
+    "url": "https://github.com/venera-app/venera/issues/798",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n我从某网站下的图片，用这个漫画阅读器阅读器，有极小部分[8/1311的概率]的.avif图片打不开，图片本身无问题[用脚本转换格式可以正常打开]\n\n### Version\n\nv1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n[log.txt](https://github.com/user-attachments/files/25523305/log.txt)\n\n### Screenshot or video\n\n![Image](https://github.com/user-attachments/assets/37ff1bbe-31a8-4547-ad91-4e4d5a08c124)"
+  },
+  {
+    "number": 795,
+    "title": "[Enhancement]: 下载后的漫画在打开时选择从头或继续从上次观看",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-19T01:02:58Z",
+    "updated_at": "2026-02-19T01:03:09Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/795",
+    "body": "### Description\n\n每次想要从头看漫画都还得手动拉进度条，设置里找了一圈也没有对应功能，希望能自主选择从什么地方开始观看，在很多话的漫画里也能够在点开时选择对应集数，现在都只能一集一集的看\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 794,
+    "title": "[Enhancement]: win版的高fps支持",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-18T17:11:59Z",
+    "updated_at": "2026-02-18T17:12:13Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/794",
+    "body": "### Description\n\nWindows版fps跟显示屏fps不匹配，在看漫画的时候的滚动模式下尤为明显\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 793,
+    "title": "[Enhancement]: 本地漫画标签管理阅读",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-17T09:39:36Z",
+    "updated_at": "2026-02-17T09:39:48Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/793",
+    "body": "### Description\n\n希望能对标ExHentai本地漫画标签管理阅读应用,增强本地管理,谢谢\n[exhentai-manga-manager](https://github.com/SchneeHertz/exhentai-manga-manager)\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 792,
+    "title": "[Bug]: webdav同步无法使用",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-02-16T10:03:41Z",
+    "updated_at": "2026-02-22T00:57:06Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/792",
+    "body": "### Bug type\n\nOther\n\n### Description\n\nwebdav手动同步和自动同步都无法使用\n\n### Version\n\n1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 791,
+    "title": "[Bug]: 当选择聚合搜索的时候，搜索的历史记录无法保存",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-02-16T02:40:37Z",
+    "updated_at": "2026-02-16T02:40:48Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/791",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n当勾选了聚合搜索的时候，你搜索的所有历史记录都无法被保存\n\n### Version\n\n1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 789,
+    "title": "[Enhancement]:添加历史记录搜索",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-13T05:48:10Z",
+    "updated_at": "2026-02-13T05:48:22Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/789",
+    "body": "### Description\n\n可以加个历史记录搜索吗，手动翻有点太牢了\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 788,
+    "title": "[Enhancement]: 能否加个网页式的按动鼠标中键滚动",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-12T17:05:44Z",
+    "updated_at": "2026-02-12T17:06:18Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/788",
+    "body": "### Description\n\n能否加个网页式的按动鼠标中键自动滚动\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 784,
+    "title": "[Enhancement]: 能否像彩e那样拥有屏蔽外部广告的功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-07T13:59:49Z",
+    "updated_at": "2026-02-07T14:00:01Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/784",
+    "body": "### Description\n\n彩色ehviewer设置-高级-屏蔽外部广告 实测好用 \n\n### Operating System\n\nAndroid\n\n### picture\n\n![Image](https://github.com/user-attachments/assets/cbe5d6a3-131b-4bd5-8f3d-c418384214de)\n\n![Image](https://github.com/user-attachments/assets/454d3fd0-dea5-4c25-9571-078a71a8304a)\n\n![Image](https://github.com/user-attachments/assets/92cb75e4-ad65-456b-9784-2c9087e741fb)"
+  },
+  {
+    "number": 780,
+    "title": "[Enhancement]: 可否为电脑版再丰富一下快捷键？",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-02-03T04:30:11Z",
+    "updated_at": "2026-02-03T04:30:21Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/780",
+    "body": "### Description\n\n现在电脑主要缺的是翻页键（也可能是我没找到），左右键是有反应的，但是移动页面距离太小，对于大屏显示器，尤其是带鱼屏按起来太累。只有用鼠标点击了，但是有的时候就是习惯一手搭在键盘上按（可能看视频键盘用多了）\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 779,
+    "title": "[Bug]: 阅读器中自定义图片处理无法正确执行",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-02-03T03:25:27Z",
+    "updated_at": "2026-02-03T03:25:38Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/779",
+    "body": "### Bug type\n\nReader\n\n### Description\n\n这是给的初始模板代码，函数签名为\"function processImage(image, cid, eid, page, sourceKey)\"\n\n![Image](https://github.com/user-attachments/assets/93693c06-aafd-4ad7-b137-25c80af2214c)\n\n我在里面修改逻辑后并没有执行，翻了下源码发现需要包含\"async function processImage\"，async用户往往是不知道需要手动去添加的。\n\n![Image](https://github.com/user-attachments/assets/d8ca0f80-d9ad-4f8d-868f-53d83684f39d)\n\n### Version\n\n1.6.2\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 778,
+    "title": "[Enhancement]: 恳请开发者添加32位处理器设备的支持~",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-31T08:30:56Z",
+    "updated_at": "2026-01-31T08:43:14Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/778",
+    "body": "### Description\n\n手头还有老平板用来看本子，请添加32位处理器支持。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 777,
+    "title": "[Enhancement]: 希望可以对竖屏模式、横屏模式进行单独设置",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-31T05:08:50Z",
+    "updated_at": "2026-01-31T05:09:03Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/777",
+    "body": "### Description\n\n我一般用上下连续模式在手机上看漫画。但遇到有双页的漫画为了看爽需要手机横屏后手动切换到连续右到左模式观看，然后再切换回来。这样操作麻烦。希望增加手机竖屏、横屏观看时的分开设置功能。谢谢\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 775,
+    "title": "[Enhancement]: customise share button’s function",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-27T20:14:00Z",
+    "updated_at": "2026-01-27T20:14:26Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/775",
+    "body": "### Description\n\nIt would be great if the share button can be customised - to share in batch, or be disabled.\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 774,
+    "title": "[Bug]: ipad上，打不开venera，以及是不是给”封面单独一页“功能更新没了？日漫人真的很需要这个功能",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-27T08:07:14Z",
+    "updated_at": "2026-01-27T08:07:27Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/774",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\nipad上，打不开venera，以及是不是给”封面单独一页“功能更新没了？日漫人真的很需要这个功能\n\n### Version\n\n1.6.2\n\n### Operating system\n\niOS\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 772,
+    "title": "[Bug]: 本地下载漫画打不开，打开文件夹报错PlatformException",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-24T05:25:41Z",
+    "updated_at": "2026-01-24T05:25:51Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/772",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n本地下载漫画打不开，打开文件夹报错PlatformException\nAndroid版本13\n\n### Version\n\n1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\nhttps://github.com/user-attachments/assets/eaba081e-cf40-4009-9cf1-5675ca927b1d\nhttps://github.com/user-attachments/assets/118f6357-d75a-4273-ad6d-89f431f7447c"
+  },
+  {
+    "number": 771,
+    "title": "[Bug]: 最新版本配置同步后立即崩溃，启动时崩溃",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-22T16:23:41Z",
+    "updated_at": "2026-01-22T16:24:05Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/771",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n更新到最新版后显示云同步的参数错误，遂即将改为使用另一个网盘，点击保存后直接闪退\n由于启动应用会自动同步，导致启动后立即闪退\n断网可以阻止同步并成功打开应用\n\n### Version\n\n1.6.2\n\n### Operating system\n\nWindows\n\n### logs\n\nDioException [bad response]: null\nError: Invalid Status Code 502\n#0      WdDio.wdPropfind (package:webdav_client/src/webdav_dio.dart:199)\n<asynchronous suspension>\n#1      Client.readDir (package:webdav_client/src/client.dart:66)\n<asynchronous suspension>\n#2      DataSync.uploadData (package:venera/utils/data_sync.dart:142)\n<asynchronous suspension>\n\n### Screenshot or video\n\n<img width=\"1919\" height=\"694\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/b8b20f08-5adb-43f5-9d80-97c632c66a7f\" />\n\n左侧为venera右侧为kazumi，在两方配置一样的状态下，venera卡死并闪退，kazumi测试成功"
+  },
+  {
+    "number": 770,
+    "title": "[Bug]: iPad上，阅读中点击右上角齿轮，设置抽屉弹出后会立马自动收回，无法点击",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-22T03:48:49Z",
+    "updated_at": "2026-01-26T15:33:33Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/770",
+    "body": "### Bug type\n\nUI\n\n### Description\n\niPad上，阅读中点击右上角齿轮，设置抽屉弹出后会立马自动收回，无法点击\n\n### Version\n\n1.6.2\n\n### Operating system\n\niOS\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 768,
+    "title": "[Bug]: 收藏了漫画但是转到收藏页面显示不了",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-20T06:41:01Z",
+    "updated_at": "2026-01-20T06:41:14Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/768",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n\n收藏了漫画但是转到收藏页面显示不了，得用重新排序才能显示出来\n\n### Version\n\n1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n![Image](https://github.com/user-attachments/assets/bcc7ff76-cfe4-45d1-a33a-8c8207b5e239)\n\n![Image](https://github.com/user-attachments/assets/c53b9aee-eb41-479c-854e-bf1e63d98b00)\n\n![Image](https://github.com/user-attachments/assets/acfb8d7e-e79c-4bc0-9edd-29c9f89178c7)"
+  },
+  {
+    "number": 767,
+    "title": "[Bug]: 在收藏页面点击快速阅读后漫画无法全屏阅读，侧栏一直显示",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-20T04:50:54Z",
+    "updated_at": "2026-01-20T04:52:01Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/767",
+    "body": "### Bug type\n\nUI\n\n### Description\n\n在收藏页面下，右键快速阅读，或者设置里设置点击调整阅读后，漫画阅读后界面不会铺满显示，始终显示侧边栏，无论是否切换全屏侧边栏始终显示\n\n<img width=\"897\" height=\"928\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/e0b82aa5-a841-41d7-a09f-29ad9e5f9765\" />\n<img width=\"2731\" height=\"2047\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/375268b1-a1c4-4ff3-9755-edebf97929ee\" />\n<img width=\"2732\" height=\"2048\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/4aa3e8da-7b18-4b53-8af3-4bbf572c1c5b\" />\n\n### Version\n\n1.6.2\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 762,
+    "title": "[Bug]: windows端使用网络代理后调用webview网页登录报错",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-13T01:42:13Z",
+    "updated_at": "2026-01-13T01:42:25Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/762",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n设置中配置网络代理提示报错，不配置网络代理会卡住闪退\n经过检索发现以前有过同样的问题但在1.2.3版本修复，目前最新版本又重新出现该问题\nhttps://github.com/venera-app/venera/issues/162\n\n### Version\n\n1.6.2\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n<img width=\"1109\" height=\"741\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/9502d7fc-f8b0-45c4-9e11-37f1027e2a57\" />"
+  },
+  {
+    "number": 761,
+    "title": "[Enhancement]: 希望增加自动剪裁去白边的功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-12T21:51:00Z",
+    "updated_at": "2026-01-12T21:51:12Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/761",
+    "body": "### Description\n\n希望增加自动剪裁去白边的功能，特别设备尺寸较小的情况下，没有该功能很多漫画字都看不清\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 760,
+    "title": "[Bug]: macos 26下点击右键“全屏”高概率闪退",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-12T21:46:49Z",
+    "updated_at": "2026-01-12T21:47:01Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/760",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\nmacos 26.2下点击右键“全屏”高概率闪退\n机器m4 mac mini\n\n### Version\n\n1.6.2\n\n### Operating system\n\nmacOS\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 757,
+    "title": "[Enhancement]: 希望可以在[阅读模式]中增加默认“适应高度”的“画廊模式”，Thanks♪(･ω･)ﾉ",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-10T23:23:50Z",
+    "updated_at": "2026-01-10T23:24:00Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/757",
+    "body": "### Description\n\n![Image](https://github.com/user-attachments/assets/dc65988c-4733-4a46-877f-9776daf6c72d)\n相同功能可参考 Mihon，希望能继续优化阅读模式的体验。\nVenera的UI、信息流以及交互我十分喜欢，感谢各位的持续更新和付出。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 756,
+    "title": "[Bug]: windows版1.6.1之后在armwin上无法正常使用，1.6.0之前正常",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-10T00:05:01Z",
+    "updated_at": "2026-01-16T14:08:47Z",
+    "comments": 5,
+    "url": "https://github.com/venera-app/venera/issues/756",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n1.6.1之后的版本点击exe无反应，软件不启动，1.6.0之前正常打开\n\n### Version\n\n1.6.1,1.6.2\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 752,
+    "title": "[Enhancement]: 希望可以增加收藏标签的功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-09T03:29:33Z",
+    "updated_at": "2026-01-09T03:29:46Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/752",
+    "body": "### Description\n\n可以通过收藏标签快速查找同一作者或同一主题内容的有关内容\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 751,
+    "title": "[Enhancement]: 希望能增加标签分类，并且能选择要看的类型",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-08T23:28:15Z",
+    "updated_at": "2026-01-08T23:34:06Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/751",
+    "body": "### Description\n\n![Image](https://github.com/user-attachments/assets/86f64abb-3ad0-4f57-98ff-6d43b1fcacff)\n\n禁漫可以选择要看的漫画类型，希望能增加这周功能\n\n### Operating System\n\nAndroid, Windows\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 748,
+    "title": "[Enhancement]: 希望在漫画详情页收藏的添加列表里长按文件夹后可以直接查看文件夹内的内容",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-08T12:11:47Z",
+    "updated_at": "2026-01-08T12:12:10Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/748",
+    "body": "### Description\n\n希望在漫画详情页收藏的添加列表里长按文件夹后可以直接查看文件夹内的内容\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 747,
+    "title": "[Enhancement]: 希望重命名文件夹的时候能够在原名称上修改，而不是需要完全写一个",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-08T12:11:02Z",
+    "updated_at": "2026-01-08T12:11:15Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/747",
+    "body": "### Description\n\n希望重命名文件夹的时候能够在原名称上修改，而不是需要完全写一个\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 745,
+    "title": "[Bug]: 关闭页面动画后，滑动翻页仍然存在动画",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-08T06:13:10Z",
+    "updated_at": "2026-01-08T06:14:13Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/745",
+    "body": "### Bug type\n\nUI\n\n### Description\n\n我正在尝试为它开发墨水屏的支持，我发现可以选择在“阅读中”页面关闭页面动画，关闭后单击翻页的动画确实被禁用了，但是滑动手势仍然存在翻页动画。\n阅读源码，我发现是`enablePageAnimation`参数控制翻页，但是滑动翻页的`smoothTo`函数却使用的是另一套控制逻辑，这是有意为之还是一个疏漏？如果这是一个bug的话，我会考虑在开发墨水屏支持的过程中将其修复。\n\n### Version\n\nv1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n关于对墨水屏的支持，我考虑增加一个新的页面，添加若干支持墨水屏的设置，如关闭翻页动画、关闭UI页面动画、禁用惯性滚动等等，我有一台汉王clear 6 turbo，且安装了android版的venera，感觉使用起来非常痛苦，这也是我当前的动力，我想知道其他开发者对添加这个功能的意见？（下图是闲置的android机不是墨水屏）\n\n![Image](https://github.com/user-attachments/assets/0b70e121-37f9-4f23-9530-1096a6032fcf)"
+  },
+  {
+    "number": 743,
+    "title": "[Enhancement]: 建议增加点选屏幕上下半区翻页功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-07T08:54:09Z",
+    "updated_at": "2026-01-07T08:58:45Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/743",
+    "body": "### Description\n\n为了在手机、平板、电脑设备之间来回观看避免重复调整设置，最终选择了从右至左的浏览方式。那么打开点击翻页功能后，点击右半区是下一页，左半区是上一页。这个操作在经常需要交换左右手的场合使用平板就显得尤为不便。右手握持的时候没有问题，左手握持的时候手指勾不到右半区翻下一页，就得进设置反转点击。两手交换就得来回倒腾。由于看漫画大部分情况是只需翻下一页，翻上一页的情况较少。所以建议增加下上半区的翻页功能。那么无论怎么交换左右手都只需点击下半区翻下一页即可，偶尔需要翻上一页，一手握持设备，一手点击上半区也能接受。\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 742,
+    "title": "[Bug]: 主页历史记录漫画封面部分不显示",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-06T16:16:57Z",
+    "updated_at": "2026-01-06T16:17:09Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/742",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n从1.6.1就开始有这个问题，阅读的历史记录有部分的漫画封面不显示，但是如果我进入我的收藏家的话，却能正常显示。而且这个显示不仅仅是缩略图，是点进漫画详情也会不显示，然后从收藏夹进入，点击漫画详情是能看到的。\n这个问题不仅仅是安卓版， windows版也有\n\nhttps://github.com/user-attachments/assets/70686237-12f9-49bb-a227-eef7b950977c\n\n### Version\n\n1.6.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 739,
+    "title": "[Enhancement]: 为漫画具体内容添加Grid View，并添加快速切换方式",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2026-01-03T07:27:14Z",
+    "updated_at": "2026-01-03T07:27:25Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/739",
+    "body": "### Description\n\n原因：并非所有漫画源都支持预览，而有时需要快速浏览来确定大体画面内容（内容空泛或者不喜欢），目前似乎没有可用的解决方案。所以想是否能在应用层级解决。\n\n需求：\n\n1. 在应用层级添加被称作“预览“，”网格浏览“，”双页浏览“之类的的模式，以在不支持预览的漫画源中使用。\n最好获取Thumbnail来增加加载速度（支持的话），也可添加开关控制网格浏览下是否获取原图以支持不同使用需求。\n\n2. 此外，添加特定按钮或交互来实现快速的切换，比如，双指捏合或放大调整退出或进入Grid View。或者直接添加一个按钮即可。或者在漫画介绍页使用两个入口，来分别进入网格模式和普通模式。此功能可实现：网格浏览时，发现可能感兴趣的部分，并快速进行普通的单页浏览，以及来回切换。\n\n<img width=\"280\" height=\"368\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/0861db4d-e8c1-4161-9645-64a2bc322af2\" />\n\n谢谢\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 738,
+    "title": "[Bug]: Favorites Text Disappears After Rotation to Landscape Mode",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-03T07:00:14Z",
+    "updated_at": "2026-01-03T07:00:25Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/738",
+    "body": "### Bug type\n\nUI\n\n### Description\n\n**Issue:** **Favorites** Text Disappears After Rotation to Landscape Mode\n\n**Steps to reproduce:**\n\n1. Tap the second icon from the left in the bottom bar.\n2. In portrait mode, observe that the **Favorites** text is visible in the top-left corner.\n3. Rotate the device to landscape mode — the **Favorites** text is no longer visible.\n\n**Expected behavior:**\nThe **Favorites** text should also be visible in landscape mode to improve usability.\n\n\n### Version\n\n1.3.2 (1323), 1.6.2\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n<img width=\"1080\" height=\"2400\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/ec8f8d37-5299-4a17-8973-b7229899d44e\" />\n\n<img width=\"1080\" height=\"2400\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/bf900827-0614-4b4f-8d35-bdbabcb93d08\" />\n\n<img width=\"1280\" height=\"576\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/7f1e922b-e941-4ea2-b1a7-12b4c930bb3f\" />"
+  },
+  {
+    "number": 733,
+    "title": "[Bug]: 打开本地一个收藏目录会报错",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2026-01-01T03:30:56Z",
+    "updated_at": "2026-01-01T03:31:08Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/733",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n界面显示报错：\nSqliteException(11): while selecting from statement, database disk image is malformed, database disk image is malformed (code 11)\n\nCausing statement:   select * from history\nwhere id = ? and type = ?; parameters: 490, 6379999886\n\n### Version\n\n1.6.1\n\n### Operating system\n\nAndroid, Windows\n\n### logs\n\nSqliteException(11): while selecting from statement, database disk image is malformed, database disk image is malformed (code 11)\n  Causing statement:       select * from history\n      where id == ? and type == ?;, parameters: 490, 637999886\n#0      throwException (package:sqlite3/src/implementation/exception.dart:87)\n#1      StatementImplementation._selectResults (package:sqlite3/src/implementation/statement.dart:140)\n#2      StatementImplementation.selectWith (package:sqlite3/src/implementation/statement.dart:280)\n#3      CommonPreparedStatement.select (package:sqlite3/src/statement.dart:97)\n#4      DatabaseImplementation.select (package:sqlite3/src/implementation/database.dart:463)\n#5      HistoryManager.find (package:venera/foundation/history.dart:374)\n#6      _LocalFavoritesPageState.filterComics.<anonymous closure> (package:venera/pages/favorites/local_favorites_page.dart:113)\n#7      WhereIterator.moveNext (dart:_internal/iterable.dart:468)\n#8      new _GrowableList._ofOther (dart:core-patch/growable_array.dart:207)\n#9      new _GrowableList.of (dart:core-patch/growable_array.dart:156)\n#10     new List.of (dart:core-patch/array_patch.dart:39)\n#11     Iterable.toList (dart:core/iterable.dart:517)\n#12     _LocalFavoritesPageState.filterComics (package:venera/pages/favorites/local_favorites_page.dart:120)\n#13     _LocalFavoritesPageState.build (package:venera/pages/favorites/local_favorites_page.dart:639)\n#14     StatefulElement.build (package:flutter/src/widgets/framework.dart:5934)\n#15     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5820)\n#16     StatefulElement.performRebuild (package:flutter/src/widgets/framework.dart:5985)\n#17     Element.rebuild (package:flutter/src/widgets/framework.dart:5532)\n#18     ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5802)\n#19     StatefulElement._firstBuild (package:flutter/src/widgets/framework.dart:5976)\n#20     ComponentElement.mount (package:flutter/src/widgets/framework.dart:5796)\n#21     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590)\n#22     Element.updateChild (package:flutter/src/widgets/framework.dart:4059)\n#23     ComponentElement.performRebuild (package:flutter/src/widgets/framework.dart:5844)\n#24     Element.rebuild (package:flutter/src/widgets/framework.dart:5532)\n#25     ComponentElement._firstBuild (package:flutter/src/widgets/framework.dart:5802)\n#26     ComponentElement.mount (package:flutter/src/widgets/framework.dart:5796)\n#27     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590)\n#28     MultiChildRenderObjectElement.inflateWidget (package:flutter/src/widgets/framework.dart:7269)\n#29     MultiChildRenderObjectElement.mount (package:flutter/src/widgets/framework.dart:7285)\n#30     Element.inflateWidget (package:flutter/src/widgets/framework.dart:4590)\n#31     Element.updateChild (package:flutter/src/widgets/framework.dart:4059)\n#32     ComponentElement.performRebuild (package:flutter...\n\n### Screenshot or video\n\n<img width=\"674\" height=\"135\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/28e9598f-2b99-448c-b0ee-d25a9fb14783\" />"
+  },
+  {
+    "number": 727,
+    "title": "[Enhancement]:  请问本地收藏能否也加一个分页功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-30T17:29:58Z",
+    "updated_at": "2025-12-30T17:30:10Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/727",
+    "body": "### Description\n\n如题，就是我有时漫画太多了，看中间一点的滑下去太慢，能否设置一个翻页功能？\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 724,
+    "title": "[Enhancement]: 导入本地漫画",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-29T05:56:42Z",
+    "updated_at": "2025-12-29T05:59:39Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/724",
+    "body": "### Description\n\n导入本地漫画时，只能读取那种漫画名字文件夹下的图片文件，比如“漫画名字/01.jpg 02.jpg.....”，不能读取那种漫画名字第几话下的图片文件，比如“漫画名字/第一话/01.jpg 02.jpg.....，漫画名字/第二话/01.jpg 02.jpg.....”，\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 720,
+    "title": "[Bug]: 下载重复",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-26T06:19:52Z",
+    "updated_at": "2025-12-26T06:20:02Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/720",
+    "body": "### Bug type\n\nPerformance\n\n### Description\n\n当选择下载全部章节时，大部分时候都会中间断掉，没办法恢复下载。然后当回到漫画重新选择章节下载时，会发现软件会重新建立一个新的文件夹，并且重新下载，即便之前的\"下载全部章节\"已经下载了一部分章节。\n\n有办法改成下载时自动跳过已下载章节吗？或者把下载全部改成下载50章节之类的，避免下载途中断掉。\n非常感谢！\n\n### Version\n\n1.6.1\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n<img width=\"617\" height=\"97\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/56190add-caad-48b1-a848-342f4d1738f5\" />"
+  },
+  {
+    "number": 710,
+    "title": "[Bug]: 报错，图片不显示",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-23T02:18:26Z",
+    "updated_at": "2026-02-01T14:45:05Z",
+    "comments": 23,
+    "url": "https://github.com/venera-app/venera/issues/710",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n打开每个都报错，图片无显示全黑\n\n### Version\n\n1.6.1\n\n### Operating system\n\nAndroid\n\n### logs\n\n[log.txt](https://github.com/user-attachments/files/24302543/log.txt)\n\n### Screenshot or video\n\n![Image](https://github.com/user-attachments/assets/617f27ce-5647-421b-a480-cfd944152ee8)\n![Image](https://github.com/user-attachments/assets/ff112f0c-699c-4fc7-a671-e7a0348f0d71)"
+  },
+  {
+    "number": 708,
+    "title": "[Enhancement]: 希望在本地下载界面增加一个滑动块，从而能快速滑动列表",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-22T17:59:21Z",
+    "updated_at": "2025-12-22T17:59:30Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/708",
+    "body": "### Description\n\n如题。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 707,
+    "title": "[Enhancement]: 下载漫画时候，会一直卡在正在获取图像列表",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-22T16:52:14Z",
+    "updated_at": "2026-01-19T04:33:20Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/707",
+    "body": "### Description\n\n暂停重新开始到下载完成以后，会出现到中间章节丢失的问题。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 705,
+    "title": "[Enhancement]: 请求增加关闭评论功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-22T10:50:21Z",
+    "updated_at": "2025-12-27T10:43:01Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/705",
+    "body": "### Description\n\n现在网上戾气重，骂人，带节奏的坏人很多，在看漫画的时候看到他们的评论会败坏心情，希望增加关闭评论区显示功能，具体是ehentai平台\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 704,
+    "title": "[Enhancement]: 漫画更新了是不是没提醒？",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-21T17:43:31Z",
+    "updated_at": "2025-12-21T17:43:42Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/704",
+    "body": "### Description\n\n漫画更新能不能显示出来\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 695,
+    "title": "[Enhancement]: 能否适配鸿蒙next系统",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-19T06:53:06Z",
+    "updated_at": "2025-12-19T06:53:16Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/695",
+    "body": "### Description\n\nflutter现在有鸿蒙分支了，想问下能打包鸿蒙next版本吗？\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 694,
+    "title": "[Enhancement]: 增加按照标签屏蔽功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-18T23:44:23Z",
+    "updated_at": "2025-12-18T23:44:32Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/694",
+    "body": "### Description\n\n目前发现只有“关键词屏蔽”和“评论关键词屏蔽”，尚不清楚“关键词屏蔽”检测原理，但是根据实测无法按照按照标签屏蔽，也许是只检测名字？\n另外根据上面加入标签屏蔽的请求，更进一步可以把在搜索列表和发现列表里长按唤出的二级菜单里的屏蔽中加入标签词条\n印象里原先版本貌似可以实现以上功能，但是目前1.6.1无法实现\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 693,
+    "title": "[Bug]:动图无法正常显示",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-18T05:13:11Z",
+    "updated_at": "2025-12-18T05:13:22Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/693",
+    "body": "### Bug type\n\nReader\n\n### Description\n\n动图无法正常查看\n\n### Version\n\n1.6.1\n\n### Operating system\n\niOS\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n![Image](https://github.com/user-attachments/assets/30e715a8-dd56-47cb-aef8-df1fb709423a)"
+  },
+  {
+    "number": 692,
+    "title": "[Bug]: ColorOS16使用默认字体时在App内显示异常",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-17T14:46:32Z",
+    "updated_at": "2025-12-26T17:05:43Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/692",
+    "body": "### Bug type\n\nUI\n\n### Description\n\n手机系统为Oppo ColorOS16，在1.6.1版本会把默认字体的oppo sans变成oppo serif，1.6.0则是是正常的\n\n### Version\n\n1.6.1\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n1.6.1↓\n![Image](https://github.com/user-attachments/assets/376d2168-3401-4610-ba01-6cb63e875118)\n1.6.0↓\n![Image](https://github.com/user-attachments/assets/eb64bd7b-1700-4de2-8a2d-f0f27693f6b8)"
+  },
+  {
+    "number": 690,
+    "title": "[Enhancement]: 导出数据的时候希望数据包内有webdav相关的数据",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-17T02:43:37Z",
+    "updated_at": "2026-01-08T13:22:15Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/690",
+    "body": "### Description\n\n之前不知道，前几天把软件删了，然后装回再导数据的时候发现导进数据后webdav要重新配置，能不能够把这个webdav相关的东西也备份进数据包里\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 683,
+    "title": "[Bug]: Windows 端 WebDAV 同步错误，无法移动到不同磁盘",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-10T19:11:38Z",
+    "updated_at": "2025-12-10T19:11:50Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/683",
+    "body": "### Bug type\n\nOther\n\n### Description\n\nAndroid 手机和平板没问题，电脑显示“系统无法将文件移到不同的磁盘驱动器” ，但我无法找到对应的 `venera\\temp_data\\history.db` 文件\n\n### Version\n\n1.6.1\n\n### Operating system\n\nWindows\n\n### logs\n\n```log\nerror Data Sync 2025-12-11 03:03:40.719194 \nFileSystemException: Cannot rename file to 'C:\\Users\\Kelvin\\AppData\\Roaming\\com.github.wgh136\\venera\\history.db', path = 'C:\\Users\\Kelvin\\AppData\\Local\\com.github.wgh136\\venera\\temp_data\\history.db' (OS Error: 系统无法将文件移到不同的磁盘驱动器。\n, errno = 17)\n#0      _File.throwIfError (dart:io/file_impl.dart:783)\n#1      _File.renameSync (dart:io/file_impl.dart:400)\n#2      importAppData (package:venera/utils/data.dart:72)\n<asynchronous suspension>\n#3      DataSync.downloadData (package:venera/utils/data_sync.dart:216)\n<asynchronous suspension>\n```\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 680,
+    "title": "[Bug]: 阅读中手指滑动结束会很容易触发操作栏弹出，很影响全面阅读，能不能添加点击指定区域弹出操作栏或者调整一下触发率",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-10T11:31:21Z",
+    "updated_at": "2025-12-10T11:31:31Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/680",
+    "body": "### Bug type\n\nPerformance\n\n### Description\n\n如题\n\n### Version\n\n1.6.1\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 677,
+    "title": "[Enhancement]: 首次同步webdav时，弹窗明确提醒用户选择 上传/下载 的后果",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-09T19:28:09Z",
+    "updated_at": "2025-12-09T20:00:36Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/677",
+    "body": "### Description\n\n希望：首次同步webdav时，弹窗明确提醒用户选择 上传/下载 的后果，\n或者默认不要选择 上传 / 下载，同时提醒用户这样选的后果，让用户清醒些\n\n或者：首次/以后同步webdav时，融合云上和本地的数据，不要上传空数据导致云上数据丢失\n\n不知道是否是我的个人问题，我不敢测试了，下面是我操作的流程和遇到的问题\n\n#### 前提条件：\n从新安装APP到现在，从未添加过webdav\n\n#### 动作：\n1. 填写webdav的URL、账户、密码,\n2. 忽视了下面的 \"上传 / 下载\" 选项，默认为 \"上传\"\n3. 点击 \"继续\" 按钮\n4. 我的webdav上保存的数据被覆盖了，丢失了\n5. 点击下载，数据没有恢复\n\n\n好在，我在坚果云电脑网页版撤回了这些操作，我的数据恢复了，\n所以我强烈推荐大家了解一下坚果云，看一下坚果云有什么功能\n\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 676,
+    "title": "[Bug]: 收藏页搜索时，搜索简体无法覆盖繁体内容",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-09T14:21:51Z",
+    "updated_at": "2025-12-09T14:22:05Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/676",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n在收藏页，如果搜索的内容是简体中文，并不能搜索到繁体中文的标题，这很不利于查找，每次都得手动切换输入法为繁体来搜索，希望修复。\n\n### Version\n\nv1.6.1\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 675,
+    "title": "[Enhancement]: 新增网盘，sftp，webdav功能实现下载的漫画数据上传同步",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-09T08:31:35Z",
+    "updated_at": "2025-12-09T08:31:49Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/675",
+    "body": "### Description\n\n 实现sftp，webdav的访问，可以直接设置下载数据仅保存本地，仅保存网盘，还是都保存\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 671,
+    "title": "[Enhancement]: 下载到本地的文件夹名称问题",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-07T13:20:20Z",
+    "updated_at": "2025-12-07T13:20:32Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/671",
+    "body": "### Description\n\n漫画下载到本地以后每个章节都分到了不同的文件夹，但是这些文件夹名称就是一串没有关联的数字，在本地没办法按顺序看，能否添加功能，让下载的文件夹自动以章节名称命名\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 667,
+    "title": "[Enhancement]: 希望评论区添加以热度或时间排序",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-05T23:34:04Z",
+    "updated_at": "2025-12-05T23:34:18Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/667",
+    "body": "### Description\n\n像是拷贝漫画，章节评论和漫画评论总是以最新展示，但要是很多人在讨论的话就不好顺着看，改变排序方式对于快速看看大家在聊什么还是很有帮助的\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 663,
+    "title": "[Enhancement]: 希望增加拆分双页功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-04T14:33:19Z",
+    "updated_at": "2025-12-04T14:33:34Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/663",
+    "body": "### Description\n\n有的漫画是两页合到一张图里了，平板电脑还好，手机看就很费劲了，希望能更新此功能\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 660,
+    "title": "[Bug]: 1.6.1版本win10系统打不开",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-12-03T03:08:59Z",
+    "updated_at": "2025-12-04T11:33:44Z",
+    "comments": 6,
+    "url": "https://github.com/venera-app/venera/issues/660",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n不知道为什么，在我给windows10的电脑更新完1.6.1版本之后，程序就打不开了。\n\n### Version\n\n1.6.1\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 658,
+    "title": "[Enhancement]: 希望能有开关关闭右滑返回或改成返回手势仅在最左侧生效",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-12-03T01:24:20Z",
+    "updated_at": "2025-12-03T01:37:16Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/658",
+    "body": "### Description\n\n1.6.1版本下，iOS 18.7使用下来体验很好，唯一一个问题就是条漫模式阅读时，右滑返回容易误返回到漫画详情页。\n如果是左右阅读模式的话，右滑返回就只会在边缘位置生效了，然而条漫整个屏幕都能生效。\n并且轻点屏幕唤起底部进度条界面，如果不是很精准地拖动到进度条，也会触发右滑返回的逻辑。\n\n因此，希望能希望能有开关控制开启或关闭右滑返回的手势；或改成返回手势仅在最左侧生效（底部拖进度条的位置四周也不生效）。以便消除操作手势冲突。\n\n非常感谢。\n\n### Operating System\n\niOS"
+  },
+  {
+    "number": 653,
+    "title": "[Bug]: [Upstream] Windows significant performance regression",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-11-30T10:50:47Z",
+    "updated_at": "2025-11-30T10:50:58Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/653",
+    "body": "### Bug type\n\nPerformance\n\n### Description\n\nWaiting for https://github.com/flutter/flutter/issues/178916\n\n### Version\n\n1.6.1\n\n### Operating system\n\nWindows\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 647,
+    "title": "[Enhancement]: 关于阅读器横屏模式下双页阅读的问题。Regarding the problem of dual-page display of the reader in landscape mode",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-27T17:48:39Z",
+    "updated_at": "2025-11-27T18:17:38Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/647",
+    "body": "### Description\n\n为还原阅读纸质漫画的体验，很多人会使用横屏并显示两页的内容。但经常遇到两页的跨页对不上的问题，就是屏幕上显示的两页可能是在书本中需要翻页的两页，这样遇到两页拼凑起来的跨页图会被拆开，阅读起来就很难受。建议直接独立出”双页模式”，并配上跨页对齐的功能按钮，只需简单的将该章节的第一组（一组两页，第一组可显示一页或者两页来达到后续的跨页对齐）图在显示两页和显示一页之间切换即可达到效果。另外，有些漫画资源会合并跨页图作一张图，这在双页显示中可以将这一张图以两页的宽度显示，希望能自动识别这类图（如根据图的x长度比y长度长判断这张图为横图），以两页的宽度显示。\n\nTo recreate the experience of reading physical comics, many people use landscape mode and display two pages. However, a common problem is that the two pages displayed on the screen may be the two pages that need to be turned in the book. This causes the two pages that are pieced together to be separated, making reading difficult. It is recommended to create a separate \"double-page mode\" with a page alignment button. Simply switch between displaying two pages or one page for the first group of images in the chapter (each group consists of two pages; the first group can be displayed as one or two pages to achieve page alignment in subsequent chapters) to achieve the desired effect.Additionally, some comic resources combine split-page images into one image. In double-page display, this image can be displayed with the width of two pages. It would be great if this could be automatically recognized (e.g., judging that the image is a landscape image based on the fact that the x-length is longer than the y-length) and displayed with the width of two pages.\n---Translation from Google\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 642,
+    "title": "[Enhancement]: 希望添加下载导出全部文件功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-23T08:01:44Z",
+    "updated_at": "2025-11-23T08:01:55Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/642",
+    "body": "### Description\n\n隔壁piac有这个功能，换设备或者备份的时候很好用，只需要备份一个文件就行\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 634,
+    "title": "[Enhancement]: 希望能增加Bangumi等追踪器来实现进度记录功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-19T03:03:09Z",
+    "updated_at": "2025-11-19T03:03:21Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/634",
+    "body": "### Description\n\n希望能添加Bangumi、AniList、MyAnimeList等追踪器，并实现阅读后更新（阅读一章后更新追踪器以匹配当前阅读的章节）、自动从追踪器同步（在追踪器上检测到较新的章节时，自动更新匹配的本地历史记录）等功能\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 628,
+    "title": "[Enhancement]: 允许挂载webdav为漫画来源",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-15T21:45:43Z",
+    "updated_at": "2025-11-15T21:45:52Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/628",
+    "body": "### Description\n\n有很多漫画未储存到本机，而是存在于云服务中，希望可以支持webdav/SMB/FTP之类的协议挂载。我个人比较需要webdav协议。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 626,
+    "title": "[Enhancement]: 希望增加‘两侧翻页’功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-13T07:33:37Z",
+    "updated_at": "2025-11-13T07:33:50Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/626",
+    "body": "### Description\n\n更加有利于单手操作，换手后也可以轻松点击翻页\n\n### Operating System\n\nAndroid\n\n### picture\n\n<img width=\"415\" height=\"504\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/0a19baab-d779-47fd-9b83-e51b021cc4ac\" />"
+  },
+  {
+    "number": 620,
+    "title": "[Enhancement]:下载逻辑优化",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-08T13:10:50Z",
+    "updated_at": "2025-11-08T13:11:35Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/620",
+    "body": "### Description\n\n个人习惯下载漫画本地观看，下载过程中发现个问题，提个小建议。\n\n发现下载的过程是先获取所有的图片地址，这个会导致在大量下载的时候开始等待的时间过长。\n\n多线程下载的时候可以分别获取单章节再进行下载，减少最开始获取图片地址等待的时间\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 610,
+    "title": "[Enhancement]: 为长条漫画新增自动滚动功能 / Implement Auto-Scrolling for Webtoon Reading Mode",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-03T02:19:35Z",
+    "updated_at": "2025-11-03T08:25:28Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/610",
+    "body": "### Description\n\nThe current Auto-Paging feature in vertical mode is unsuitable for Webtoon-style comics. Since a single image can be very long, auto-paging simply jumps to the next image, cutting off the current page content before the user finishes reading it.\n\nSuggestion: Implement an Auto-Scrolling feature.\n\nUsers should be able to set a scrolling speed. The app should smoothly scroll down the current image until the bottom is reached, and then transition to the next image\n\n\n---\n\n当前竖屏模式下的自动翻页功能不适用于长条漫画。由于单张图片很长，自动翻页直接跳到下一张图，导致用户无法看完当前图片的内容。\n\n建议： 引入\" 自动滚动 \"功能。\n\n用户可设置滚动速度。应用应平稳地向下滚动当前的图片，直到图片底部，然后再切换到下一张图片。\n\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 608,
+    "title": "[Enhancement]: 希望优化下下载优先级",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-02T03:11:27Z",
+    "updated_at": "2025-11-02T03:11:37Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/608",
+    "body": "### Description\n\n目前想让多个下载其中一项首先下载只能去下载界面进行置顶操作，但是有时候可能跟网络有关，下载界面没下载的项目不显示封面和名称，所以希望在漫画详情页里加个优先下载/置顶下载功能，方便优先下载该漫画\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 606,
+    "title": "[Enhancement]: 希望下载添加批量删除功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-02T03:08:56Z",
+    "updated_at": "2025-11-02T03:09:05Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/606",
+    "body": "### Description\n\n希望下载添加批量删除功能，目前只能一个一个的删除，太麻烦了（之前一口气下了100多个，但是网太慢了打算取消，结果得一个一个的点）\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 605,
+    "title": "[Bug]: 自定新的存储路径无法从内部存储切换到存储卡",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-11-02T03:07:44Z",
+    "updated_at": "2025-11-02T03:07:53Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/605",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n自定义新的存储路径无法从内部存储的默认位置（android/data/软件包名）切换到存储卡的默认位置（android/data/软件包名）\n\n### Version\n\n1.6.0\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 601,
+    "title": "[Enhancement]: 希望可以手动设置切到下一章需要上滑的长度",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-11-01T06:30:16Z",
+    "updated_at": "2026-01-17T13:48:45Z",
+    "comments": 4,
+    "url": "https://github.com/venera-app/venera/issues/601",
+    "body": "### Description\n\n使用连续阅读模式(从上到下)的时候，切换到下一章事，需要手动往上滑比较大的幅度，下一章的按键在屏幕右侧，对用左手滑动的不太友好。希望能够自己控制切到下一章时，需要手动上滑的长度，更灵敏一些，不需要滑太长也能自动切换到下一章\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 595,
+    "title": "[Bug]: 本地漫画文件夹中非图片文件导致崩溃",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-10-31T20:22:25Z",
+    "updated_at": "2025-10-31T20:22:42Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/595",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n导入本地漫画时，如果选择的文件夹中有非图片文件，打开导入后的本地漫画会崩溃\n\n### Version\n\n1.5.3\n\n### Operating system\n\nAndroid\n\n### logs\n\n```\nflutter                 com.github.wgh136.venera             E  [ERROR:flutter/fml/platform/android/jni_util.cc(206)] java.lang.NullPointerException: Attempt to invoke virtual method 'boolean java.lang.String.equals(java.lang.Object)' on a null object reference\n                                                                                                    \tat io.flutter.embedding.engine.FlutterJNI.decodeImage(r8-map-id-03ad3a5930b17e5d1aa2f69b73686b03556b92f0adc58f9e107e8e56b8a7ffbc:69)\n                                                                                                    \nflutter                 com.github.wgh136.venera             A  [FATAL:flutter/shell/platform/android/android_image_generator.cc(113)] Check failed: fml::jni::CheckException(env). \nlibc                    com.github.wgh136.venera             I  handling signal: 6\nlibc                    com.github.wgh136.venera             A  Fatal signal 6 (SIGABRT), code -1 (SI_QUEUE) in tid 3564 (1.io), pid 1742 (b.wgh136.venera)\n```\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 581,
+    "title": "[Enhancement]: 希望能给漫画自定义标签",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-25T18:04:18Z",
+    "updated_at": "2025-10-25T18:04:36Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/581",
+    "body": "### Description\n\n漫画的标签如果能自己增加几个的话，搜索、分类时使用更加方便，\n虽然现在有文件夹的方式可以分类，但是漫画一般有多个tag不能简单用文件夹分类，而且原来某些网站的tag可能不完整，或者本人需要增加一些自己特殊的tag上去。\n\nps. \n1. 不知道为什么我本地的标签显示的一直是繁体【標籤】；\n2. 【更新漫画信息】【导入】【导出】时希望保留自定义标签；\n\n### Operating System\n\nWindows\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 576,
+    "title": "[Enhancement]: 希望可以提供rpm包",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-21T03:49:51Z",
+    "updated_at": "2025-11-22T12:25:26Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/576",
+    "body": "### Description\n\n希望提供rpm包以供**rhel**系linux使用。（尝试过用alien转换，会报错如图）\n求求大人给个rpm包吧！求求大人给个rpm包吧！求求大人给个rpm包吧！求求大人给个rpm包吧！\n<img width=\"415.75\" height=\"296.5\" alt=\"使用alien转换的报错\" src=\"https://github.com/user-attachments/assets/d4a72703-9ebe-4d9d-8a38-0c2999933ceb\" />\n求求大人给个rpm包吧！求求大人给个rpm包吧！求求大人给个rpm包吧！求求大人给个rpm包吧！\n~~电脑上看能注意到更多细节~~\n\n### Operating System\n\nlinux\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 570,
+    "title": "[Bug]: Windos端无法批量导出漫画",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-10-16T16:01:57Z",
+    "updated_at": "2025-10-16T16:02:42Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/570",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n批量导出漫画时会提示ZipException: Failed to write content\n\n### Version\n\nV1.5.3\n\n### Operating system\n\nWindows\n\n### logs\n\nZipException: Failed to write content\n\n### Screenshot or video\n\n<img width=\"296\" height=\"56\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/487c23b5-6e64-4cf1-9867-f1deed02d4da\" />"
+  },
+  {
+    "number": 568,
+    "title": "[Enhancement]: 希望可以出一个云端与本地数据合并的功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-16T03:22:16Z",
+    "updated_at": "2025-10-16T03:22:26Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/568",
+    "body": "### Description\n\n希望出一个云端和本地数据合并的功能，如果单覆盖的话有时候会把之前的数据覆盖掉\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 562,
+    "title": "[Enhancement]: 建议为iOS设备添加使用iCloud同步",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-14T14:45:19Z",
+    "updated_at": "2025-10-14T14:45:30Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/562",
+    "body": "### Description\n\n如题\n\n### Operating System\n\niOS\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 560,
+    "title": "[Enhancement]: 希望能直接保存图片，不需要再选择目录",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-14T03:45:41Z",
+    "updated_at": "2025-10-14T03:46:50Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/560",
+    "body": "### Description\n\n阅读时保存图片都是在固定目录中，每次都要跳转到目录再保存太繁琐了，而且保存时还要等待一会\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 553,
+    "title": "[Enhancement]: 可以增加繁体字转简体字吗？",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-11T21:27:49Z",
+    "updated_at": "2025-10-11T21:30:07Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/553",
+    "body": "### Description\n\n想求一个繁体字转简体字的功能，就是介绍名字这些，我的繁体字太糟糕了，蹲蹲，求求\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 548,
+    "title": "[Enhancement]: 望添加连续模式下缩小画面的功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-10T10:57:05Z",
+    "updated_at": "2025-10-10T10:57:05Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/548",
+    "body": "### Description\n\n目前软件在连续观看模式下只可以双击放大或者长按放大，在观看一些画幅比较长的条漫时很多设备无法显示完全，画廊模式无法很好的统一宽度，希望可以添加自定义漫画宽度的功能。 #\n\n### Operating System\n\n_No response_\n\n### picture\n\n<img width=\"645\" height=\"1398\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/2c5e1aa0-19ee-41a8-b8a9-09d30ed43a1d\" />"
+  },
+  {
+    "number": 546,
+    "title": "[Enhancement]: 本地收藏同步至网络收藏",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-10T03:40:27Z",
+    "updated_at": "2025-10-10T03:40:27Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/546",
+    "body": "### Description\n\n希望可以添加一个功能将本地收藏同步至漫画源的网络收藏\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 538,
+    "title": "[Enhancement]: webdav同步数据加密",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-10-07T08:28:17Z",
+    "updated_at": "2025-11-04T14:52:15Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/538",
+    "body": "### Description\n\n目前webdav同步的数据是明文。可否对数据进行加密，或者数据打包zip时添加压缩包密码\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 529,
+    "title": "[Enhancement]: 连续（从上到下）阅读模式，增加图片两侧可控制滚动",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-09-24T05:17:05Z",
+    "updated_at": "2025-09-24T05:17:05Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/529",
+    "body": "### Description\n\n在平板设备上阅读条漫，屏幕两侧的空白处没有事件绑定，控制滚动只能触摸屏幕中央图片\n\n### Operating System\n\n_No response_\n\n### picture\n\n![Image](https://github.com/user-attachments/assets/2482b0df-d7ab-478c-a36a-b7e06490eb81)"
+  },
+  {
+    "number": 523,
+    "title": "[Enhancement]: 在每话第一页上翻时，前往的页面需要是上一话的最后一页",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-09-18T08:51:54Z",
+    "updated_at": "2025-09-30T11:16:26Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/523",
+    "body": "### Description\n\n在每话第一页上翻时，前往的页面需要是上一话的最后一页。\n当前都会回到上一话的第一页，这很不符合直觉。😂\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 521,
+    "title": "[Enhancement]: 增加重新匹配同屏图片",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-09-16T18:02:26Z",
+    "updated_at": "2025-09-27T04:47:30Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/521",
+    "body": "### Description\n\n很多漫画会有不止一张跨页，而跨页大多会被分作两张图，例如以平板来说，在设置多张图片同屏的情况下，也总是会有跨页被分在前后页，有没有办法实现重新匹配本页的图片，以达到跨页的两张图显示在同一页呢\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 520,
+    "title": "[Enhancement]: 安卓阅读时拖拽翻页卡顿",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-09-16T07:18:42Z",
+    "updated_at": "2025-09-16T07:18:42Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/520",
+    "body": "### Description\n\n能感觉到掉帧，尤其是快速滑动的时候\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 513,
+    "title": "[Bug]:漫画在漫画源内下载后不支持图片收藏",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-09-09T15:46:13Z",
+    "updated_at": "2025-09-10T09:09:00Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/513",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n漫画下载后，若点击收藏则会提示不支持本地收藏\n漫画不是外部导入\n\n### Version\n\n1.5 .0\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 511,
+    "title": "[Enhancement]: 本地漫画目录结构修改",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-09-09T05:07:14Z",
+    "updated_at": "2025-11-04T14:56:12Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/511",
+    "body": "### Description\n\n修改后目录结构如下：\nComic Root\n├─UUID1（与index.json内的UUID相同）\n│  ├─Chapter1\n│  ├─Chapter2\n│  ├─Chapter3\n│  └─**index.json**\n├─UUID2\n├─UUID3\n└─**index.db**\n示例：\n[index.json](https://github.com/user-attachments/files/22226530/index.json)\n[index.db(压缩包)](https://github.com/user-attachments/files/22226926/index.zip)\n\n实现后可通过扫描漫画存储目录下文件夹内的index.json以重建索引 #510 #501 #433\n同时可以编辑index.json以导入本地漫画\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 510,
+    "title": "[Bug]: 漫画目录信息丢失",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-09-09T03:12:19Z",
+    "updated_at": "2025-09-09T05:02:07Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/510",
+    "body": "### Bug type\n\nReader\n\n### Description\n\n应用非正常退出（e.g. 被杀后台）时漫画目录变为默认目录；\n无法稳定复现，但是具备下列条件时出现概率上升：\n\n- 下载漫画；更新漫画信息（即应用在运行后台任务）\n- 应用被置于后台\n- 设备长时间熄屏；设备重启\n- 前台运行的应用资源消耗量较大\n\nPS：该问题在[PicaComic](https://github.com/wgh136/PicaComic)以及由[Pacalini](https://github.com/Pacalini)维护的[PicaComic分支](https://github.com/Pacalini/PicaComic)上也可在类似条件下出现\n\n### Version\n\n1.5.0\n\n### Operating system\n\nAndroid\n\n### logs\n\n由于应用非正常退出，无法获取应用报告，\n随附的报告为系统报告\n[bugreport-WGR-W09-HUAWEIWGR-W09-2025-09-09-11-26-29.zip](https://github.com/user-attachments/files/22226396/bugreport-WGR-W09-HUAWEIWGR-W09-2025-09-09-11-26-29.zip)\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 509,
+    "title": "[Enhancement]: 允许编辑本地漫画数据库",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-09-09T02:19:50Z",
+    "updated_at": "2025-09-09T02:28:11Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/509",
+    "body": "### Description\n\n添加导入/导出本地漫画数据库（local.db）的选项\n在下载出错时可以手动修正”downloadedChapters“信息；\n漫画ID变更时可以手动修改；\n理论上也可以用于处理#501\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 496,
+    "title": "[Enhancement]: 希望阅读记录增加一个隐私分区",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-09-01T03:34:15Z",
+    "updated_at": "2025-12-12T14:54:58Z",
+    "comments": 5,
+    "url": "https://github.com/venera-app/venera/issues/496",
+    "body": "### Description\n\n每次打开软件本子和普通漫画都在阅读记录中，有些让人尴尬，有碍观瞻。\n希望能增加一个隐私的阅读记录分区，支持自动或手动将本子阅读记录单独整理\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 495,
+    "title": "[Bug]: 本地导入漫画只有章节，没有主目录",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-08-31T08:22:23Z",
+    "updated_at": "2025-08-31T08:22:23Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/495",
+    "body": "### Bug type\n\nPerformance\n\n### Description\n\n要导入的目录\n\n![Image](https://github.com/user-attachments/assets/a2de1769-87f5-45f1-aa11-7975b1a5eaee)\n\n导入后\n\n![Image](https://github.com/user-attachments/assets/8bac0478-b071-4d1b-a5d5-31b5a07da775)\n\n软件显示\n\n<img width=\"854\" height=\"367\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/dd610eb0-9cd8-48e8-afc2-f3646f19b81a\" />\n\n### Version\n\nv1.4.6\n\n### Operating system\n\nmacOS\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 493,
+    "title": "[Enhancement]: 添加可以看完一话自动下一话的功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-08-30T16:50:53Z",
+    "updated_at": "2025-08-30T16:50:53Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/493",
+    "body": "### Description\n\n增加看完一话之后不需要点击按钮或者是长滑动自动加载下一话的内容的功能我认为这样子会更方便\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 487,
+    "title": "[Enhancement]: 希望可以增加漫画话数倒叙跳转功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-08-25T03:19:41Z",
+    "updated_at": "2025-09-12T08:47:27Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/487",
+    "body": "### Description\n\n有些漫画在看完一话后前往的下一话实际上会变成上一话，希望可以用加一个手动改变顺序的功能，让漫画阅读流程方便一些\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 473,
+    "title": "[Bug]: 特殊情形下，本地存储地址选择时的bug",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-08-16T06:30:31Z",
+    "updated_at": "2025-08-16T06:30:43Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/473",
+    "body": "### Bug type\n\nPerformance\n\n### Description\n\n首先，这个问题在更早的版本可能是没有的，因为我之前就是这样操作的，没有出现问题，所以这个很可能是现版本独有的bug。\n当选择本地存储地址时，例如.../venera/downloads。如果使用李跳跳等辅助APP，快速自动确定；或者你手够快，手动快速点击。由于跳过速度过快，APP会，循环建立downloads文件夹.../venera/downloads/downloads/downloads/downloads/downloads...最多可能建立1000多个内嵌空文件夹。\n可稳定复现！\n\n### Version\n\n1.4.6\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 461,
+    "title": "[Enhancement]: 本地收藏列表能力新增",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-08-01T12:07:05Z",
+    "updated_at": "2025-10-19T08:22:04Z",
+    "comments": 3,
+    "url": "https://github.com/venera-app/venera/issues/461",
+    "body": "### Description\n\n希望大佬可以支持以下功能点~\n- 本地收藏支持过滤, 这个看看是否可以在本地收藏的列表页面右上角加一个icon, 点击出一个下拉框, 可以选择过滤形式, 例如过滤掉所有已读完的漫画\n- 列表页批量设置阅读完成, 当选中漫画后, 右上角下拉菜单可以增加一个功能, 设置阅读完成\n- 在下图中的复制标题下方增加一个跳转详情的能力\n\n### Operating System\n\n_No response_\n\n### picture\n\n\n<img src=\"https://github.com/user-attachments/assets/48a90fd5-1617-4e12-9101-c6d47ff5d5ba\" width=\"200\">"
+  },
+  {
+    "number": 450,
+    "title": "[Enhancement]: 允许一键绑定多个漫画源",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-07-22T03:39:59Z",
+    "updated_at": "2025-07-28T16:43:02Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/450",
+    "body": "### Description\n\n拷贝漫画经常寄掉，部分漫画网站也有寄掉的风险\n是否能提供一个界面，批量检查所有收藏漫画的存活状态，对于不存活的，根据本地仅存的名称和tag进行搜索比对，如设置名称相似度90+，tag匹配度50+的可看作同本漫画不同源的数据，用户选择后一键替换\n\n<img width=\"423\" height=\"529\" alt=\"Image\" src=\"https://github.com/user-attachments/assets/ed1771e0-939c-42e7-a7a5-18b99d1c8eed\" />\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 446,
+    "title": "[Bug]: HyperOS的小窗模式无法正常使用",
+    "labels": [
+      "bug🐞",
+      "help wanted"
+    ],
+    "created_at": "2025-07-17T02:50:42Z",
+    "updated_at": "2025-07-21T20:51:33Z",
+    "comments": 4,
+    "url": "https://github.com/venera-app/venera/issues/446",
+    "body": "### Bug type\n\nUI\n\n### Description\n\n在HyperOS 2.0.201中使用小窗后应用内不显示内容\n\n### Version\n\n1.4.5\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n![Image](https://github.com/user-attachments/assets/181418d7-4ead-44e3-aa6d-04de8394fecd)\n![Image](https://github.com/user-attachments/assets/51d39aed-be72-4ae5-a7f5-11c4db5e0f7c)"
+  },
+  {
+    "number": 433,
+    "title": "[Bug]: 下载后的漫画会出现无法找到情况",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-07-02T22:50:43Z",
+    "updated_at": "2025-07-10T03:13:35Z",
+    "comments": 3,
+    "url": "https://github.com/venera-app/venera/issues/433",
+    "body": "### Bug type\n\nOther\n\n### Description\n\n下载后的漫画会出现无法找到的情况，但是文件是存在的，希望可以增加本地文件不存在的情况下自动读取网络文件或者增加下载漫画校验功能，还有希望可以增加手动清理某个漫画已经下载的内容，可以重复下载或重试\n\n![Image](https://github.com/user-attachments/assets/efcadc36-68be-4468-9e45-93d462dffa91)\n\n### Version\n\n1.45\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n![Image](https://github.com/user-attachments/assets/962b4aab-121e-443a-a723-6adfd8a8cb90)"
+  },
+  {
+    "number": 431,
+    "title": "[Enhancement]: Import folder with .pdf files",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-06-27T09:25:13Z",
+    "updated_at": "2025-06-27T09:25:25Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/431",
+    "body": "### Description\n\nPlease support local imports in pdf format. Thanks.\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 425,
+    "title": "[Enhancement]: 竖屏状态下，增加折叠屏展开自动双页，合上自动单页的选项",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-06-24T08:38:31Z",
+    "updated_at": "2025-06-24T08:38:43Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/425",
+    "body": "### Description\n\n如题，目前是根据横屏竖屏分别设置页数，可以增加一个折叠屏展开时竖屏的页数选项，合上时可以套用默认设置的竖屏页数。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 413,
+    "title": "[Enhancement]: 漫画封面改进：增加“已看”和“最新”",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-06-20T16:40:21Z",
+    "updated_at": "2026-03-04T21:37:49Z",
+    "comments": 3,
+    "url": "https://github.com/venera-app/venera/issues/413",
+    "body": "### Description\n\n希望在漫画封面或合适地方增加“已看xx话”和“最新xx话”，方便查看观看进度和更新情况。\n\n### Operating System\n\n_No response_\n\n### picture\n\n![Image](https://github.com/user-attachments/assets/bcd3cb5a-7aa4-4ccc-9861-926a93761a43)"
+  },
+  {
+    "number": 383,
+    "title": "[Enhancement]: 希望点击翻页可以固定翻页像素大小（连续从上到下阅读时）",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-05-27T10:55:59Z",
+    "updated_at": "2025-09-08T06:27:47Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/383",
+    "body": "### Description\n\n现在的点击翻页在阅读一页一页的日漫时很方便，但是在阅读条漫时，由于条漫的切割不规则，导致向下翻页后有时过大或过小，希望可以固定一个翻页像素大小，提升条漫的阅读体验\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 376,
+    "title": "[Enhancement]: 下载后转换图片格式",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-05-23T22:27:17Z",
+    "updated_at": "2025-05-23T22:29:12Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/376",
+    "body": "### Description\n\n是否可以下载后转换为AVIF,Webp这样的格式来进行高效存储？\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 371,
+    "title": "[Enhancement]: .fodt .fodp format support",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-05-20T17:22:52Z",
+    "updated_at": "2025-05-20T17:23:05Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/371",
+    "body": "### Description\n\n[.fodt and .fodp](https://en.wikipedia.org/wiki/OpenDocument) can have their text read aloud through TTS.  \nPeople can convert cbz files into .fodt and .fodp.\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 369,
+    "title": "[Enhancement]: 希望添加mobi格式漫画文件导入",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-05-18T13:32:17Z",
+    "updated_at": "2025-10-14T14:53:34Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/369",
+    "body": "### Description\n\n希望在本地添加漫画里能够支持导入mobi文件，网上的漫画软件不是不支持，就是ui不好看，希望未来能添加。\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 366,
+    "title": "[Enhancement]: 希望更新应用图标",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-05-15T14:30:28Z",
+    "updated_at": "2025-05-24T07:34:09Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/366",
+    "body": "### Description\n\n当前图标太过冷冰冰了，快去用 AI 跑一个吉祥物的人设，然后基于此重新设计图标（比如一个单手比 V 的美少女之类）_(:3 」∠)_\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 347,
+    "title": "[Enhancement]: 增加搜图bot功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-04-28T03:39:08Z",
+    "updated_at": "2025-04-28T03:39:23Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/347",
+    "body": "### Description\n\n希望增加 以图搜图 功能\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 344,
+    "title": "[Enhancement]: 希望增加自动继续下载和跳过异常图片继续下载",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-04-24T16:50:41Z",
+    "updated_at": "2025-04-24T16:50:55Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/344",
+    "body": "### Description\n\n在下载的时候经常报错try too many稍后再下载或者图片异常无法下载而终止，需要经常手动的去继续下载，希望可以优化这两个内容，图片异常包括）：GET 17380647075771.png\nDioException [unknown]: null\nError: [RhttpUnknownException] relative URL without a base\nnull  Exception: Invalid image data\n#0      _futurize (dart:ui/painting.dart:7898)\n#1      ImageDescriptor.encoded (dart:ui/painting.dart:7692)\n#2      instantiateImageCodecWithSize (dart:ui/painting.dart:2546)\n#3      instantiateImageCodecFromBuffer (dart:ui/painting.dart:2490)\n#4      instantiateImageCodec (dart:ui/painting.dart:2437)\n<asynchronous suspension>\n#5      Image.decodeImage (package:venera/utils/image.dart:26)\n<asynchronous suspension>\n#6      modifyImageWithScript (package:venera/utils/image.dart:302)\n<asynchronous suspension>\n#7      ImageDownloader.loadComicImage (package:venera/network/images.dart:157)\n<asynchronous suspension>\n#8      _ImageDownloadWrapper.start (package:venera/network/download.dart:555)\n<asynchronous suspension>   \n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 339,
+    "title": "[Enhancement]: 请求增加翻页控制",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-04-22T02:30:59Z",
+    "updated_at": "2025-04-22T02:31:12Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/339",
+    "body": "### Description\n\n希望增加对翻页笔的支持，习惯用笔控制翻页。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 323,
+    "title": "[Enhancement]: 希望可以支持对漫画进行打标和简评",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-04-06T16:29:42Z",
+    "updated_at": "2025-09-18T08:39:13Z",
+    "comments": 2,
+    "url": "https://github.com/venera-app/venera/issues/323",
+    "body": "### Description\n\n希望可以支持对收藏的漫画进行**打标**和**简评**\n\n此外支持收藏夹**搜索**关键字时可以**包括简评内容**\n\n另外支持**按打标星级排序**\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 321,
+    "title": "[Enhancement]: 左滑更方便的查看评论",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-04-06T06:11:12Z",
+    "updated_at": "2025-04-06T06:11:26Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/321",
+    "body": "### Description\n\n很多网站源如哔咔都没有评论详情显示，看评论需要按顶部边缘的按钮，操作很费劲。\n希望能够识别手势，在详情页左滑显示评论。\n例如it之家是类似设计。\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 319,
+    "title": "[Enhancement]: 改进历史界面章节显示",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-04-06T03:32:27Z",
+    "updated_at": "2025-04-06T03:32:41Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/319",
+    "body": "### Description\n\n![Image](https://github.com/user-attachments/assets/652f78ad-d0e4-4214-9af7-c8b59b0840f3)\n\n历史界面目前显示的是章节序号\n\n![Image](https://github.com/user-attachments/assets/214e499b-7134-454d-8017-9cbae22321e4)\n\n详情页的上次阅读显示为实际章节名\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 312,
+    "title": "[Enhancement]: 添加对 epub 的支持",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-03-31T04:15:34Z",
+    "updated_at": "2025-03-31T04:15:49Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/312",
+    "body": "### Description\n\n有些漫画以 epub 的形式给出，但是这些漫画不能被 venera 导入\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 297,
+    "title": "[Enhancement]: 增加下载时通知栏提示",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-03-26T05:47:29Z",
+    "updated_at": "2026-01-06T13:25:22Z",
+    "comments": 7,
+    "url": "https://github.com/venera-app/venera/issues/297",
+    "body": "### Description\n\n希望增加导出数据格式，包含漫画的分类，词条。目前的导出应用数据找不到读取办法。\n目前下载漫画的时候，手机通知栏没有下载进度，不知道有没有下载完。\n\n### Operating System\n\nAndroid\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 270,
+    "title": "[Enhancement]: 导出漫画支持选择章节",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-03-16T13:46:28Z",
+    "updated_at": "2025-03-16T13:46:28Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/270",
+    "body": "### Description\n\n导出漫画为pdf等时，支持选择章节，更加完善的进度显示（目前是显示导出中0/1表示的漫画数量，最好可以追加转换章节进度12/52显示）有些漫画尤其是长期漫画，归档价值很高，但是导出要卡很久。不支持章节选择导致无法增量归档。\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 263,
+    "title": "[Bug]: 包子漫画源加载不全",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2025-03-15T09:27:22Z",
+    "updated_at": "2025-09-08T06:30:42Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/263",
+    "body": "### Bug type\n\nCrash\n\n### Description\n\n包子漫画平台的条漫章节页数超过50（即网页页数超过1），app内章节只会显示前50页（即网页内第一页的内容）。\n\n\n### Version\n\n1.3.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n_No response_\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 255,
+    "title": "[Enhancement]: 建议增加阅读在第一页和最后一页时自动弹出菜单栏",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-03-13T07:58:40Z",
+    "updated_at": "2025-03-13T11:31:42Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/255",
+    "body": "### Description\n\n如图所示，当阅读到每一章的第一页和最后一页时自动弹出菜单栏（绿色划线部分）\n\n![Image](https://github.com/user-attachments/assets/f21d2364-568f-4e6e-9585-34eb742a05fd)\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 249,
+    "title": "[Bug]: 顶部小横条在全屏下仍显示",
+    "labels": [
+      "bug🐞",
+      "help wanted"
+    ],
+    "created_at": "2025-03-07T10:05:47Z",
+    "updated_at": "2025-03-09T13:48:57Z",
+    "comments": 10,
+    "url": "https://github.com/venera-app/venera/issues/249",
+    "body": "### Bug type\n\nUI\n\n### Description\n\n大部分平板顶部都有三点或小横条，而漫画全屏小横条却不隐藏\n\n\n### Version\n\n1.3.2\n\n### Operating system\n\nAndroid\n\n### logs\n\n![Image](https://github.com/user-attachments/assets/692637d5-ef0d-422e-a0e0-39ff1a44fc90)\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 233,
+    "title": "[Enhancement]: 希望可以手动调整追更检查的时间",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-03-01T16:18:50Z",
+    "updated_at": "2025-03-01T16:18:50Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/233",
+    "body": "### Description\n\n希望可以设置追更检查的频率、或者可以手动设置追更检查在固定的时间进行\n希望可以添加手动开关应用启动时是否立刻进行追更检查\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 190,
+    "title": "[Enhancement]: 請求增加一個導入導出本地下載的數據的功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-02-12T08:18:50Z",
+    "updated_at": "2025-02-12T08:18:50Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/190",
+    "body": "### Description\n\n如題，希望在數據導出中增加一個導出下載內容的功能，方便轉移數據或平台\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 146,
+    "title": "[Enhancement]: 图片收藏中, 支持一键下载筛选后的漫画",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2025-01-18T13:06:29Z",
+    "updated_at": "2025-01-18T13:06:29Z",
+    "comments": 0,
+    "url": "https://github.com/venera-app/venera/issues/146",
+    "body": "### Description\n\n如题, 辛苦大佬实现一下~\n1. 一键下载筛选后的漫画\n2. 在图片收藏中显示已下载的图标\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 121,
+    "title": "本地或下载的漫画有概率打开报错",
+    "labels": [
+      "bug🐞"
+    ],
+    "created_at": "2024-12-26T17:24:12Z",
+    "updated_at": "2025-04-25T10:11:06Z",
+    "comments": 5,
+    "url": "https://github.com/venera-app/venera/issues/121",
+    "body": "### Description\n\n复现需要清除app后台，然后打开已经观看过的本地漫画，会报如图错误，重试后正常加载。\r\n![Screenshot_20241227_011507_com_github_wgh136_venera_MainActivity](https://github.com/user-attachments/assets/2552834c-3d33-4137-a140-9d1a1b2da5c9)\r\n\n\n### Version\n\nv1.1.3\n\n### Operating system\n\nAndroid\n\n### logs\n\nException: Empty image data\r\n#0      BaseImageProvider._loadBufferAsync (package:venera/foundation/image_provider/base_image_provider.dart:106)\r\n<asynchronous suspension>\r\n#1      MultiFrameImageStreamCompleter._handleCodecReady (package:flutter/src/painting/image_stream.dart:1013)\r\n<asynchronous suspension>\r\n\n\n### Screenshot or video\n\n_No response_"
+  },
+  {
+    "number": 114,
+    "title": "[Enhancement]: 允许把漫画下载到远程webdav,并支持多客户端挂载",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2024-12-22T15:19:17Z",
+    "updated_at": "2025-02-07T15:21:53Z",
+    "comments": 10,
+    "url": "https://github.com/venera-app/venera/issues/114",
+    "body": "### Description\n\n1.允许用户下载漫画完整数据（离线的评论，作者，tag）等下载到远程webdav地址，并支持定时同步分组和重命名。\r\n2.允许用户一键设置某个webdav地址为漫画源\r\n其实就是支持一个管理员把漫画备份到服务器，用户（朋友）可以加载漫画源的方式加载离线服务器。\r\n有些本子很珍贵想收藏起来，放设备里总是不太好，有个可以共享+存储的离线服务器岂不美哉 ~~（万一漫画源倒闭了还能救本）~~ \n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 113,
+    "title": "[Enhancement]: 增加收藏作者名字和双指放大功能",
+    "labels": [
+      "enhancement🚀"
+    ],
+    "created_at": "2024-12-22T13:37:42Z",
+    "updated_at": "2025-09-08T06:34:20Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/113",
+    "body": "### Description\n\n原来是能收藏作者名字的，picacomic的时候就可以。还有双指放大功能，在用连续（从上到下）时候，如果放大了，就不好切换图片了，因为要长按才可以放大\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  },
+  {
+    "number": 106,
+    "title": "[Enhancement]: 同步远端收藏能力优化",
+    "labels": [
+      "enhancement🚀",
+      "help wanted"
+    ],
+    "created_at": "2024-12-18T13:36:49Z",
+    "updated_at": "2024-12-21T09:53:47Z",
+    "comments": 1,
+    "url": "https://github.com/venera-app/venera/issues/106",
+    "body": "### Description\n\n1. 同步远端收藏, 支持拉取最后几页, 这样可以几个请求同步完成\r\n2. 拉取几页, 可以在dialog中手动填写, 默认1页, 支持手动改动, 改完后保存在 appdata.implicitData\r\n3. 如果漫画源本身收藏不是倒序, 在漫画源中新增一个拉取最大页数的函数, 拉取的时候通过最大页数来达到拉取最后几页的目的\n\n### Operating System\n\n_No response_\n\n### picture\n\n_No response_"
+  }
+]
