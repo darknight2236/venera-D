@@ -224,6 +224,7 @@ abstract final class SettingKeys {
   static const enableTapToTurnPages = 'enableTapToTurnPages';
   static const reverseTapToTurnPages = 'reverseTapToTurnPages';
   static const enablePageAnimation = 'enablePageAnimation';
+  static const highQualityGalleryImages = 'highQualityGalleryImages';
   static const language = 'language';
   static const cacheSize = 'cacheSize';
   static const downloadThreads = 'downloadThreads';
@@ -337,6 +338,9 @@ class Settings with ChangeNotifier {
     'showChapterComments': true, // show chapter comments in reader
     'showChapterCommentsAtEnd':
         false, // show chapter comments at end of chapter
+    // Downsample gallery-mode images for smoother paging (default). Turn on to
+    // decode full-resolution images at the cost of paging performance.
+    'highQualityGalleryImages': false,
   };
 
   operator [](String key) {

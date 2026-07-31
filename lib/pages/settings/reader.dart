@@ -191,6 +191,10 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
           useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
+        _SwitchSetting(
+          title: "High quality gallery images".tl,
+          settingKey: SettingKeys.highQualityGalleryImages,
+        ).toSliver(),
         SelectSetting(
           title: "Reading mode".tl,
           settingKey: SettingKeys.readerMode,

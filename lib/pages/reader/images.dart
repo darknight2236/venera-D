@@ -150,13 +150,19 @@ ImageProvider _createImageProviderFromKey(
   int page,
 ) {
   var reader = context.reader;
+  // Resize for continuous mode (perf), and for gallery mode too unless the
+  // user opted into high-quality (full-resolution) gallery images. Gallery
+  // mode without resize decodes full-res images, which causes paging lag on
+  // high-DPI tablets (issue #839).
+  var enableResize = reader.mode.isContinuous ||
+      !(appdata.settings[SettingKeys.highQualityGalleryImages] ?? false);
   return ReaderImageProvider(
     imageKey,
     reader.type.comicSource?.key,
     reader.cid,
     reader.eid,
     reader.page,
-    enableResize: reader.mode.isContinuous, // For continuous mode, we need to resize the image to improve performance
+    enableResize: enableResize,
   );
 }
 
