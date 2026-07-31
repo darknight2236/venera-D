@@ -241,6 +241,24 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         SliverAnimatedVisibility(
+          visible:
+              appdata.settings[SettingKeys.readerMode]!.startsWith('continuous'),
+          child: _SliderSetting(
+            title: "Chapter switch pull distance (Only Continuous Mode)".tl,
+            settingsIndex: SettingKeys.chapterSwitchThreshold,
+            interval: 20,
+            min: 40,
+            max: 320,
+            onChanged: () {
+              setState(() {});
+              widget.onChanged?.call(SettingKeys.chapterSwitchThreshold);
+            },
+            comicId: isEnabledSpecificSettings ? widget.comicId : null,
+            comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
+          ),
+        ),
+        SliverAnimatedVisibility(
           visible: appdata.settings[SettingKeys.readerMode]!.startsWith('gallery'),
           child: _SliderSetting(
             title:

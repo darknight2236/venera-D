@@ -37,6 +37,18 @@ class _ContinuousModeState extends State<_ContinuousMode>
 
   int get preCacheCount => appdata.settings[SettingKeys.preloadImageCount];
 
+  /// Extra overscroll distance required to switch chapter. User-configurable
+  /// (per comic) so the "next chapter" pull can be made more/less sensitive
+  /// (#601, #816). Falls back to the original [_kChangeChapterOffset].
+  double get chapterSwitchThreshold {
+    var v = appdata.settings.getReaderSetting(
+      reader.cid,
+      reader.type.sourceKey,
+      SettingKeys.chapterSwitchThreshold,
+    );
+    return (v is num && v > 0) ? v.toDouble() : _kChangeChapterOffset;
+  }
+
   /// Whether the user was scrolling the page.
   /// The gesture detector has a delay to detect tap event.
   /// To handle the tap event, we need to know if the user was scrolling before the delay.
@@ -172,11 +184,11 @@ class _ContinuousModeState extends State<_ContinuousMode>
       jumpToNextChapter = false;
       jumpToPrevChapter =
           scrollController.offset <
-          scrollController.position.minScrollExtent - _kChangeChapterOffset;
+          scrollController.position.minScrollExtent - chapterSwitchThreshold;
     } else if (prepareToNextChapter) {
       jumpToNextChapter =
           scrollController.offset >
-          scrollController.position.maxScrollExtent + _kChangeChapterOffset;
+          scrollController.position.maxScrollExtent + chapterSwitchThreshold;
       jumpToPrevChapter = false;
     }
   }
@@ -415,12 +427,14 @@ class _ContinuousModeState extends State<_ContinuousMode>
           _SwipeChangeChapterProgress(
             controller: scrollController,
             isPrev: true,
+            threshold: chapterSwitchThreshold,
           ),
         const Spacer(),
         if (prepareToNextChapter)
           _SwipeChangeChapterProgress(
             controller: scrollController,
             isPrev: false,
+            threshold: chapterSwitchThreshold,
           ),
         SizedBox(height: 36),
       ],
@@ -579,11 +593,16 @@ class _ContinuousModeState extends State<_ContinuousMode>
 }
 
 class _SwipeChangeChapterProgress extends StatefulWidget {
-  const _SwipeChangeChapterProgress({this.controller, required this.isPrev});
+  const _SwipeChangeChapterProgress(
+      {this.controller, required this.isPrev, this.threshold = _kChangeChapterOffset});
 
   final ScrollController? controller;
 
   final bool isPrev;
+
+  /// Overscroll distance mapped to a full (100%) progress bar; must match the
+  /// switch threshold used in [_ContinuousModeState.onScroll].
+  final double threshold;
 
   @override
   State<_SwipeChangeChapterProgress> createState() =>
@@ -633,7 +652,7 @@ class _SwipeChangeChapterProgressState
     var offset = isPrev
         ? controller!.position.minScrollExtent - position
         : position - controller!.position.maxScrollExtent;
-    var newValue = offset / _kChangeChapterOffset;
+    var newValue = offset / widget.threshold;
     newValue = newValue.clamp(0.0, 1.0);
     if (newValue != value) {
       setState(() {

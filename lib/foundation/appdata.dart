@@ -268,6 +268,7 @@ abstract final class SettingKeys {
   static const autoCloseFavoritePanel = 'autoCloseFavoritePanel';
   static const showChapterComments = 'showChapterComments';
   static const showChapterCommentsAtEnd = 'showChapterCommentsAtEnd';
+  static const chapterSwitchThreshold = 'chapterSwitchThreshold';
 }
 
 class Settings with ChangeNotifier {
@@ -344,6 +345,9 @@ class Settings with ChangeNotifier {
     'highQualityGalleryImages': false,
     // Briefly flash a white screen on page turn to clear e-ink ghosting.
     'flashWhiteScreenOnTurnPage': false,
+    // Extra overscroll distance (logical px) required to switch chapter in
+    // continuous mode. Lower = more sensitive. 160 preserves the original feel.
+    'chapterSwitchThreshold': 160.0,
   };
 
   operator [](String key) {
