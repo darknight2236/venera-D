@@ -117,6 +117,15 @@ class _ContinuousModeState extends State<_ContinuousMode>
     );
     var afterOffset = (_futurePosition! - currentLocation).abs();
     if (_futurePosition == old) return;
+    // When page animation is disabled (e.g. for e-ink devices), jump straight
+    // to the target so wheel/trackpad scrolling honours the setting the same
+    // way tap/button paging already does (#745).
+    if (!context.reader
+        .enablePageAnimation(context.reader.cid, context.reader.type)) {
+      scrollController.jumpTo(_futurePosition!);
+      _futurePosition = null;
+      return;
+    }
     var target = _futurePosition!;
     var duration = const Duration(milliseconds: 160);
     if (afterOffset < beforeOffset) {
