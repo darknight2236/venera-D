@@ -46,6 +46,12 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
 
   late String readFilterSelect;
 
+  /// Per-folder sort order for the comic list. Persisted in [appdata.implicitData].
+  late FavoriteSortType sortType;
+
+  /// Key under which this folder's sort preference is stored.
+  String get _sortPrefKey => "local_favorites_sort_${widget.folder}";
+
   var searchResults = <FavoriteItem>[];
 
   void updateSearchResult() {
@@ -65,16 +71,34 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
     });
   }
 
+  /// Builds a sort-menu entry that checkmarks the active [type] and, when
+  /// picked, persists the choice per folder and reloads the list.
+  MenuEntry _sortMenuEntry(String text, FavoriteSortType type) {
+    return MenuEntry(
+      icon: sortType == type ? Icons.check : Icons.sort,
+      text: text,
+      onClick: () {
+        if (sortType == type) return;
+        setState(() {
+          sortType = type;
+        });
+        appdata.implicitData[_sortPrefKey] = type.value;
+        appdata.writeImplicitData();
+        updateComics();
+      },
+    );
+  }
+
   void updateComics() {
     if (isLoading) return;
     if (isAllFolder) {
       var totalComics = manager.totalComics;
       if (totalComics < _asyncDataFetchLimit) {
-        comics = manager.getAllComics();
+        comics = manager.getAllComics(sortType: sortType);
       } else {
         isLoading = true;
         manager
-            .getAllComicsAsync()
+            .getAllComicsAsync(sortType: sortType)
             .minTime(const Duration(milliseconds: 200))
             .then((value) {
           if (mounted) {
@@ -88,11 +112,11 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
     } else {
       var folderComics = manager.folderComics(widget.folder);
       if (folderComics < _asyncDataFetchLimit) {
-        comics = manager.getFolderComics(widget.folder);
+        comics = manager.getFolderComics(widget.folder, sortType: sortType);
       } else {
         isLoading = true;
         manager
-            .getFolderComicsAsync(widget.folder)
+            .getFolderComicsAsync(widget.folder, sortType: sortType)
             .minTime(const Duration(milliseconds: 200))
             .then((value) {
           if (mounted) {
@@ -180,6 +204,7 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
   void initState() {
     readFilterSelect = appdata.implicitData["local_favorites_read_filter"] ??
         readFilterList[0];
+    sortType = FavoriteSortType.fromValue(appdata.implicitData[_sortPrefKey]);
     favPage = context.findAncestorStateOfType<_FavoritesPageState>()!;
     if (!isAllFolder) {
       var (a, b) = LocalFavoritesManager().findLinked(widget.folder);
@@ -348,6 +373,29 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
                     }),
                   ),
                 ),
+              Tooltip(
+                message: "Sort".tl,
+                child: Builder(builder: (context) {
+                  return IconButton(
+                    icon: const Icon(Icons.sort_by_alpha),
+                    color: sortType != FavoriteSortType.manual
+                        ? context.colorScheme.primaryContainer
+                        : null,
+                    onPressed: () {
+                      var renderBox =
+                          context.findRenderObject() as RenderBox;
+                      var offset = renderBox.localToGlobal(Offset.zero);
+                      showMenuX(context, offset, [
+                        _sortMenuEntry("Manual".tl, FavoriteSortType.manual),
+                        _sortMenuEntry("Favorite time (newest)".tl,
+                            FavoriteSortType.timeDesc),
+                        _sortMenuEntry("Favorite time (oldest)".tl,
+                            FavoriteSortType.timeAsc),
+                      ]);
+                    },
+                  );
+                }),
+              ),
               Tooltip(
                 message: "Filter".tl,
                 child: IconButton(
@@ -693,6 +741,20 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
                       );
                     },
                   ),
+                MenuEntry(
+                  icon: Icons.arrow_forward_ios,
+                  text: "Jump to Detail".tl,
+                  onClick: () {
+                    App.mainNavigatorKey?.currentContext?.to(
+                      () => ComicPage(
+                        id: c.id,
+                        sourceKey: c.sourceKey,
+                        cover: c.cover,
+                        title: c.title,
+                      )
+                    );
+                  },
+                ),
               ];
             },
             onTap: (c, heroID) {

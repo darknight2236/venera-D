@@ -8,7 +8,8 @@ import 'package:venera/foundation/favorites.dart';
 
 import 'helpers/sqlite3_test_setup.dart';
 
-FavoriteItem _stubItem(String id, {int typeValue = 0, List<String>? tags}) {
+FavoriteItem _stubItem(String id,
+    {int typeValue = 0, List<String>? tags, DateTime? favoriteTime}) {
   return FavoriteItem(
     id: id,
     name: 'Name $id',
@@ -16,7 +17,7 @@ FavoriteItem _stubItem(String id, {int typeValue = 0, List<String>? tags}) {
     author: 'Author $id',
     type: ComicType(typeValue),
     tags: tags ?? ['tag1', 'tag2'],
-    favoriteTime: DateTime(2026, 1, 1),
+    favoriteTime: favoriteTime ?? DateTime(2026, 1, 1),
   );
 }
 
@@ -169,6 +170,62 @@ void main() {
       LocalFavoritesManager.debugSetInstance(injected);
 
       expect(identical(LocalFavoritesManager(), injected), isTrue);
+    });
+
+    group('getFolderComics sortType', () {
+      // Insert in a deliberately non-chronological order so the returned order
+      // proves the sort, not the insertion sequence.
+      setUp(() {
+        manager.createFolder('fav');
+        manager.addComic(
+            'fav', _stubItem('mid', favoriteTime: DateTime(2026, 6, 1)));
+        manager.addComic(
+            'fav', _stubItem('old', favoriteTime: DateTime(2025, 1, 1)));
+        manager.addComic(
+            'fav', _stubItem('new', favoriteTime: DateTime(2026, 12, 31)));
+      });
+
+      test('manual keeps insertion (display_order) order', () {
+        final ids = manager
+            .getFolderComics('fav', sortType: FavoriteSortType.manual)
+            .map((e) => e.id)
+            .toList();
+
+        expect(ids, ['mid', 'old', 'new']);
+      });
+
+      test('timeAsc orders oldest favorite first', () {
+        final ids = manager
+            .getFolderComics('fav', sortType: FavoriteSortType.timeAsc)
+            .map((e) => e.id)
+            .toList();
+
+        expect(ids, ['old', 'mid', 'new']);
+      });
+
+      test('timeDesc orders newest favorite first', () {
+        final ids = manager
+            .getFolderComics('fav', sortType: FavoriteSortType.timeDesc)
+            .map((e) => e.id)
+            .toList();
+
+        expect(ids, ['new', 'mid', 'old']);
+      });
+
+      test('getAllComics timeDesc sorts across the merged list', () {
+        final ids = manager
+            .getAllComics(sortType: FavoriteSortType.timeDesc)
+            .map((e) => e.id)
+            .toList();
+
+        expect(ids, ['new', 'mid', 'old']);
+      });
+    });
+
+    test('FavoriteSortType.fromValue falls back to manual on unknown', () {
+      expect(FavoriteSortType.fromValue('timeAsc'), FavoriteSortType.timeAsc);
+      expect(FavoriteSortType.fromValue(null), FavoriteSortType.manual);
+      expect(FavoriteSortType.fromValue('garbage'), FavoriteSortType.manual);
     });
   }, skip: sqliteAvailable ? false : sqlite3SkipReason);
 }

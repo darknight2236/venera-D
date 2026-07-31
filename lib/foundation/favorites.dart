@@ -20,6 +20,41 @@ String _getTimeString(DateTime time) {
   return time.toIso8601String().replaceFirst("T", " ").substring(0, 19);
 }
 
+/// Sort order for comics within a local-favorites folder.
+///
+/// [manual] preserves the user's hand-arranged `display_order`; the time
+/// variants sort by the `time` column (favorite time, stored as an ISO string
+/// whose lexical order matches chronological order).
+enum FavoriteSortType {
+  manual('manual'),
+  timeAsc('timeAsc'),
+  timeDesc('timeDesc');
+
+  final String value;
+
+  const FavoriteSortType(this.value);
+
+  static FavoriteSortType fromValue(String? value) {
+    for (var t in values) {
+      if (t.value == value) return t;
+    }
+    return manual;
+  }
+
+  /// The SQL `ORDER BY` clause for this sort type. The returned text is built
+  /// only from these fixed constants (never user input), so it is injection-safe.
+  String get orderByClause {
+    switch (this) {
+      case FavoriteSortType.timeAsc:
+        return 'ORDER BY time ASC';
+      case FavoriteSortType.timeDesc:
+        return 'ORDER BY time DESC';
+      case FavoriteSortType.manual:
+        return 'ORDER BY display_order';
+    }
+  }
+}
+
 class FavoriteItem implements Comic {
   String name;
   String author;
@@ -456,32 +491,35 @@ class LocalFavoritesManager with ChangeNotifier {
       """).firstOrNull?["min_value"] ?? 0;
   }
 
-  List<FavoriteItem> getFolderComics(String folder) {
+  List<FavoriteItem> getFolderComics(String folder,
+      {FavoriteSortType sortType = FavoriteSortType.manual}) {
     var rows = _db.select("""
         select * from "$folder"
-        ORDER BY display_order;
+        ${sortType.orderByClause};
       """);
     return rows.map((element) => FavoriteItem.fromRow(element)).toList();
   }
 
   static Future<List<FavoriteItem>> _getFolderComicsAsync(
-      String folder, Pointer<void> p) {
+      String folder, String orderByClause, Pointer<void> p) {
     return Isolate.run(() {
       var db = sqlite3.fromPointer(p);
       var rows = db.select("""
         select * from "$folder"
-        ORDER BY display_order;
+        $orderByClause;
       """);
       return rows.map((element) => FavoriteItem.fromRow(element)).toList();
     });
   }
 
   /// Start a new isolate to get the comics in the folder
-  Future<List<FavoriteItem>> getFolderComicsAsync(String folder) {
-    return _getFolderComicsAsync(folder, _db.handle);
+  Future<List<FavoriteItem>> getFolderComicsAsync(String folder,
+      {FavoriteSortType sortType = FavoriteSortType.manual}) {
+    return _getFolderComicsAsync(folder, sortType.orderByClause, _db.handle);
   }
 
-  List<FavoriteItem> getAllComics() {
+  List<FavoriteItem> getAllComics(
+      {FavoriteSortType sortType = FavoriteSortType.manual}) {
     var res = <FavoriteItem>{};
     for (final folder in folderNames) {
       var comics = _db.select("""
@@ -489,11 +527,30 @@ class LocalFavoritesManager with ChangeNotifier {
       """);
       res.addAll(comics.map((element) => FavoriteItem.fromRow(element)));
     }
-    return res.toList();
+    var list = res.toList();
+    _sortComicsInPlace(list, sortType);
+    return list;
+  }
+
+  /// Sort a merged comic list by [sortType]. Used for the virtual "all" folder,
+  /// where a cross-table SQL `ORDER BY` isn't meaningful. [manual] keeps the
+  /// existing (insertion) order.
+  static void _sortComicsInPlace(
+      List<FavoriteItem> comics, FavoriteSortType sortType) {
+    switch (sortType) {
+      case FavoriteSortType.timeAsc:
+        comics.sort((a, b) => a.time.compareTo(b.time));
+        break;
+      case FavoriteSortType.timeDesc:
+        comics.sort((a, b) => b.time.compareTo(a.time));
+        break;
+      case FavoriteSortType.manual:
+        break;
+    }
   }
 
   static Future<List<FavoriteItem>> _getAllComicsAsync(
-      List<String> folders, Pointer<void> p) {
+      List<String> folders, FavoriteSortType sortType, Pointer<void> p) {
     return Isolate.run(() {
       var db = sqlite3.fromPointer(p);
       var res = <FavoriteItem>{};
@@ -503,13 +560,16 @@ class LocalFavoritesManager with ChangeNotifier {
         """);
         res.addAll(comics.map((element) => FavoriteItem.fromRow(element)));
       }
-      return res.toList();
+      var list = res.toList();
+      _sortComicsInPlace(list, sortType);
+      return list;
     });
   }
 
   /// Start a new isolate to get all the comics
-  Future<List<FavoriteItem>> getAllComicsAsync() {
-    return _getAllComicsAsync(folderNames, _db.handle);
+  Future<List<FavoriteItem>> getAllComicsAsync(
+      {FavoriteSortType sortType = FavoriteSortType.manual}) {
+    return _getAllComicsAsync(folderNames, sortType, _db.handle);
   }
 
   void addTagTo(String folder, String id, String tag) {
