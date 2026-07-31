@@ -119,6 +119,10 @@ class _ReaderState extends State<Reader>
     setState(() {});
   }
 
+  /// Registered by [_ReaderScaffoldState] so page-change events can trigger
+  /// scaffold-level UI effects (e.g. the e-ink white-screen flash).
+  _ReaderScaffoldState? _readerScaffoldState;
+
   /// The maximum page number for images only (excluding chapter comments page).
   /// This is used for display purposes and history recording.
   @override
@@ -327,6 +331,7 @@ class _ReaderState extends State<Reader>
   @override
   void onPageChanged() {
     updateHistory();
+    _readerScaffoldState?.flashWhiteScreenForPageTurn();
   }
 
   /// Prevent multiple history updates in a short time.

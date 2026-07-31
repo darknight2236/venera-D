@@ -225,6 +225,7 @@ abstract final class SettingKeys {
   static const reverseTapToTurnPages = 'reverseTapToTurnPages';
   static const enablePageAnimation = 'enablePageAnimation';
   static const highQualityGalleryImages = 'highQualityGalleryImages';
+  static const flashWhiteScreenOnTurnPage = 'flashWhiteScreenOnTurnPage';
   static const language = 'language';
   static const cacheSize = 'cacheSize';
   static const downloadThreads = 'downloadThreads';
@@ -341,6 +342,8 @@ class Settings with ChangeNotifier {
     // Downsample gallery-mode images for smoother paging (default). Turn on to
     // decode full-resolution images at the cost of paging performance.
     'highQualityGalleryImages': false,
+    // Briefly flash a white screen on page turn to clear e-ink ghosting.
+    'flashWhiteScreenOnTurnPage': false,
   };
 
   operator [](String key) {

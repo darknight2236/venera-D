@@ -195,6 +195,11 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           title: "High quality gallery images".tl,
           settingKey: SettingKeys.highQualityGalleryImages,
         ).toSliver(),
+        _SwitchSetting(
+          title: "Flash white screen on page turn".tl,
+          subtitle: "Reduces ghosting on e-ink screens".tl,
+          settingKey: SettingKeys.flashWhiteScreenOnTurnPage,
+        ).toSliver(),
         SelectSetting(
           title: "Reading mode".tl,
           settingKey: SettingKeys.readerMode,

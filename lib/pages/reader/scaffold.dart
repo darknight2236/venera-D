@@ -12,6 +12,16 @@ class _ReaderScaffold extends StatefulWidget {
 class _ReaderScaffoldState extends State<_ReaderScaffold> {
   bool _isOpen = false;
 
+  /// Whether the e-ink white-screen flash overlay is currently visible.
+  bool _isWhiteScreenFlashing = false;
+
+  /// Timer that hides the white-screen flash after [_kWhiteScreenFlashDuration].
+  Timer? _whiteScreenFlashTimer;
+
+  /// How long the white screen stays visible on each page turn. Long enough to
+  /// let an e-ink panel do a full refresh, short enough not to disrupt reading.
+  static const _kWhiteScreenFlashDuration = Duration(milliseconds: 150);
+
   static const kTopBarHeight = 56.0;
 
   static const kBottomBarHeight = 105.0;
@@ -94,13 +104,31 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
       SystemChrome.setPreferredOrientations(DeviceOrientation.values);
     }
     super.initState();
+    context.reader._readerScaffoldState = this;
     Future.delayed(const Duration(milliseconds: 200), addDragListener);
   }
 
   @override
   void dispose() {
+    _whiteScreenFlashTimer?.cancel();
+    context.reader._readerScaffoldState = null;
     sliderFocus.dispose();
     super.dispose();
+  }
+
+  /// Briefly show a full-screen white overlay to clear e-ink ghosting on page
+  /// turn. Only applies to gallery (paged) modes — continuous scrolling would
+  /// fire this on every page crossed. No-op unless the setting is enabled.
+  void flashWhiteScreenForPageTurn() {
+    if (!mounted) return;
+    if (!context.reader.mode.isGallery) return;
+    if (appdata.settings[SettingKeys.flashWhiteScreenOnTurnPage] != true) return;
+    _whiteScreenFlashTimer?.cancel();
+    setState(() => _isWhiteScreenFlashing = true);
+    _whiteScreenFlashTimer = Timer(_kWhiteScreenFlashDuration, () {
+      if (!mounted) return;
+      setState(() => _isWhiteScreenFlashing = false);
+    });
   }
 
   void openOrClose() {
@@ -162,6 +190,14 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
           right: 0,
           child: buildBottom(),
         ),
+        // E-ink ghosting flash: a brief full-screen white refresh on page turn.
+        // IgnorePointer lets touches pass through so rapid paging isn't blocked.
+        if (_isWhiteScreenFlashing)
+          const Positioned.fill(
+            child: IgnorePointer(
+              child: ColoredBox(color: Colors.white),
+            ),
+          ),
       ],
     );
   }
