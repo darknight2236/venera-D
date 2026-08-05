@@ -86,6 +86,7 @@
 |-------|---------|------|
 | #770 iPad 齿轮抽屉弹出即收回 | ✅ 已修复，venera-D 已继承 | 上游 commit `8370d2a`（2026-03-07，含于 v1.7.0 tag）消息明确“restore reader sidebar stability on iPad by preventing auto-dismiss (#770)”；iPad mini 6 实机（v1.7.3）不复现 |
 | #461 本地收藏过滤 | ✅ 上游已实现 | Filter 按钮支持 All/UnCompleted/Completed，venera-D 继承 |
+| #710 打开漫画图片全黑报错 | ✅ 源配置层已修复，venera-D 无需改动 | 根因是拷贝漫画源 JS 内部 API 版本过旧（3.0.0 失效，报 `loadEp` TypeError），非 app 代码 bug；上游 venera-configs 的 copy_manga.js 已更新至 3.0.6（`User-Agent: COPY/3.0.6`），venera-D 默认源列表自动拉取，用户不再受影响 |
 
 ---
 
