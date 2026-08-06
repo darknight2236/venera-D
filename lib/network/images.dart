@@ -128,11 +128,21 @@ abstract class ImageDownloader {
 
     if (cache != null) {
       var data = await cache.readAsBytes();
-      yield ImageDownloadProgress(
-        currentBytes: data.length,
-        totalBytes: data.length,
-        imageBytes: data,
-      );
+      if (data.isNotEmpty) {
+        yield ImageDownloadProgress(
+          currentBytes: data.length,
+          totalBytes: data.length,
+          imageBytes: data,
+        );
+        // Cache hit: emit once and stop. Without the early return, the
+        // download below would also run and emit a second payload; and if the
+        // cache file was concurrently deleted/recreated as empty, those empty
+        // bytes were emitted first, causing "Empty image data" (issue #121).
+        return;
+      }
+      // Stale cache record whose file is empty/corrupt: drop the record so
+      // the download below can repopulate it, instead of emitting empty bytes.
+      await CacheManager().delete(cacheKey);
     }
 
     Future<Map<String, dynamic>?> Function()? onLoadFailed;
