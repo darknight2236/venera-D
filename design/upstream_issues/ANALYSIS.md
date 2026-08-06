@@ -99,7 +99,7 @@
 | 候选 | 复核结论 | 证据/说明 |
 |------|---------|----------|
 | #433 下载漫画找不到 | 🔵 未修复，可做（与 #121 同组） | 上游 #765 “import comic 恢复下载”仅部分覆盖；核心诉求（文件校验/自动回退网络/重下）未修 |
-| #707 / #799 下载卡“获取图像列表” | 🟡 未修复，疑似源 JS 配置类（同 #710 模式） | 下载依赖源 JS 的 getImageList，报错可能源配置过旧而非 app bug，需先验证源配置 |
+| #707 / #799 下载卡“获取图像列表” | 🟡 已验证为真 bug，根因已定位：`_runWithRetry` 无超时 | 已排除源配置类猜测（无源特定线索/无配置报错）；卡住根因=download.dart `_runWithRetry` 的 `await task()` 无 `.timeout()`，`source.loadComicPages` 挂起（网络黑洞/源 JS 卡死）即整体卡死；丢章节/下载不完整与 `saveCurrentDownloadingTasks` 仅持久化任务元数据、`_images` 依赖内存态相关。修复方向：`_runWithRetry` 加超时（小改、可测） |
 | #756 armwin 无法使用 | 🔴 暂缓：上游 arm64 折腾史 + venera-D 未发 arm64 包 | 上游 2025-03~04 四次加 windows arm64（7bc4c69/fddd959/ebf6846/49481bf/6877aa1）后于 2025-04-25 回退（c6714f7）；venera-D 有 build_arm64.py 但 v1.7.3 资产仅 x64，属发布决策非一键修 |
 | #653 Windows 性能回退 | 🔴 未修复，无稳定复现线索 | 无相关 commit |
 | #446 HyperOS 小窗 / #692 ColorOS 字体 | 🔴 未修复，厂商定制（同 #249 性质），难验证 | 无相关 commit（#692 与 Linux ARM64 字体 #231/#468 无关） |
