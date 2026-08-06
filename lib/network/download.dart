@@ -187,6 +187,10 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
   /// Current downloading chapter, index of [_images]
   int _chapter = 0;
 
+  /// Images that failed after retries and were skipped (the task continues
+  /// instead of aborting, so later chapters still get downloaded).
+  int _failedCount = 0;
+
   var tasks = <int, _ImageDownloadWrapper>{};
 
   int get _maxConcurrentTasks =>
@@ -200,12 +204,13 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
         return;
       }
       if (tasks[i] != null) {
-        if (!tasks[i]!.isComplete) {
+        if (!tasks[i]!.isComplete && tasks[i]!.error == null) {
           downloading++;
         }
-        if (tasks[i]!.error == null) {
-          continue;
-        }
+        // Completed or failed images are not re-created: completed ones keep
+        // their file, failed ones are skipped by the main loop (a failure no
+        // longer aborts the whole download).
+        continue;
       }
       Directory saveTo;
       if (comic!.chapters != null) {
@@ -395,9 +400,17 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
           return;
         }
         if (task.error != null) {
+          // A single failed image no longer aborts the whole download: count
+          // it and move on so later chapters still complete. Missing pages
+          // surface as per-image errors with retry in the reader (upstream
+          // issues #707, #799).
+          _failedCount++;
           Log.error("Download", task.error.toString());
-          _setError("Error: ${task.error}");
-          return;
+          _index++;
+          _downloadedCount++;
+          _message = "$_downloadedCount/$_totalCount";
+          await LocalManager().saveCurrentDownloadingTasks();
+          continue;
         }
         _index++;
         _downloadedCount++;
@@ -408,6 +421,9 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
       _chapter++;
     }
 
+    if (_failedCount > 0) {
+      _message = "Completed, $_failedCount image(s) failed";
+    }
     LocalManager().completeTask(this);
     stopRecorder();
   }
@@ -447,6 +463,7 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
       "totalCount": _totalCount,
       "index": _index,
       "chapter": _chapter,
+      "failedCount": _failedCount,
     };
   }
 
@@ -476,7 +493,8 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
       .._downloadedCount = json["downloadedCount"]
       .._totalCount = json["totalCount"]
       .._index = json["index"]
-      .._chapter = json["chapter"];
+      .._chapter = json["chapter"]
+      .._failedCount = json["failedCount"] ?? 0;
   }
 
   @override
@@ -567,7 +585,7 @@ class _ImageDownloadWrapper {
 
   var completers = <Completer<_ImageDownloadWrapper>>[];
 
-  var retry = 3;
+  var retry = 5;
 
   void start() async {
     int lastBytes = 0;
