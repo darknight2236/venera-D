@@ -515,11 +515,15 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
   int get hashCode => Object.hash(comicId, source.key);
 }
 
+/// Runs [task] with up to [retry] attempts, each bounded by [timeout].
+/// A source request that never completes used to freeze the whole download
+/// in the "Fetching image list" phase forever; the timeout turns a hung
+/// request into a retried failure instead (upstream issues #707, #799).
 Future<Res<T>> _runWithRetry<T>(Future<T> Function() task,
-    {int retry = 3}) async {
+    {int retry = 3, Duration timeout = const Duration(seconds: 30)}) async {
   for (var i = 0; i < retry; i++) {
     try {
-      return Res(await task());
+      return Res(await task().timeout(timeout));
     } catch (e) {
       if (i == retry - 1) {
         return Res.error(e.toString());
