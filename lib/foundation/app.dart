@@ -14,7 +14,7 @@ export "context.dart";
 
 class _App {
   // 必须与 pubspec.yaml 的 version 保持一致（由 test/version_consistency_test.dart 守卫）
-  final version = "1.7.3";
+  final version = "1.7.4";
 
   bool get isAndroid => Platform.isAndroid;
 
