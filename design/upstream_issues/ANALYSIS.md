@@ -88,6 +88,7 @@
 | #461 本地收藏过滤 | ✅ 上游已实现 | Filter 按钮支持 All/UnCompleted/Completed，venera-D 继承 |
 | #710 打开漫画图片全黑报错 | ✅ 源配置层已修复，venera-D 无需改动 | 根因是拷贝漫画源 JS 内部 API 版本过旧（3.0.0 失效，报 `loadEp` TypeError），非 app 代码 bug；上游 venera-configs 的 copy_manga.js 已更新至 3.0.6（`User-Agent: COPY/3.0.6`），venera-D 默认源列表自动拉取，用户不再受影响 |
 | #660 Win10 中文路径打不开 | ⚠️ 实为 Flutter 引擎 bug，官方已修（`r: fixed`），venera-D 高版本 Flutter 大概率已免疫 | 根因是非 app 代码：Flutter 3.38+ Windows 在非 ASCII 路径启动引擎静默崩溃（联 Kazumi#1538 同源）；官方 flutter/178896 已标 `r: fixed`（2025-12-10 关闭）；venera-D 钉死 Flutter 3.44.6 远高于受影响版本，建议在 Windows 中文路径实机启动一次确认 |
+| #249 平板顶部小横条全屏仍显示 | 🔴 真实存在但暂缓：厂商定制行为，修复需禁分屏（见下），有副作用且无法验证 | 上游未修（维护者明言无设备测试、欢迎 PR）；根因是厂商分屏手势条（小米三点/vivo-oppo-荣耀横条），`SystemUiMode.immersive` 不隐藏；理论修复=AndroidManifest 加 `resizeableActivity="false"`（仿 flutter_dmzj），但代价是全局禁分屏（产品权衡）+ 需 Android 平板实机验证（当前无） |
 
 ---
 
