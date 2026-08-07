@@ -568,8 +568,10 @@ class LocalManager with ChangeNotifier {
 
   Future<void> saveCurrentDownloadingTasks() async {
     var tasks = downloadingTasks.map((e) => e.toJson()).toList();
-    await File(FilePath.join(App.dataPath, 'downloading_tasks.json'))
-        .writeAsString(jsonEncode(tasks));
+    await writeFileAtomically(
+      File(FilePath.join(App.dataPath, 'downloading_tasks.json')),
+      jsonEncode(tasks),
+    );
   }
 
   void restoreDownloadingTasks() {

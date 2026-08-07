@@ -157,6 +157,16 @@ String sanitizeFileName(String fileName, {String? dir, int? maxLength}) {
   return trimmedFileName;
 }
 
+/// Writes [data] to [file] atomically: write to a temp file first, then
+/// rename over the target. A crash mid-write can never leave a truncated
+/// file behind (used for appdata.json / implicitData.json / downloading
+/// state, where a corrupted file would drop user data on next launch).
+Future<void> writeFileAtomically(File file, String data) async {
+  var tmp = File('${file.path}.tmp');
+  await tmp.writeAsString(data);
+  await tmp.rename(file.path);
+}
+
 /// Copy the **contents** of the source directory to the destination directory.
 Future<void> copyDirectory(Directory source, Directory destination) async {
   List<FileSystemEntity> contents = source.listSync();

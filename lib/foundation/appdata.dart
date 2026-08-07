@@ -36,7 +36,7 @@ class Appdata with Init {
       var json = toJson();
       var data = jsonEncode(json);
       var file = File(FilePath.join(App.dataPath, 'appdata.json'));
-      futures.add(file.writeAsString(data));
+      futures.add(writeFileAtomically(file, data));
 
       var disableSyncFields = json["settings"]["disableSyncFields"] as String;
       if (disableSyncFields.isNotEmpty) {
@@ -47,7 +47,7 @@ class Appdata with Init {
         }
         var data4sync = jsonEncode(json4sync);
         var file4sync = File(FilePath.join(App.dataPath, 'syncdata.json'));
-        futures.add(file4sync.writeAsString(data4sync));
+        futures.add(writeFileAtomically(file4sync, data4sync));
       }
 
       await Future.wait(futures);
@@ -144,7 +144,7 @@ class Appdata with Init {
     _isSavingData = true;
     try {
       var file = File(FilePath.join(App.dataPath, 'implicitData.json'));
-      await file.writeAsString(jsonEncode(implicitData));
+      await writeFileAtomically(file, jsonEncode(implicitData));
     } finally {
       _isSavingData = false;
     }
