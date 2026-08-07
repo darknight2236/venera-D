@@ -286,8 +286,13 @@ class HistoryManager with ChangeNotifier {
     }
 
     _haveAsyncTask = true;
-    await _addHistoryAsync(_db.handle.address, newItem);
-    _haveAsyncTask = false;
+    try {
+      await _addHistoryAsync(_db.handle.address, newItem);
+    } finally {
+      // Always release the lock: a failed write must not deadlock every
+      // subsequent addHistoryAsync call on the spin-wait above.
+      _haveAsyncTask = false;
+    }
     if (_cachedHistoryIds == null) {
       updateCache();
     } else {
