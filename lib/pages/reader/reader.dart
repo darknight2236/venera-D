@@ -113,7 +113,7 @@ class Reader extends StatefulWidget {
 }
 
 class _ReaderState extends State<Reader>
-    with _ReaderLocation, _ReaderWindow, _VolumeListener, _ImagePerPageHandler {
+    with _ReaderLocation, _ReaderWindow, _VolumeListener, _ImagePerPageHandler, WidgetsBindingObserver {
   @override
   void update() {
     setState(() {});
@@ -198,6 +198,7 @@ class _ReaderState extends State<Reader>
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     page = widget.initialPage ?? 1;
     if (page < 1) {
       page = 1;
@@ -287,6 +288,8 @@ class _ReaderState extends State<Reader>
     focusNode.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     stopVolumeEvent();
+    _flushHistory();
+    WidgetsBinding.instance.removeObserver(this);
     Future.microtask(() {
       DataSync().onDataChanged();
     });
@@ -376,6 +379,26 @@ class _ReaderState extends State<Reader>
         _updateHistoryTimer = null;
       });
     }
+  }
+
+  /// Flushes any pending debounced history write immediately. Called when the
+  /// reader is disposed or the app goes to the background, so the last page
+  /// position is not lost to the 1s debounce window if the process dies.
+  void _flushHistory() {
+    _updateHistoryTimer?.cancel();
+    _updateHistoryTimer = null;
+    if (history != null) {
+      HistoryManager().addHistoryAsync(history!);
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      _flushHistory();
+    }
+    super.didChangeAppLifecycleState(state);
   }
 
   bool get isFirstChapterOfGroup {
