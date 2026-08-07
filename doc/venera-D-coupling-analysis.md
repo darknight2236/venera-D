@@ -173,6 +173,7 @@ Dart 的 `part/part of` 让多个文件共享同一个私有作用域。项目�
 - X 引入 get_it/injectable 等 DI 框架：P1 的手动接缝已够，框架只会增加学习/维护面。
 - X 把 part 大库全部拆成独立库/引入 package 化：拆 reader 时顺手做掉关键一处即可，settings 库和 components 库"大而无害"，不值得专门动。
 - X 追求 100% 测试覆盖：先给 comic_source parser、history、favorites 三个数据正确性最关键的模块各写几个测试，比铺开更有价值。
+- X 给 sqlite 加应用层并发锁 / WAL 改造（2026-08 审计决策：**不动，记录在案**）：三处 db（history/cache/favorites）均为单连接 + `fromPointer` 跨 isolate 共享、未设 `journal_mode=WAL`/`busy_timeout`；Dart sqlite3 的 Database 无内部锁，同连接跨 isolate 并发是理论上的未定义行为，且 busy_timeout 对同连接并发无效（SQLite busy handler 只处理多连接）。但所有 db 操作都是同步微秒级调用，碰撞概率极低、多年运行未爆，影响可控（偶发异常可 UI 重试恢复）；加全锁是大改动且可能引入新竞态——判定为"欠配置但不咬人"，维持现状，若未来出现多连接场景再开 WAL/busy_timeout。
 
 **一句话总结**：这个 fork 的耦合是"中心化的中等偏上耦合"——不会阻碍日常小修小补，但 reader 大库和层级倒置会在任何中等以上改动时显著放大小错误的影响面。按 P0->P3 顺序，投入约一周可以把"危险耦合"降到可接受水位，其余维持现状即可。
 
