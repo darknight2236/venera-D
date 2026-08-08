@@ -173,7 +173,10 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
   }
 
   bool checkKeyWordMatch(String keyword, String compare, bool needEqual) {
-    String temp = compare;
+    // Normalize both sides to simplified Chinese so a simplified search term
+    // matches traditional content and vice versa (upstream #676). The keyword
+    // was already converted before this call.
+    String temp = OpenCC.traditionalToSimplified(compare);
     // 没有大写的话, 就转成小写比较, 避免搜索需要注意大小写
     if (!searchHasUpper) {
       temp = temp.toLowerCase();
