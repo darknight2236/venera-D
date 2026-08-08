@@ -609,6 +609,16 @@ class LocalManager with ChangeNotifier {
   }
 
   void addTask(DownloadTask task) {
+    // Prevent duplicate tasks for the same comic (upstream #720): a restored
+    // interrupted task plus a fresh one would download the same comic twice
+    // into two directories. If one exists, resume it instead.
+    var existing = downloadingTasks
+        .where((t) => t.id == task.id && t.comicType == task.comicType)
+        .firstOrNull;
+    if (existing != null) {
+      existing.resume();
+      return;
+    }
     downloadingTasks.add(task);
     notifyListeners();
     saveCurrentDownloadingTasks();

@@ -358,8 +358,16 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
         int cpCount = 0;
         int totalCpCount =
             chapters?.length ?? comic!.chapters!.allChapters.length;
+        // Chapters already downloaded by a previous task are skipped, so
+        // re-selecting a comic does not re-download everything (upstream #720).
+        final alreadyDownloaded =
+            LocalManager().find(comicId, comicType)?.downloadedChapters ??
+                const <String>[];
         for (var i in comic!.chapters!.allChapters.keys) {
           if (chapters != null && !chapters!.contains(i)) {
+            continue;
+          }
+          if (alreadyDownloaded.contains(i)) {
             continue;
           }
           if (_images![i] != null) {
