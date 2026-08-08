@@ -343,6 +343,11 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
           Log.error("Download", res.errorMessage!);
           _setError("Error: ${res.errorMessage}");
           return;
+        } else if (res.data.isEmpty) {
+          // Silent fetch failure: an empty image list would be recorded as a
+          // completed 0-image download (upstream #813). Fail instead.
+          _setError("Error: Empty image list");
+          return;
         } else {
           _images = {'': res.data};
           _totalCount = _images!['']!.length;
@@ -377,6 +382,12 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
           if (res.error) {
             Log.error("Download", res.errorMessage!);
             _setError("Error: ${res.errorMessage}");
+            return;
+          } else if (res.data.isEmpty) {
+            // Silent fetch failure: recording an empty image list would mark
+            // the chapter as downloaded with no files on disk (upstream #813).
+            Log.error("Download", "Empty image list for chapter $i");
+            _setError("Error: Empty image list for chapter $i");
             return;
           } else {
             _images![i] = res.data;
@@ -516,7 +527,16 @@ class ImagesDownloadTask extends DownloadTask with _TransferSpeedMixin {
       chapters: comic!.chapters,
       cover: File(_cover!.split("file://").last).name,
       comicType: ComicType(source.key.hashCode),
-      downloadedChapters: chapters ?? comic?.chapters?.ids.toList() ?? [],
+      // Only chapters that actually have images count as downloaded: an empty
+      // image list (silent fetch failure) must not be recorded as downloaded,
+      // otherwise the chapter appears downloaded but has no files (upstream
+      // #813). Single-chapter comics have an empty key and stay unlisted.
+      downloadedChapters: _images
+              ?.entries
+              .where((e) => e.key.isNotEmpty && e.value.isNotEmpty)
+              .map((e) => e.key)
+              .toList() ??
+          [],
       createdAt: DateTime.now(),
     );
   }
