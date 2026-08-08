@@ -92,12 +92,13 @@ class Comic {
   }
 
   Comic.fromJson(Map<String, dynamic> json, this.sourceKey)
-      : title = json["title"],
-        subtitle = json["subtitle"] ?? json["subTitle"] ?? "",
+      : title = _convertToSimplified(json["title"]),
+        subtitle = _convertToSimplified(
+            json["subtitle"] ?? json["subTitle"] ?? ""),
         cover = json["cover"],
         id = json["id"],
         tags = List<String>.from(json["tags"] ?? []),
-        description = json["description"] ?? "",
+        description = _convertToSimplified(json["description"] ?? ""),
         maxPage = json["maxPage"],
         language = json["language"],
         favoriteId = json["favoriteId"],
@@ -197,10 +198,10 @@ class ComicDetails with HistoryMixin {
   }
 
   ComicDetails.fromJson(Map<String, dynamic> json)
-      : title = json["title"],
-        subTitle = json["subtitle"],
+      : title = _convertToSimplified(json["title"]),
+        subTitle = _convertToSimplified(json["subtitle"]),
         cover = json["cover"],
-        description = json["description"],
+        description = _convertToSimplified(json["description"]),
         tags = _generateMap(json["tags"]),
         chapters = ComicChapters.fromJsonOrNull(json["chapters"]),
         sourceKey = json["sourceKey"],
@@ -331,6 +332,17 @@ class ArchiveInfo {
         id = json["id"];
 }
 
+/// Converts [text] to simplified Chinese for display when the
+/// [SettingKeys.convertToSimplified] setting is enabled (upstream #553).
+/// A null input becomes an empty string.
+String _convertToSimplified(String? text) {
+  if (text == null) return '';
+  if (appdata.settings[SettingKeys.convertToSimplified] == true) {
+    return OpenCC.traditionalToSimplified(text);
+  }
+  return text;
+}
+
 class ComicChapters {
   final Map<String, String>? _chapters;
 
@@ -354,9 +366,10 @@ class ComicChapters {
       var value = entry.value;
       if (key is! String) throw ArgumentError("Invalid key type");
       if (value is Map) {
-        groupedChapters[key] = Map.from(value);
+        groupedChapters[key] = value.map(
+            (k, v) => MapEntry(k.toString(), _convertToSimplified(v.toString())));
       } else {
-        chapters[key] = value.toString();
+        chapters[key] = _convertToSimplified(value.toString());
       }
     }
     if (chapters.isNotEmpty) {

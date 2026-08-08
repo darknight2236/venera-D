@@ -1,7 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:venera/foundation/appdata.dart';
 import 'package:venera/foundation/comic_source/comic_source.dart';
+import 'package:venera/utils/opencc.dart';
+
+bool _openCCReady = false;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setUp(() async {
+    appdata = Appdata.forTesting();
+    // The OpenCC tables are late-final; load them once for conversion tests.
+    if (!_openCCReady) {
+      await OpenCC.init();
+      _openCCReady = true;
+    }
+  });
+
   group('ComicChapters.fromJson', () {
     test('parses a flat chapter map', () {
       var chapters = ComicChapters.fromJson({
@@ -177,6 +191,42 @@ void main() {
       expect(details.chapters, isNull);
       expect(details.comments, isNull);
       expect(details.recommend, isNull);
+    });
+  });
+
+  group('convertToSimplified', () {
+    test('is off by default (no conversion)', () {
+      var comic = Comic.fromJson({
+        'title': '測試漫畫',
+        'cover': 'c',
+        'id': 'i',
+        'description': '繁體描述',
+      }, 's');
+
+      expect(comic.title, '測試漫畫');
+      expect(comic.description, '繁體描述');
+    });
+
+    test('converts title and description when enabled', () {
+      appdata.settings[SettingKeys.convertToSimplified] = true;
+
+      var comic = Comic.fromJson({
+        'title': '測試漫畫',
+        'cover': 'c',
+        'id': 'i',
+        'description': '繁體描述',
+      }, 's');
+
+      expect(comic.title, '测试漫画');
+      expect(comic.description, '繁体描述');
+    });
+
+    test('converts chapter titles when enabled', () {
+      appdata.settings[SettingKeys.convertToSimplified] = true;
+
+      var chapters = ComicChapters.fromJson({'ch1': '第1話'});
+
+      expect(chapters['ch1'], '第1话');
     });
   });
 }

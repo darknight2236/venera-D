@@ -56,6 +56,10 @@ class _ExploreSettingsState extends State<ExploreSettings> {
           title: "Reverse default chapter order".tl,
           settingKey: SettingKeys.reverseChapterOrder,
         ).toSliver(),
+        _SwitchSetting(
+          title: "Convert to simplified Chinese".tl,
+          settingKey: SettingKeys.convertToSimplified,
+        ).toSliver(),
         _PopupWindowSetting(
           title: "Keyword blocking".tl,
           builder: () => const _ManageBlockingWordView(),

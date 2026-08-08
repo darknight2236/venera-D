@@ -12,6 +12,11 @@ abstract class OpenCC {
     _s2t = <int, int>{};
     _t2s = <int, int>{};
     for (var line in txt.split('\n')) {
+      // The table may use CRLF line endings; strip the \r so the
+      // `line.length != 2` check (UTF-16 code units) sees only the pair.
+      if (line.endsWith('\r')) {
+        line = line.substring(0, line.length - 1);
+      }
       if (line.isEmpty || line.startsWith('#') || line.length != 2) continue;
       var s = line.runes.elementAt(0);
       var t = line.runes.elementAt(1);

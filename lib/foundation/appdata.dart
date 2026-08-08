@@ -250,6 +250,7 @@ abstract final class SettingKeys {
   static const customImageProcessing = 'customImageProcessing';
   static const sni = 'sni';
   static const autoAddLanguageFilter = 'autoAddLanguageFilter';
+  static const convertToSimplified = 'convertToSimplified';
   static const comicSourceListUrl = 'comicSourceListUrl';
   static const preloadImageCount = 'preloadImageCount';
   static const followUpdatesFolder = 'followUpdatesFolder';
@@ -324,6 +325,9 @@ class Settings with ChangeNotifier {
     'customImageProcessing': defaultCustomImageProcessing,
     'sni': true,
     'autoAddLanguageFilter': 'none', // none, chinese, english, japanese
+    // Convert comic titles/descriptions from traditional to simplified Chinese
+    // for display (upstream issue #553).
+    'convertToSimplified': false,
     'comicSourceListUrl': _defaultSourceListUrl,
     'preloadImageCount': 4,
     'followUpdatesFolder': null,
