@@ -185,7 +185,7 @@ class _GroupedComicChaptersState extends State<_GroupedComicChapters>
 
   late ComicChapters chapters;
 
-  late TabController tabController;
+  TabController? tabController;
 
   late int index;
 
@@ -205,19 +205,28 @@ class _GroupedComicChaptersState extends State<_GroupedComicChapters>
   void didChangeDependencies() {
     state = context.findAncestorStateOfType<_ComicPageState>()!;
     chapters = state.comic.chapters!;
+    // didChangeDependencies can run again on dependency changes; release the
+    // previous controller (with its listener) before creating a new one.
+    tabController?.dispose();
     tabController = TabController(
       initialIndex: index,
       length: chapters.ids.length,
       vsync: this,
     );
-    tabController.addListener(onTabChange);
+    tabController!.addListener(onTabChange);
     super.didChangeDependencies();
   }
 
+  @override
+  void dispose() {
+    tabController?.dispose();
+    super.dispose();
+  }
+
   void onTabChange() {
-    if (index != tabController.index) {
+    if (index != tabController!.index) {
       setState(() {
-        index = tabController.index;
+        index = tabController!.index;
       });
     }
   }
@@ -272,7 +281,7 @@ class _GroupedComicChaptersState extends State<_GroupedComicChapters>
             SliverToBoxAdapter(
               child: AppTabBar(
                 withUnderLine: false,
-                controller: tabController,
+                controller: tabController!,
                 tabs: chapters.groups.map((e) => Tab(text: e)).toList(),
               ),
             ),

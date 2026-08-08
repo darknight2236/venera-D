@@ -117,16 +117,33 @@ class _CoverViewerState extends State<_CoverViewer> {
       );
       final completer = Completer<Uint8List>();
 
-      imageStream.addListener(
-        ImageStreamListener((ImageInfo info, bool _) async {
+      // Remove the listener once the image arrives (or errors out), so saving
+      // a cover does not leak an ImageStreamListener + the image resource.
+      late final ImageStreamListener listener;
+      void detach() {
+        imageStream.removeListener(listener);
+      }
+
+      listener = ImageStreamListener(
+        (ImageInfo info, bool _) async {
           final byteData = await info.image.toByteData(
             format: ImageByteFormat.png,
           );
           if (byteData != null) {
             completer.complete(byteData.buffer.asUint8List());
+          } else if (!completer.isCompleted) {
+            completer.completeError('Failed to encode image');
           }
-        }),
+          detach();
+        },
+        onError: (e, s) {
+          if (!completer.isCompleted) {
+            completer.completeError(e, s);
+          }
+          detach();
+        },
       );
+      imageStream.addListener(listener);
 
       final data = await completer.future;
       final fileType = detectFileType(data);
