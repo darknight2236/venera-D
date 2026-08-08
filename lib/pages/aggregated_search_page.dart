@@ -38,12 +38,16 @@ class _AggregatedSearchPageState extends State<AggregatedSearchPage> {
     }
     this.sources = sources.map((e) => ComicSource.find(e)!).toList();
     _keyword = widget.keyword;
+    if (widget.keyword.isNotEmpty) {
+      appdata.addSearchHistory(widget.keyword);
+    }
     controller = SearchBarController(
       currentText: widget.keyword,
       onSearch: (text) {
         setState(() {
           _keyword = text;
         });
+        appdata.addSearchHistory(text);
       },
     );
     super.initState();
