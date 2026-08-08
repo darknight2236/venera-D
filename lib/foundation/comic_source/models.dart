@@ -186,9 +186,9 @@ class ComicDetails with HistoryMixin {
 
   final List<Comment>? comments;
 
-  static Map<String, List<String>> _generateMap(Map<dynamic, dynamic> map) {
+  static Map<String, List<String>> _generateMap(Map<dynamic, dynamic>? map) {
     var res = <String, List<String>>{};
-    map.forEach((key, value) {
+    map?.forEach((key, value) {
       if (value is List) {
         res[key] = List<String>.from(value);
       }
