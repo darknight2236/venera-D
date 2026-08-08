@@ -233,10 +233,24 @@ class _ReaderGestureDetectorState extends AutomaticGlobalState<_ReaderGestureDet
           prev = () => context.reader.toNextPage();
           next = () => context.reader.toPrevPage();
         }
+        // When enabled, left-right reading modes turn pages by tapping the
+        // top/bottom half instead (handy when switching hands on tablets,
+        // upstream issue #743).
+        final useVertical = appdata.settings.getReaderSetting(
+            reader.cid, reader.type.sourceKey, 'verticalTapToTurnPages') ==
+            true;
         switch (context.reader.mode) {
           case ReaderMode.galleryLeftToRight:
           case ReaderMode.continuousLeftToRight:
-            if (isLeft) {
+            if (useVertical) {
+              if (isTop) {
+                prev();
+              } else if (isBottom) {
+                next();
+              } else {
+                isCenter = true;
+              }
+            } else if (isLeft) {
               prev();
             } else if (isRight) {
               next();
@@ -245,7 +259,15 @@ class _ReaderGestureDetectorState extends AutomaticGlobalState<_ReaderGestureDet
             }
           case ReaderMode.galleryRightToLeft:
           case ReaderMode.continuousRightToLeft:
-            if (isLeft) {
+            if (useVertical) {
+              if (isTop) {
+                prev();
+              } else if (isBottom) {
+                next();
+              } else {
+                isCenter = true;
+              }
+            } else if (isLeft) {
               next();
             } else if (isRight) {
               prev();

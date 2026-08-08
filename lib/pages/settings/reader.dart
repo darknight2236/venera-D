@@ -182,6 +182,17 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           useDeviceSettings: useDeviceSpecificSettings,
         ).toSliver(),
         _SwitchSetting(
+          title: "Tap top/bottom half to turn pages".tl,
+          subtitle: "For left-right reading modes".tl,
+          settingKey: SettingKeys.verticalTapToTurnPages,
+          onChanged: () {
+            widget.onChanged?.call(SettingKeys.verticalTapToTurnPages);
+          },
+          comicId: isEnabledSpecificSettings ? widget.comicId : null,
+          comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+          useDeviceSettings: useDeviceSpecificSettings,
+        ).toSliver(),
+        _SwitchSetting(
           title: "Page animation".tl,
           settingKey: SettingKeys.enablePageAnimation,
           onChanged: () {

@@ -223,6 +223,7 @@ abstract final class SettingKeys {
       'readerScreenPicNumberForPortrait';
   static const enableTapToTurnPages = 'enableTapToTurnPages';
   static const reverseTapToTurnPages = 'reverseTapToTurnPages';
+  static const verticalTapToTurnPages = 'verticalTapToTurnPages';
   static const enablePageAnimation = 'enablePageAnimation';
   static const highQualityGalleryImages = 'highQualityGalleryImages';
   static const flashWhiteScreenOnTurnPage = 'flashWhiteScreenOnTurnPage';
@@ -297,6 +298,9 @@ class Settings with ChangeNotifier {
     'readerScreenPicNumberForPortrait': 1, // 1 - 5
     'enableTapToTurnPages': true,
     'reverseTapToTurnPages': false,
+    // Turn pages by tapping the top/bottom half instead of left/right half in
+    // left-right reading modes (handy when switching hands on tablets).
+    'verticalTapToTurnPages': false,
     'enablePageAnimation': true,
     'language': 'system', // system, zh-CN, zh-TW, en-US
     'cacheSize': 2048, // in MB
