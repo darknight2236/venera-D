@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/appdata.dart';
@@ -75,6 +77,10 @@ class DataSync with ChangeNotifier {
 
   bool _haveWaitingTask = false;
 
+  /// Set when an upload was skipped due to a concurrent download/waiting task;
+  /// the next completed sync re-runs the upload so the change is not lost.
+  bool _pendingUpload = false;
+
   String? _lastError;
 
   String? get lastError => _lastError;
@@ -100,8 +106,16 @@ class DataSync with ChangeNotifier {
   }
 
   Future<Res<bool>> uploadData() async {
-    if (isDownloading) return const Res(true);
-    if (_haveWaitingTask) return const Res(true);
+    // Skipping is safe only if a later sync re-runs the upload; otherwise a
+    // change made mid-download would be silently lost forever.
+    if (isDownloading) {
+      _pendingUpload = true;
+      return const Res(true);
+    }
+    if (_haveWaitingTask) {
+      _pendingUpload = true;
+      return const Res(true);
+    }
     while (isUploading) {
       _haveWaitingTask = true;
       await Future.delayed(const Duration(milliseconds: 100));
@@ -164,6 +178,11 @@ class DataSync with ChangeNotifier {
     } finally {
       _isUploading = false;
       notifyListeners();
+      // Re-run an upload that was skipped while this sync was in flight.
+      if (_pendingUpload) {
+        _pendingUpload = false;
+        unawaited(uploadData());
+      }
     }
   }
 
@@ -228,6 +247,11 @@ class DataSync with ChangeNotifier {
     } finally {
       _isDownloading = false;
       notifyListeners();
+      // An upload skipped while downloading (or before it) can now run.
+      if (_pendingUpload) {
+        _pendingUpload = false;
+        unawaited(uploadData());
+      }
     }
   }
 }
