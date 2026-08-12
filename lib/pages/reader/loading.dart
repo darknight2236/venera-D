@@ -120,3 +120,52 @@ class ReaderProps {
     required this.tags,
   });
 }
+
+/// Opens the reader for [id]/[sourceKey], letting the user choose between
+/// starting over and continuing from the last position when reading progress
+/// exists (upstream #795).
+void openReaderWithProgressChoice(
+  BuildContext context,
+  String id,
+  String sourceKey,
+) {
+  var history = HistoryManager().find(id, ComicType.fromKey(sourceKey));
+  void open({int? initialEp, int? initialPage}) {
+    App.mainNavigatorKey?.currentContext?.to(
+      () => ReaderWithLoading(
+        id: id,
+        sourceKey: sourceKey,
+        initialEp: initialEp,
+        initialPage: initialPage,
+      ),
+    );
+  }
+
+  if (history != null && history.page > 0) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text("Resume reading?".tl),
+        content: Text("This comic has reading progress.".tl),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              open(initialEp: 1, initialPage: 1);
+            },
+            child: Text("From the beginning".tl),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              open();
+            },
+            child: Text("Continue".tl),
+          ),
+        ],
+      ),
+    );
+  } else {
+    open();
+  }
+}
