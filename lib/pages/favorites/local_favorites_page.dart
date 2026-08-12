@@ -753,6 +753,27 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
                     );
                   },
                 ),
+                MenuEntry(
+                  icon: Icons.copy,
+                  text: "Copy Title".tl,
+                  onClick: () {
+                    // Show the title as selectable text so the user can copy
+                    // just part of it (upstream #840).
+                    showDialog(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: Text("Copy Title".tl),
+                        content: SelectableText(c.title),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialogContext),
+                            child: Text("OK".tl),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ];
             },
             onTap: (c, heroID) {
