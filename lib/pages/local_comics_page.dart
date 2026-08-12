@@ -26,6 +26,8 @@ class LocalComicsPage extends StatefulWidget {
 class _LocalComicsPageState extends State<LocalComicsPage> {
   late List<LocalComic> comics;
 
+  final _scrollController = ScrollController();
+
   late LocalSortType sortType;
 
   String keyword = "";
@@ -60,6 +62,7 @@ class _LocalComicsPageState extends State<LocalComicsPage> {
   @override
   void dispose() {
     LocalManager().removeListener(update);
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -228,8 +231,12 @@ class _LocalComicsPageState extends State<LocalComicsPage> {
     ];
 
     var body = Scaffold(
-      body: SmoothCustomScrollView(
-        slivers: [
+      body: Scrollbar(
+        controller: _scrollController,
+        thumbVisibility: true,
+        child: SmoothCustomScrollView(
+          controller: _scrollController,
+          slivers: [
           if (!searchMode)
             SliverAppbar(
               leading: Tooltip(
@@ -351,6 +358,7 @@ class _LocalComicsPageState extends State<LocalComicsPage> {
           ),
         ],
       ),
+    ),
     );
 
     return PopScope(
