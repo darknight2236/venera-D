@@ -14,8 +14,9 @@ A cross-platform comic reader that supports reading local and network comics.
 
 > **About this fork**
 > `venera-D` is a fork of [venera](https://github.com/venera-app/venera), which is no longer maintained upstream.
-> This fork keeps all original features while focusing on **code health**: reducing coupling, adding test
-> seams, and making the settings layer type-safe. See [Architecture & Decoupling](#architecture--decoupling).
+> This fork keeps all original features, maintains **code health** (reducing coupling, adding test seams, and
+> making the settings layer type-safe — see [Architecture & Decoupling](#architecture--decoupling)), and is
+> actively adding **new features** on top of the upstream app (see [What's new](#whats-new-in-venera-d)).
 
 ## Features
 
@@ -27,6 +28,31 @@ A cross-platform comic reader that supports reading local and network comics.
 - View comments, tags, ratings, and other metadata if the source supports it
 - Log in to comment, rate, and perform other interactions if the source supports it
 - Headless mode for GUI-less / server usage
+
+## What's new in venera-D
+
+Features added on top of the upstream app:
+
+**Reading experience**
+
+- Gallery mode downsamples large images for smoother paging (toggleable in reader settings)
+- Tap the top/bottom half to turn pages in left-right reading modes
+- Fixed tap-to-turn scroll distance in continuous mode (for strip comics)
+- Choose "start over" or "resume" when opening a comic with progress
+- Optional white-screen flash on page turn to reduce ghosting on e-ink devices
+
+**Management & convenience**
+
+- Search within reading history
+- Sort local favorites by favorite time or manually
+- Copy just part of a title from the long-press menu
+- Convert comic titles to simplified Chinese for display
+
+**Stability**
+
+- Download pipeline: request timeouts, per-image failure tolerance, task de-duplication, and skipping
+  already-downloaded chapters on re-download
+- Simplified/Traditional Chinese normalized in favorites search
 
 ## Supported Platforms
 
