@@ -38,7 +38,8 @@ Features added on top of the upstream app:
 - Gallery mode downsamples large images for smoother paging (toggleable in reader settings)
 - Tap the top/bottom half to turn pages in left-right reading modes
 - Fixed tap-to-turn scroll distance in continuous mode (for strip comics)
-- Choose "start over" or "resume" when opening a comic with progress
+- Choose "start over" or "resume" when opening a comic directly (the detail
+  page already offers Start/Continue buttons)
 - Optional white-screen flash on page turn to reduce ghosting on e-ink devices
 
 **Management & convenience**
