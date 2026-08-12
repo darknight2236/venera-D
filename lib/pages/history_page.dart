@@ -28,7 +28,7 @@ class _HistoryPageState extends State<HistoryPage> {
 
   void onUpdate() {
     setState(() {
-      comics = HistoryManager().getAll();
+      comics = _currentComics();
       if (multiSelectMode) {
         selectedComics.removeWhere((comic, _) => !comics.contains(comic));
         if (selectedComics.isEmpty) {
@@ -40,6 +40,16 @@ class _HistoryPageState extends State<HistoryPage> {
 
   var comics = HistoryManager().getAll();
   var controller = FlyoutController();
+
+  bool searchMode = false;
+  String keyword = '';
+
+  /// Returns all history, or a keyword search result when searching.
+  List<History> _currentComics() {
+    return searchMode && keyword.isNotEmpty
+        ? HistoryManager().search(keyword)
+        : HistoryManager().getAll();
+  }
 
   bool multiSelectMode = false;
   Map<History, bool> selectedComics = {};
@@ -179,6 +189,19 @@ class _HistoryPageState extends State<HistoryPage> {
 
     List<Widget> normalActions = [
       IconButton(
+        icon: const Icon(Icons.search),
+        tooltip: 'Search'.tl,
+        onPressed: () {
+          setState(() {
+            if (searchMode) {
+              keyword = '';
+            }
+            searchMode = !searchMode;
+            comics = _currentComics();
+          });
+        },
+      ),
+      IconButton(
         icon: const Icon(Icons.refresh),
         tooltip: 'Refresh All Histories'.tl,
         onPressed: _refreshAllHistories,
@@ -264,7 +287,21 @@ class _HistoryPageState extends State<HistoryPage> {
               ),
               title: multiSelectMode
                   ? Text(selectedComics.length.toString())
-                  : Text('History'.tl),
+                  : searchMode
+                      ? TextField(
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            hintText: "Search".tl,
+                            border: InputBorder.none,
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              keyword = value;
+                              comics = _currentComics();
+                            });
+                          },
+                        )
+                      : Text('History'.tl),
               actions: multiSelectMode ? selectActions : normalActions,
             ),
             SliverGridComics(

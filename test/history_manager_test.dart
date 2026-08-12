@@ -14,12 +14,14 @@ History _stubHistory(
   List<String> readEpisode = const [],
   DateTime? time,
   int? group,
+  String? title,
+  String? subtitle,
 }) {
   final history = History.fromMap({
     'type': typeValue,
     'time': (time ?? DateTime(2026, 1, 1)).millisecondsSinceEpoch,
-    'title': 'Title $id',
-    'subtitle': 'Subtitle $id',
+    'title': title ?? 'Title $id',
+    'subtitle': subtitle ?? 'Subtitle $id',
     'cover': 'https://example.com/$id.jpg',
     'ep': ep,
     'page': page,
@@ -151,6 +153,17 @@ void main() {
       HistoryManager.debugSetInstance(injected);
 
       expect(identical(HistoryManager(), injected), isTrue);
+    });
+
+    test('search matches title and subtitle keywords', () {
+      manager.addHistory(_stubHistory('c1', title: 'Alpha 漫画'));
+      manager.addHistory(_stubHistory('c2', title: 'Beta', subtitle: '副标题漫画'));
+      manager.addHistory(_stubHistory('c3', title: 'Gamma'));
+
+      expect(manager.search('漫画').map((h) => h.id).toSet(), {'c1', 'c2'});
+      expect(manager.search('Alpha').map((h) => h.id).toList(), ['c1']);
+      expect(manager.search('missing'), isEmpty);
+      expect(manager.search(''), hasLength(3));
     });
   }, skip: sqliteAvailable ? false : sqlite3SkipReason);
 }

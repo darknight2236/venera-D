@@ -428,6 +428,16 @@ void clearUnfavoritedHistory() {
     return res.map((element) => History.fromRow(element)).toList();
   }
 
+  /// Search history by title/subtitle keyword (LIKE, case-insensitive per db).
+  List<History> search(String keyword) {
+    var res = _db.select("""
+      select * from history
+      where title like ? or subtitle like ?
+      order by time DESC;
+    """, ['%$keyword%', '%$keyword%']);
+    return res.map((element) => History.fromRow(element)).toList();
+  }
+
   /// 获取历史记录的数量
   int count() {
     var res = _db.select("""
