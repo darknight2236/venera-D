@@ -226,12 +226,39 @@ class _ReaderGestureDetectorState extends AutomaticGlobalState<_ReaderGestureDet
           isBottom = true;
         }
         bool isCenter = false;
-        var prev = () => context.reader.toPrevPage();
-        var next = () => context.reader.toNextPage();
+        // In continuous mode with a fixed tap distance configured, tapping
+        // scrolls by that many pixels instead of jumping to the next image
+        // (upstream #383) -- regular strip comics have uneven panel sizes.
+        final tapDistance = appdata.settings.getReaderSetting(
+            reader.cid, reader.type.sourceKey, 'tapScrollDistance');
+        final useFixedTapScroll =
+            context.reader.mode.isContinuous &&
+                tapDistance is num &&
+                tapDistance > 0;
+        void scrollPrev() {
+          if (useFixedTapScroll) {
+            (context.reader._imageViewController as _ContinuousModeState)
+                .scrollByPixels(-tapDistance.toDouble());
+          } else {
+            context.reader.toPrevPage();
+          }
+        }
+
+        void scrollNext() {
+          if (useFixedTapScroll) {
+            (context.reader._imageViewController as _ContinuousModeState)
+                .scrollByPixels(tapDistance.toDouble());
+          } else {
+            context.reader.toNextPage();
+          }
+        }
+
+        var prev = scrollPrev;
+        var next = scrollNext;
         if (appdata.settings.getReaderSetting(
             reader.cid, reader.type.sourceKey, 'reverseTapToTurnPages')) {
-          prev = () => context.reader.toNextPage();
-          next = () => context.reader.toPrevPage();
+          prev = scrollNext;
+          next = scrollPrev;
         }
         // When enabled, left-right reading modes turn pages by tapping the
         // top/bottom half instead (handy when switching hands on tablets,

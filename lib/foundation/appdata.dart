@@ -266,6 +266,7 @@ abstract final class SettingKeys {
   static const deviceId = 'deviceId';
   static const ignoreBadCertificate = 'ignoreBadCertificate';
   static const readerScrollSpeed = 'readerScrollSpeed';
+  static const tapScrollDistance = 'tapScrollDistance';
   static const localFavoritesFirst = 'localFavoritesFirst';
   static const autoCloseFavoritePanel = 'autoCloseFavoritePanel';
   static const showChapterComments = 'showChapterComments';
@@ -343,6 +344,9 @@ class Settings with ChangeNotifier {
     'deviceId': '',
     'ignoreBadCertificate': false,
     'readerScrollSpeed': 1.0, // 0.5 - 3.0
+    // Fixed pixel distance for tap-to-turn in continuous mode (0 = off; the
+    // tap then jumps to the next image instead).
+    'tapScrollDistance': 0,
     'localFavoritesFirst': true,
     'autoCloseFavoritePanel': false,
     'showChapterComments': true, // show chapter comments in reader

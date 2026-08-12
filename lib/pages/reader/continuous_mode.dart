@@ -509,6 +509,22 @@ class _ContinuousModeState extends State<_ContinuousMode>
     _futurePosition = null;
   }
 
+  /// Scrolls the list by [delta] pixels, clamped to the scroll extent. Used by
+  /// tap-to-turn when a fixed distance is configured (upstream #383).
+  void scrollByPixels(double delta) {
+    if (!scrollController.hasClients) return;
+    var position = scrollController.position;
+    var target = (position.pixels + delta).clamp(
+      position.minScrollExtent,
+      position.maxScrollExtent,
+    );
+    scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
+  }
+
   @override
   void handleKeyEvent(KeyEvent event) {
     if (event.logicalKey == LogicalKeyboardKey.controlLeft ||

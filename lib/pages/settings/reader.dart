@@ -270,6 +270,24 @@ class _ReaderSettingsState extends State<ReaderSettings> {
           ),
         ),
         SliverAnimatedVisibility(
+          visible:
+              appdata.settings[SettingKeys.readerMode]!.startsWith('continuous'),
+          child: _SliderSetting(
+            title: "Tap scroll distance (Only Continuous Mode)".tl,
+            settingsIndex: SettingKeys.tapScrollDistance,
+            interval: 100,
+            min: 0,
+            max: 2000,
+            onChanged: () {
+              setState(() {});
+              widget.onChanged?.call(SettingKeys.tapScrollDistance);
+            },
+            comicId: isEnabledSpecificSettings ? widget.comicId : null,
+            comicSource: isEnabledSpecificSettings ? widget.comicSource : null,
+            useDeviceSettings: useDeviceSpecificSettings,
+          ),
+        ),
+        SliverAnimatedVisibility(
           visible: appdata.settings[SettingKeys.readerMode]!.startsWith('gallery'),
           child: _SliderSetting(
             title:
