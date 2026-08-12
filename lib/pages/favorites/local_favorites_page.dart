@@ -736,7 +736,12 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
                     icon: Icons.menu_book_outlined,
                     text: "Read".tl,
                     onClick: () {
-                      openReaderWithProgressChoice(context, c.id, c.sourceKey);
+                      App.mainNavigatorKey?.currentContext?.to(
+                        () => ReaderWithLoading(
+                          id: c.id,
+                          sourceKey: c.sourceKey,
+                        )
+                      );
                     },
                   ),
                 MenuEntry(
@@ -798,7 +803,9 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
                   )
                 );
               } else {
-                openReaderWithProgressChoice(context, c.id, c.sourceKey);
+                App.mainNavigatorKey?.currentContext?.to(
+                  () => ReaderWithLoading(id: c.id, sourceKey: c.sourceKey),
+                );
               }
             },
             onLongPressed: (c, heroID) {
