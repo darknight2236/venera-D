@@ -279,12 +279,17 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
     );
   }
 
-  bool isLiked() {
+  /// Whether the image at [page] (1-based image index) is already collected.
+  /// The page must be the image index picked by [selectImage], not the reader
+  /// page number: with multiple images per screen they differ, and checking
+  /// the wrong one made the toggle collect instead of uncollect (and vice
+  /// versa) on the second tap.
+  bool isLiked(int page) {
     return ImageFavoriteManager().has(
       context.reader.cid,
       context.reader.type.sourceKey,
       context.reader.eid,
-      context.reader.page,
+      page,
       context.reader.chapter,
     );
   }
@@ -320,7 +325,7 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
           "E${context.reader.chapter}";
       var translatedTags = tags.map((e) => e.translateTagsToCN).toList();
 
-      if (isLiked()) {
+      if (isLiked(page)) {
         if (page == firstPage) {
           showToast(
             message: "The cover cannot be uncollected here".tl,
@@ -437,7 +442,9 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
       Tooltip(
         message: "Collect the image".tl,
         child: IconButton(
-          icon: Icon(isLiked() ? Icons.favorite : Icons.favorite_border),
+          icon: Icon(isLiked(context.reader.page)
+                        ? Icons.favorite
+                        : Icons.favorite_border),
           onPressed: addImageFavorite,
         ),
       ),

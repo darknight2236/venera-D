@@ -178,5 +178,37 @@ void main() {
 
       expect(identical(ImageFavoriteManager(), injected), isTrue);
     });
+
+    test('ImageFavorite equality is by business key', () {
+      expect(_image('c1', 1, 2), _image('c1', 1, 2));
+      expect(_image('c1', 1, 2) == _image('c1', 1, 3), isFalse);
+      expect(_image('c1', 1, 2) == _image('c2', 1, 2), isFalse);
+      expect(_image('c1', 2, 2) == _image('c1', 1, 2), isFalse);
+    });
+
+    test('deleteImageFavorite removes a freshly constructed instance', () {
+      manager.addOrUpdateOrDelete(_comic('c1', eps: [
+        _ep('c1', 1, [2, 5]),
+      ]));
+      expect(manager.has('c1', 'src', 'eid1', 2, 1), isTrue);
+
+      // The reader uncollect path builds a new ImageFavorite and passes it to
+      // deleteImageFavorite; it must match the stored one by value.
+      manager.deleteImageFavorite([_image('c1', 1, 2)]);
+
+      expect(manager.has('c1', 'src', 'eid1', 2, 1), isFalse);
+      expect(manager.has('c1', 'src', 'eid1', 5, 1), isTrue);
+    });
+
+    test('deleting the last image removes the whole comic', () {
+      manager.addOrUpdateOrDelete(_comic('c1', eps: [
+        _ep('c1', 1, [2]),
+      ]));
+
+      manager.deleteImageFavorite([_image('c1', 1, 2)]);
+
+      expect(manager.find('c1', 'src'), isNull);
+      expect(manager.length, 0);
+    });
   }, skip: sqliteAvailable ? false : sqlite3SkipReason);
 }
