@@ -10,10 +10,22 @@ import 'package:venera/utils/image.dart';
 import 'app_dio.dart';
 
 abstract class ImageDownloader {
+  /// In-memory negative cache for thumbnails that failed with a definite
+  /// "not found / forbidden" status.
+  ///
+  /// A cover deleted on the source site used to be re-requested on every
+  /// tile rebuild/reentry (dozens of identical 404 requests per minute,
+  /// upstream issue #742). Entries expire after [duration] so a transient
+  /// server-side issue can recover on its own.
+  static final thumbnailFailures = ThumbnailFailureCache();
+
   static Stream<ImageDownloadProgress> loadThumbnail(
       String url, String? sourceKey,
       [String? cid]) async* {
     final cacheKey = "$url@$sourceKey${cid != null ? '@$cid' : ''}";
+    if (thumbnailFailures.isFailed(cacheKey)) {
+      throw "Thumbnail unavailable (recently failed with 403/404).";
+    }
     final cache = await CacheManager().findCache(cacheKey);
 
     if (cache != null) {
@@ -56,8 +68,18 @@ abstract class ImageDownloader {
     if (requestUrl.startsWith('//')) {
       requestUrl = 'https:$requestUrl';
     }
-    var req = await dio.request<ResponseBody>(requestUrl,
-        data: configs['data']);
+    Response<ResponseBody> req;
+    try {
+      req = await dio.request<ResponseBody>(requestUrl, data: configs['data']);
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      if (status == 404 || status == 403) {
+        // The resource is gone (or forbidden): remember it briefly instead
+        // of letting every tile rebuild hit the network again (#742).
+        thumbnailFailures.markFailed(cacheKey);
+      }
+      rethrow;
+    }
     var stream = req.data?.stream ?? (throw "Error: Empty response body.");
     int? expectedBytes = req.data!.contentLength;
     if (expectedBytes == -1) {
@@ -331,4 +353,57 @@ class ImageDownloadProgress {
     required this.totalBytes,
     this.imageBytes,
   });
+}
+
+/// Short-lived negative cache for thumbnail URLs that failed with a definite
+/// 403/404 response (upstream issue #742).
+///
+/// A cover deleted on the source site used to be re-requested on every tile
+/// rebuild/reentry. Marking the key as failed for [duration] turns repeated
+/// network requests into immediate local failures while still letting a
+/// transient server-side issue recover after the entry expires.
+class ThumbnailFailureCache {
+  ThumbnailFailureCache({this.duration = const Duration(minutes: 5)});
+
+  /// How long a failed key stays marked.
+  final Duration duration;
+
+  static const _maxEntries = 256;
+
+  final Map<String, DateTime> _expiry = {};
+
+  /// Marks [key] as failed until [now] + [duration].
+  void markFailed(String key, [DateTime? now]) {
+    now ??= DateTime.now();
+    _expiry[key] = now.add(duration);
+    if (_expiry.length > _maxEntries) {
+      _prune(now);
+    }
+  }
+
+  /// Whether [key] is currently marked as failed. Expired entries are
+  /// removed on access.
+  bool isFailed(String key, [DateTime? now]) {
+    final expiry = _expiry[key];
+    if (expiry == null) return false;
+    now ??= DateTime.now();
+    if (expiry.isAfter(now)) return true;
+    _expiry.remove(key);
+    return false;
+  }
+
+  /// Removes a previously recorded failure (e.g. after the cover URL was
+  /// refreshed from the source).
+  void clear(String key) {
+    _expiry.remove(key);
+  }
+
+  /// Drops all entries. Test seam.
+  void clearAll() {
+    _expiry.clear();
+  }
+
+  void _prune(DateTime now) {
+    _expiry.removeWhere((_, expiry) => !expiry.isAfter(now));
+  }
 }
