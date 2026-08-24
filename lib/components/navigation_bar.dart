@@ -344,6 +344,26 @@ class NaviPaneState extends State<NaviPane>
           children: [
             const SizedBox(height: 16),
             SizedBox(height: MediaQuery.of(context).padding.top),
+            // Folded mode is icons-only and the narrow-mode top bar is gone,
+            // so show the current page title here (fades out while the bar
+            // expands and nav items gain their own labels) (#738).
+            if (NaviLayout.sidebarPageTitleOpacity(value) > 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Opacity(
+                  opacity: NaviLayout.sidebarPageTitleOpacity(value),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      widget.paneItems[currentPage].label,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ...List<Widget>.generate(
               widget.paneItems.length,
               (index) => _SideNaviWidget(
@@ -670,7 +690,8 @@ class _NaviMainViewState extends State<_NaviMainView> {
 
   @override
   Widget build(BuildContext context) {
-    var shouldShowAppBar = state.controller.value < 2;
+    var shouldShowAppBar =
+        NaviLayout.showsTopAndBottomBars(state.controller.value);
     return Column(
       children: [
         if (shouldShowAppBar) state.buildTop().paddingTop(context.padding.top),
