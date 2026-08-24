@@ -69,10 +69,22 @@ class _ReaderImagesState extends State<_ReaderImages> {
       }
     } else {
       var cp = reader.widget.chapters?.ids.elementAtOrNull(reader.chapter - 1);
-      var res = await reader.type.comicSource!.loadComicPages!(
-        reader.widget.cid,
-        cp,
-      );
+      Res<List<String>> res;
+      try {
+        // A hung source (network black hole, JS deadlock) used to keep the
+        // spinner turning forever; the timeout turns it into a retriable
+        // error instead (upstream issue #825).
+        res = await runWithSourceTimeout(
+          () => reader.type.comicSource!.loadComicPages!(
+            reader.widget.cid,
+            cp,
+          ),
+        );
+      } on TimeoutException {
+        res = Res.error("Request timed out".tl);
+      } catch (e) {
+        res = Res.error(e.toString());
+      }
       if (res.error) {
         setState(() {
           error = res.errorMessage;
