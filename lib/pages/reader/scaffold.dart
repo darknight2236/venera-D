@@ -296,7 +296,10 @@ class _ReaderScaffoldState extends State<_ReaderScaffold> {
 
   void addImageFavorite() async {
     try {
-      if (context.reader.images![0].contains('file://')) {
+      // Only truly local (imported) comics lack a network source to restore
+      // the image from. Downloaded comics keep their source key, and their
+      // images load from the local files, so they are supported (#513).
+      if (context.reader.type == ComicType.local) {
         showToast(
           message: "Local comic collection is not supported at present".tl,
           context: context,

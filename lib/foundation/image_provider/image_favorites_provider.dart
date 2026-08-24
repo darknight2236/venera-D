@@ -44,7 +44,10 @@ class ImageFavoritesProvider
       return cacheImage;
     }
     var gotImageKey = false;
-    if (imageKey == "") {
+    // Keys the downloader cannot fetch — an empty key (legacy imports) or a
+    // file:// key whose download was deleted — must be resolved to a fresh
+    // network URL from the source first (#513).
+    if (imageKey == "" || imageKey.startsWith('file://')) {
       imageKey = await getImageKey();
       checkStop?.call();
       gotImageKey = true;
@@ -91,23 +94,52 @@ class ImageFavoritesProvider
     }
   }
 
+  /// Loads the image from a local copy when one is available: either the
+  /// file the stored key points at (favorites created while reading a
+  /// downloaded comic keep file:// keys), or the downloaded copy of the
+  /// comic looked up through [LocalManager]. Returns null when no local
+  /// file is usable, so the caller falls back to cache and network.
   Future<Uint8List?> getImageFromLocal() async {
-    var localComic =
-        LocalManager().find(sourceKey, ComicType.fromKey(sourceKey));
-    if (localComic == null) {
+    try {
+      if (imageFavorite.imageKey.startsWith('file://')) {
+        var file = File(imageFavorite.imageKey.substring(7));
+        if (await file.exists()) {
+          var data = await file.readAsBytes();
+          if (data.isNotEmpty) {
+            return data;
+          }
+        }
+        return null;
+      }
+      var localComic = LocalManager().find(cid, ComicType.fromKey(sourceKey));
+      if (localComic == null) {
+        return null;
+      }
+      List<String> images;
+      if (localComic.hasChapters) {
+        if (!localComic.chapters!.ids.contains(eid)) {
+          return null;
+        }
+        images = await LocalManager()
+            .getImages(cid, ComicType.fromKey(sourceKey), eid);
+      } else {
+        images =
+            await LocalManager().getImages(cid, ComicType.fromKey(sourceKey), 1);
+      }
+      if (page < 1 || page > images.length) {
+        return null;
+      }
+      var file = File(images[page - 1]);
+      if (!await file.exists()) {
+        return null;
+      }
+      var data = await file.readAsBytes();
+      return data.isNotEmpty ? data : null;
+    } catch (e) {
+      // Any local lookup failure should degrade to the cache/network path,
+      // never break the thumbnail.
       return null;
     }
-    var epIndex = localComic.chapters?.ids.toList().indexOf(eid) ?? -1;
-    if (epIndex == -1 && localComic.hasChapters) {
-      return null;
-    }
-    var images = await LocalManager().getImages(
-      sourceKey,
-      ComicType.fromKey(sourceKey),
-      epIndex,
-    );
-    var data = await File(images[page]).readAsBytes();
-    return data;
   }
 
   Future<Uint8List> getImageFromNetwork(
