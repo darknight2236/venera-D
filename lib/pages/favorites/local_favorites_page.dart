@@ -89,12 +89,25 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
     );
   }
 
+  /// Serializes async reloads so invalidations arriving while a load is in
+  /// flight are coalesced into one catch-up reload instead of being dropped.
+  /// A favorite added during the load window used to stay invisible until
+  /// the user re-sorted the list (upstream issue #768).
+  final ReloadGate _reloadGate = ReloadGate();
+
   void updateComics() {
-    if (isLoading) return;
+    if (!_reloadGate.beginLoad()) return;
+    void finishLoad() {
+      if (_reloadGate.endLoad() && mounted) {
+        updateComics();
+      }
+    }
+
     if (isAllFolder) {
       var totalComics = manager.totalComics;
       if (totalComics < _asyncDataFetchLimit) {
         comics = manager.getAllComics(sortType: sortType);
+        finishLoad();
       } else {
         isLoading = true;
         manager
@@ -107,12 +120,14 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
               comics = value;
             });
           }
+          finishLoad();
         });
       }
     } else {
       var folderComics = manager.folderComics(widget.folder);
       if (folderComics < _asyncDataFetchLimit) {
         comics = manager.getFolderComics(widget.folder, sortType: sortType);
+        finishLoad();
       } else {
         isLoading = true;
         manager
@@ -125,6 +140,7 @@ class _LocalFavoritesPageState extends State<_LocalFavoritesPage> {
               comics = value;
             });
           }
+          finishLoad();
         });
       }
     }

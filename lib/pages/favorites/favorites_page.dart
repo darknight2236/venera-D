@@ -23,6 +23,7 @@ import 'package:venera/pages/settings/settings_page.dart';
 import 'package:venera/utils/ext.dart';
 import 'package:venera/utils/io.dart';
 import 'package:venera/utils/opencc.dart';
+import 'package:venera/utils/reload_gate.dart';
 import 'package:venera/utils/tags_translation.dart';
 import 'package:venera/utils/translations.dart';
 
