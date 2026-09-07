@@ -1650,6 +1650,18 @@ class SimpleComicTile extends StatelessWidget {
             filterQuality: FilterQuality.medium,
           );
 
+    // Reading progress badge for history entries, mirroring ComicTile's
+    // overlay so the home-page history strip shows the same progress as the
+    // history page (gated by the same "show history on tile" setting).
+    History? history;
+    if (comic is History &&
+        appdata.settings[SettingKeys.showHistoryStatusOnTile]) {
+      history = comic as History;
+      if (history.page == 0) {
+        history.page = 1;
+      }
+    }
+
     child = Container(
       width: 98,
       height: 136,
@@ -1658,7 +1670,38 @@ class SimpleComicTile extends StatelessWidget {
         color: Theme.of(context).colorScheme.secondaryContainer,
       ),
       clipBehavior: Clip.antiAlias,
-      child: child,
+      child: history == null
+          ? child
+          : Stack(
+              children: [
+                Positioned.fill(child: child),
+                Positioned(
+                  left: 6,
+                  top: 8,
+                  child: Container(
+                    height: 24,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: Row(
+                      children: [
+                        Container(
+                          height: 24,
+                          color: Colors.blue.toOpacity(0.9),
+                          constraints: const BoxConstraints(minWidth: 24),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          child: CustomPaint(
+                            painter: _ReadingHistoryPainter(
+                                history.page, history.maxPage),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
     );
 
     if (heroID != null) {
