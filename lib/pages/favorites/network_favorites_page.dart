@@ -1,5 +1,17 @@
 part of 'favorites_page.dart';
 
+/// Pass-through wrapper for [ComicList] load callbacks: records the fetched
+/// comics into [NetworkFavoriteCache] so tiles elsewhere can show the
+/// network-favorite badge.
+Future<Res<List<Comic>>> _recordNetworkFavorites(
+    String sourceKey, Future<Res<List<Comic>>> load) async {
+  var res = await load;
+  if (res.success) {
+    NetworkFavoriteCache().addIds(sourceKey, res.data.map((e) => e.id));
+  }
+  return res;
+}
+
 Future<bool> _deleteComic(
   String cid,
   String? fid,
@@ -38,6 +50,7 @@ Future<bool> _deleteComic(
                 if (res.success) {
                   // Invalidate network cache so next loads fetch fresh data
                   NetworkCacheManager().clear();
+                  NetworkFavoriteCache().removeId(sourceKey, cid);
                   if (!context.mounted) return;
                   context.showMessage(message: "Deleted".tl);
                   result = true;
@@ -157,10 +170,12 @@ class _NormalFavoritePageState extends State<_NormalFavoritePage> {
       ),
       loadPage: widget.data.loadComic == null
           ? null
-          : (i) => widget.data.loadComic!(i),
+          : (i) => _recordNetworkFavorites(
+              widget.data.key, widget.data.loadComic!(i)),
       loadNext: widget.data.loadNext == null
           ? null
-          : (next) => widget.data.loadNext!(next),
+          : (next) => _recordNetworkFavorites(
+              widget.data.key, widget.data.loadNext!(next)),
       menuBuilder: (comic) {
         return [
           MenuEntry(
@@ -575,11 +590,14 @@ class _FavoriteFolder extends StatelessWidget {
       errorLeading: Appbar(
         title: Text(title),
       ),
-      loadPage:
-          data.loadComic == null ? null : (i) => data.loadComic!(i, folderID),
+      loadPage: data.loadComic == null
+          ? null
+          : (i) =>
+              _recordNetworkFavorites(data.key, data.loadComic!(i, folderID)),
       loadNext: data.loadNext == null
           ? null
-          : (next) => data.loadNext!(next, folderID),
+          : (next) => _recordNetworkFavorites(
+              data.key, data.loadNext!(next, folderID)),
       menuBuilder: (comic) {
         return [
           MenuEntry(

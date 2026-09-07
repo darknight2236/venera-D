@@ -11,6 +11,7 @@ import 'package:venera/foundation/comic_source/comic_source.dart';
 import 'package:venera/foundation/follow_updates.dart';
 import 'package:venera/foundation/js_engine.dart';
 import 'package:venera/foundation/log.dart';
+import 'package:venera/foundation/network_favorite_cache.dart';
 import 'package:venera/network/cookie_jar.dart';
 import 'package:venera/pages/aggregated_search_page.dart';
 import 'package:venera/pages/comic_details_page/comic_page.dart';
@@ -46,6 +47,7 @@ Future<void> init() async {
       TagsTranslation.readData().wait(),
       JsEngine().init().wait(),
       ComicSourceManager().init().wait(),
+      NetworkFavoriteCache().init().wait(),
       OpenCC.init(),
     ];
     await Future.wait(futures);

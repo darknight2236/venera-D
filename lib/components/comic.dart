@@ -142,6 +142,11 @@ class ComicTile extends StatelessWidget {
         ? LocalFavoritesManager()
             .isExist(comic.id, ComicType(comic.sourceKey.hashCode))
         : false;
+    // Network (server-side) favorite state cannot be queried per tile, so it
+    // comes from an incrementally filled local cache (see NetworkFavoriteCache).
+    var isNetworkFavorite = appdata.settings[SettingKeys.showFavoriteStatusOnTile]
+        ? NetworkFavoriteCache().contains(comic.sourceKey, comic.id)
+        : false;
     var history = appdata.settings[SettingKeys.showHistoryStatusOnTile]
         ? HistoryManager().find(comic.id, ComicType(comic.sourceKey.hashCode))
         : null;
@@ -149,7 +154,7 @@ class ComicTile extends StatelessWidget {
       history!.page = 1;
     }
 
-    if (!isFavorite && history == null) {
+    if (!isFavorite && !isNetworkFavorite && history == null) {
       return child;
     }
 
@@ -174,6 +179,19 @@ class ComicTile extends StatelessWidget {
                     height: 24,
                     width: 24,
                     color: Colors.green,
+                    child: const Icon(
+                      Icons.bookmark_rounded,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                  ),
+                // Purple = favorited on the source's server, mirroring the
+                // purple Favorite action on the details page.
+                if (isNetworkFavorite)
+                  Container(
+                    height: 24,
+                    width: 24,
+                    color: Colors.purple,
                     child: const Icon(
                       Icons.bookmark_rounded,
                       size: 16,
@@ -797,12 +815,14 @@ class _SliverGridComicsState extends State<SliverGridComics> {
     }
     generateHeroID();
     HistoryManager().addListener(update);
+    NetworkFavoriteCache().addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
     HistoryManager().removeListener(update);
+    NetworkFavoriteCache().removeListener(update);
     super.dispose();
   }
 

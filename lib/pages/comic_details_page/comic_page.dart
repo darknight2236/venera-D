@@ -17,6 +17,7 @@ import 'package:venera/foundation/favorites.dart';
 import 'package:venera/foundation/history.dart';
 import 'package:venera/foundation/image_provider/cached_image.dart';
 import 'package:venera/foundation/local.dart';
+import 'package:venera/foundation/network_favorite_cache.dart';
 import 'package:venera/foundation/res.dart';
 import 'package:venera/network/download.dart';
 import 'package:venera/network/cache.dart';
@@ -262,6 +263,9 @@ class _ComicPageState extends LoadingState<ComicPage, ComicDetails>
   Future<void> onDataLoaded() async {
     isLiked = comic.isLiked ?? false;
     isFavorite = comic.isFavorite ?? false;
+    // Only treat the state as known when the source actually reported it;
+    // a defaulted false must not evict a valid cache entry.
+    var favoriteStateKnown = comic.isFavorite != null;
     // For sources with multi-folder favorites, prefer querying folders to get accurate favorite status
     // Some sources may not set isFavorite reliably when multi-folder is enabled
     if (comicSource.favoriteData?.loadFolders != null && comicSource.isLogged) {
@@ -270,9 +274,14 @@ class _ComicPageState extends LoadingState<ComicPage, ComicDetails>
         if (res.subData is List) {
           var list = List<String>.from(res.subData);
           isFavorite = list.isNotEmpty;
+          favoriteStateKnown = true;
           update();
         }
       }
+    }
+    if (favoriteStateKnown) {
+      // Authoritative per-comic state: keep the tile badge cache fresh.
+      NetworkFavoriteCache().record(comicSource.key, comic.id, isFavorite);
     }
     if (comic.chapters == null) {
       isDownloaded = LocalManager().isDownloaded(comic.id, comic.comicType, 0);

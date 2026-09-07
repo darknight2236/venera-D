@@ -23,6 +23,7 @@ import 'package:venera/foundation/image_provider/history_image_provider.dart';
 import 'package:venera/foundation/image_provider/local_comic_image.dart';
 import 'package:venera/foundation/local.dart';
 import 'package:venera/foundation/log.dart';
+import 'package:venera/foundation/network_favorite_cache.dart';
 import 'package:venera/foundation/res.dart';
 import 'package:venera/network/cloudflare.dart';
 import 'package:venera/pages/comic_details_page/comic_page.dart';

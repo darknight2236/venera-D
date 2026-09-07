@@ -358,6 +358,7 @@ Future<void> importNetworkFolder(
           var res = await comicSource.favoriteData!.loadComic!(page, folderID);
           var count = 0;
           receivedComics += res.data.length;
+          NetworkFavoriteCache().addIds(source, res.data.map((e) => e.id));
           for (var c in res.data) {
             if (!LocalFavoritesManager()
                 .comicExists(resultName, c.id, ComicType(source.hashCode))) {
@@ -384,6 +385,7 @@ Future<void> importNetworkFolder(
           var res = await comicSource.favoriteData!.loadNext!(next, folderID);
           var count = 0;
           receivedComics += res.data.length;
+          NetworkFavoriteCache().addIds(source, res.data.map((e) => e.id));
           for (var c in res.data) {
             if (!LocalFavoritesManager()
                 .comicExists(resultName, c.id, ComicType(source.hashCode))) {

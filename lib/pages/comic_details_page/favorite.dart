@@ -331,6 +331,8 @@ class _NetworkSectionState extends State<_NetworkSection> {
                         .favoriteData!
                         .addOrDelFavorite!(widget.cid, '', !isFavorite, null);
                     if (res.success) {
+                      NetworkFavoriteCache()
+                          .record(widget.comicSource.key, widget.cid, !isFavorite);
                       setState(() {
                         localIsFavorite = !isFavorite;
                       });
@@ -429,6 +431,11 @@ class _NetworkSectionState extends State<_NetworkSection> {
                           // sync local flag for single-folder-per-comic logic and parent
                           localIsFavorite = addedFolders.isNotEmpty;
                         });
+                        // The comic stays a network favorite while it remains
+                        // in any folder; only drop the badge when the last one
+                        // was removed.
+                        NetworkFavoriteCache().record(widget.comicSource.key,
+                            widget.cid, addedFolders.isNotEmpty);
                         // notify parent so page state updates when closing and reopening panel
                         widget.onFavorite(addedFolders.isNotEmpty);
                         if (mounted) {
