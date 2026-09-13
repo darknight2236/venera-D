@@ -51,7 +51,10 @@ comic_directory
 ├── ...
 ```
 
-The file name can be anything, but the extension must be a valid image extension.
+The file name can be anything, but the extension must be a supported image
+extension: `.jpg`, `.jpeg`, `.jpe`, `.png`, `.webp`, `.gif`, `.avif`, `.bmp`
+(case-insensitive). The same list is used when reading chapters, importing and
+exporting cbz.
 
 The page order is determined by the file name. App will sort the files by name and display them in that order.
 

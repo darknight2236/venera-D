@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart';
 import 'package:venera/foundation/comic_source/comic_source.dart';
 import 'package:venera/foundation/comic_type.dart';
+import 'package:venera/foundation/consts.dart';
 import 'package:venera/foundation/favorites.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:venera/network/download.dart';
@@ -479,7 +480,7 @@ class LocalManager with ChangeNotifier {
         }
         // Skip non-image files (upstream #595): a stray file in a chapter
         // folder used to be listed and fail to decode in the reader.
-        if (!_isSupportedImageName(entity.name)) {
+        if (!isSupportedImageName(entity.name)) {
           continue;
         }
         files.add(entity);
@@ -494,17 +495,6 @@ class LocalManager with ChangeNotifier {
       return a.name.compareTo(b.name);
     });
     return files.map((e) => "file://${e.path}").toList();
-  }
-
-  static const _imageExtensions = [
-    'jpg', 'jpeg', 'png', 'webp', 'gif', 'avif', 'bmp',
-  ];
-
-  /// Whether [name] looks like a supported image file (by extension).
-  static bool _isSupportedImageName(String name) {
-    var dot = name.lastIndexOf('.');
-    if (dot < 0) return false;
-    return _imageExtensions.contains(name.substring(dot + 1).toLowerCase());
   }
 
   bool isDownloaded(String id, ComicType type,

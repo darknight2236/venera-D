@@ -1,6 +1,7 @@
 import 'dart:async' show Future;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:venera/foundation/consts.dart';
 import 'package:venera/foundation/local.dart';
 import 'package:venera/utils/io.dart';
 import 'base_image_provider.dart';
@@ -27,7 +28,7 @@ class LocalComicImageProvider
       Directory? firstDir;
       await for (var entity in dir.list()) {
         if(entity is File) {
-          if(["jpg", "jpeg", "png", "webp", "gif", "jpe", "jpeg"].contains(entity.extension)) {
+          if(isSupportedImageName(entity.name)) {
             file = entity;
             break;
           }
@@ -38,7 +39,7 @@ class LocalComicImageProvider
       if(file == null && firstDir != null) {
         await for (var entity in firstDir.list()) {
           if(entity is File) {
-            if(["jpg", "jpeg", "png", "webp", "gif", "jpe", "jpeg"].contains(entity.extension)) {
+            if(isSupportedImageName(entity.name)) {
               file = entity;
               break;
             }
