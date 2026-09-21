@@ -39,23 +39,30 @@ GPL-3.0 项目排除专有许可方案（Syncfusion）。
 ## 4. 模块布局
 
 ```
-lib/utils/pdf_extract.dart   （新增）解析核心：纯 Dart（dart:io/typed_data/crypto/pointycastle），
-                               不 import Flutter，headless 与单测可用
-lib/utils/pdf_import.dart    （新增）PdfComic.import()：提取图片到缓存目录 → 共用尾段注册
-lib/utils/cbz.dart           （修改）抽出共用尾段 registerFromCacheDir()
-lib/utils/import_comic.dart  （修改）ImportComic 增加 pdf() / multiplePdf()
-lib/pages/home_page.dart     （修改）导入对话框增加两个 PDF 选项（含既有 type 索引调整）
-lib/components/message.dart  （修改）showInputDialog 增加 obscureText 参数
-assets/translation.json      （修改）新增 zh_CN / zh_TW 键
-doc/import_comic.md          （修改）补 PDF 章节
-test/fixtures/pdf/           （新增）离线生成的小型 fixture PDF
-test/pdf_extract_test.dart   （新增）解析器/解密层单测
-test/pdf_import_test.dart    （新增）端到端导入集成测试
+lib/utils/pdf/objects.dart    （新增）PDF 对象模型 + 词法/语法解析器
+lib/utils/pdf/document.dart   （新增）PdfDocument：xref（传统+流）、对象获取、页树遍历
+lib/utils/pdf/security.dart   （新增）标准安全处理器：密钥推导、RC4/AES、U/Perms 校验
+lib/utils/pdf/images.dart     （新增）图片解码管线 + extractPdfImages 公共 API 与异常类型
+lib/utils/pdf/png_encoder.dart（新增）手写 PNG 编码器（IHDR/IDAT/IEND + CRC32）
+lib/utils/pdf_import.dart     （新增）PdfComic.import()：提取图片到缓存目录 → 共用尾段注册
+lib/utils/cbz.dart            （修改）抽出共用尾段 comicFromCacheDir()
+lib/utils/import_comic.dart   （修改）ImportComic 增加 pdf()/multiplePdf() + passwordProvider 注入
+lib/pages/home_page.dart      （修改）导入对话框增加两个 PDF 选项（含既有 type 索引调整）+ 密码对话框
+lib/components/message.dart   （修改）showInputDialog 增加 obscureText 参数
+lib/foundation/local.dart     （修改）补 LocalManager.forTesting() 测试接缝（六单例中唯一缺失的）
+assets/translation.json       （修改）新增 zh_CN / zh_TW 键
+doc/import_comic.md           （修改）补 PDF 章节
+test/helpers/pdf_builder.dart （新增）测试内构建合法 PDF 的迷你写出器
+test/fixtures/pdf/            （新增）离线生成的加密 fixture PDF（含生成脚本）
+test/pdf_*_test.dart          （新增）各层单测 + 端到端导入集成测试
 ```
 
-命名避开 `utils/pdf.dart`（导出侧写出器），读写分离。
+解析核心为纯 Dart（dart:io/typed_data/crypto/pointycastle），不 import Flutter，
+headless 与单测可用；命名避开现有 `utils/pdf.dart`（导出侧写出器），读写分离。
+（规划期修订：单文件 pdf_extract.dart 精化为 utils/pdf/ 子目录，对齐
+foundation/comic_source/ 的子目录先例，便于按任务增量构建与测试。）
 
-## 5. 解析器范围（pdf_extract.dart）
+## 5. 解析器范围（lib/utils/pdf/）
 
 ### 5.1 结构解析
 
@@ -76,7 +83,9 @@ test/pdf_import_test.dart    （新增）端到端导入集成测试
   按 /Columns /Colors /BitsPerComponent 逐行反滤波；/Predictor 2 TIFF 预测器同样支持，
   其余未知值拒绝并报错）→ 像素 → 手写 PNG 编码器 → `.png` |
 | ColorSpace | DeviceRGB / DeviceGray / DeviceCMYK（含 Adobe 反色：/Decode [1 0 …]；
-  CMYK→RGB 基础换算 R=255×(1−C)×(1−K)） |
+  CMYK→RGB 基础换算 R=255×(1−C)×(1−K)）；另兼容两种常见间接形式：
+  [/ICCBased …] 按其 /N 分量数映射到 Gray/RGB/CMYK；[/Indexed base hival lookup]
+  调色板展开为基色空间采样；其余（Separation/Lab 等）拒绝 |
 | BitsPerComponent | 8 原生；16 降采样为 8（四舍五入） |
 | /SMask | 忽略（漫画不需要透明通道） |
 | /ImageMask 模板蒙版 | 忽略 |
@@ -110,18 +119,22 @@ IHDR（8-bit，color type 2 RGB / 0 Gray）+ IDAT（filter 0 扫描线，dart:io
   [+ AES 时 "sAlT"])，密钥长度 min(n+5, 16)
 - R5/R6：文件密钥直接 32 字节；每个流前 16 字节为 CBC IV
 - /EncryptMetadata false：metadata 流不解密
-- 字符串同样解密（保证字典内字符串可正确解析；漫画标题**不**取 PDF /Title 元数据，
-  与 cbz 一致统一用文件名，避免 "Untitled" 类垃圾标题）
+- 字符串内容不解密（提取图片无字符串消费方，YAGNI）；只解密流；漫画标题**不**取
+  PDF /Title 元数据，与 cbz 一致统一用文件名，避免 "Untitled" 类垃圾标题
 - 密码编码：R2-R4 取密码字节（超 32 截断）；R6 用 UTF-8
 
 ### 6.3 解密层位置与密码提供者
 
-`PdfDecryptor` 位于"原始字节读取"与"对象/流解析"之间——xref 流本身加密，
-解密必须先于结构解析可用。/Encrypt 字典本身不加密（规范保证），可先读。
+`PdfSecurityHandler`（由 `setupSecurity` 建立）位于"原始字节读取"与"对象/流解析"
+之间。xref 流与 `/Encrypt` 字典本身**不加密**（规范保证）：xref 在 `open()` 的 xref
+循环内直接解析（早于安全处理器建立），`/Encrypt` 可先读出以推导文件密钥；此后再经
+`fetch`/`streamData` 消费的普通对象流（ObjStm、图片流）才按需解密。
 
 ```dart
-typedef PdfPasswordProvider = Future<String?> Function();
+typedef PdfPasswordProvider = Future<String?> Function(String fileName);
 ```
+
+（带 fileName 参数：UI 对话框标题需要显示是哪个文件在要密码。）
 
 - 解析流程：检测 /Encrypt → **自动先试空密码**（权限加密静默通过）→ 失败进入
   **解析器内部的密码循环**：反复调用 passwordProvider（每次调用 = UI 弹一次框），
@@ -149,7 +162,7 @@ cover.* 或首图作封面、复制到 `LocalManager().path/<sanitize(title)]>/`
 
 ```
 PdfComic.import(File file, {PdfPasswordProvider? passwordProvider})
-  → pdf_extract 解析（含解密）→ 图片写入 cachePath/pdf_import/
+  → extractPdfImages 解析（含解密）→ 图片写入 cachePath/pdf_import/
     （JPEG 直通复制；Flate 转 PNG 写入；命名 1.jpg/2.png… 页序）
   → 共用尾段（标题 = 文件名去扩展名，与 cbz 一致）
   → LocalComic → registerComics(imported, false)
@@ -203,7 +216,7 @@ PDF page @p uses an unsupported image encoding (@e)、No images found in the PDF
 - **集成**：PdfComic.import 端到端（temp App.dataPath + LocalManager.forTesting，
   遵循 ensureSqlite3ForTests skip 惯例），验证落盘目录结构与 LocalComic 字段
 - **回归**：CBZ.import 共用尾段重构后现有 cbz 行为不变
-- 架构约束：pdf_extract.dart 不 import Flutter（architecture_test 现有规则不覆盖
+- 架构约束：`lib/utils/pdf/` 解析核心不 import Flutter（architecture_test 现有规则不覆盖
   utils，但保持 headless 可用性是自检项）
 
 ## 10. 规模估计
