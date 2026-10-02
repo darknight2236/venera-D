@@ -83,11 +83,12 @@ abstract class CBZ {
   }
 
   static Future<LocalComic> import(File file) async {
-    var cache = Directory(FilePath.join(App.cachePath, 'cbz_import'));
-    if (cache.existsSync()) cache.deleteSync(recursive: true);
-    cache.createSync();
-    await extractArchive(file, cache);
-    var f = cache.listSync();
+    var root = Directory(FilePath.join(App.cachePath, 'cbz_import'));
+    if (root.existsSync()) root.deleteSync(recursive: true);
+    root.createSync();
+    await extractArchive(file, root);
+    var cache = root;
+    var f = root.listSync();
     if (f.length == 1 && f.first is Directory) {
       cache = f.first as Directory;
     }
@@ -104,21 +105,44 @@ abstract class CBZ {
       author: "",
       tags: [],
     );
-    var old = LocalManager().findByName(metaData.title);
+    try {
+      return await comicFromCacheDir(
+        cache,
+        title: metaData.title,
+        author: metaData.author,
+        tags: metaData.tags,
+        chapters: metaData.chapters,
+      );
+    } finally {
+      if (root.existsSync()) root.deleteSync(recursive: true);
+    }
+  }
+
+  /// Shared import tail for archive and PDF imports. Given a directory of
+  /// already-extracted image files, build the on-disk comic folder under
+  /// [LocalManager.path] and return its [LocalComic].
+  ///
+  /// Does NOT register the comic in the database and does NOT delete [cache];
+  /// the caller owns both. [title] must carry no file extension.
+  static Future<LocalComic> comicFromCacheDir(
+    Directory cache, {
+    required String title,
+    String author = '',
+    List<String> tags = const [],
+    List<ComicChapter>? chapters,
+  }) async {
+    var old = LocalManager().findByName(title);
     if (old != null) {
-      throw Exception('Comic with name ${metaData.title} already exists');
+      throw Exception('Comic with name $title already exists');
     }
     var files = cache.listSync().whereType<File>().toList();
     files.removeWhere((e) => !isSupportedImageName(e.name));
     if (files.isEmpty) {
-      cache.deleteSync(recursive: true);
       throw Exception('No images found in the archive');
     }
     files.sort((a, b) {
-      var aName = a.basenameWithoutExt;
-      var bName = b.basenameWithoutExt;
-      var aIndex = int.tryParse(aName);
-      var bIndex = int.tryParse(bName);
+      var aIndex = int.tryParse(a.basenameWithoutExt);
+      var bIndex = int.tryParse(b.basenameWithoutExt);
       if (aIndex != null && bIndex != null) {
         return aIndex.compareTo(bIndex);
       } else {
@@ -136,11 +160,11 @@ abstract class CBZ {
     }
     Map<String, String>? cpMap;
     var dest = Directory(
-      FilePath.join(LocalManager().path, sanitizeFileName(metaData.title)),
+      FilePath.join(LocalManager().path, sanitizeFileName(title)),
     );
     dest.createSync();
     coverFile.copyMem(FilePath.join(dest.path, 'cover.${coverFile.extension}'));
-    if (metaData.chapters == null) {
+    if (chapters == null) {
       for (var i = 0; i < files.length; i++) {
         var src = files[i];
         var dst = File(
@@ -149,29 +173,29 @@ abstract class CBZ {
       }
     } else {
       dest.createSync();
-      var chapters = <String, List<File>>{};
-      for (var chapter in metaData.chapters!) {
-        chapters[chapter.title] = files.sublist(chapter.start - 1, chapter.end);
+      var grouped = <String, List<File>>{};
+      for (var chapter in chapters) {
+        grouped[chapter.title] = files.sublist(chapter.start - 1, chapter.end);
       }
       int i = 0;
       cpMap = <String, String>{};
-      for (var chapter in chapters.entries) {
+      for (var chapter in grouped.entries) {
         cpMap[i.toString()] = chapter.key;
         var chapterDir = Directory(FilePath.join(dest.path, i.toString()));
         chapterDir.createSync();
-        for (var i = 0; i < chapter.value.length; i++) {
-          var src = chapter.value[i];
+        for (var j = 0; j < chapter.value.length; j++) {
+          var src = chapter.value[j];
           var dst = File(FilePath.join(
-              chapterDir.path, '${i + 1}.${src.path.split('.').last}'));
+              chapterDir.path, '${j + 1}.${src.path.split('.').last}'));
           await src.copyMem(dst.path);
         }
       }
     }
-    var comic = LocalComic(
+    return LocalComic(
       id: LocalManager().findValidId(ComicType.local),
-      title: metaData.title,
-      subtitle: metaData.author,
-      tags: metaData.tags,
+      title: title,
+      subtitle: author,
+      tags: tags,
       comicType: ComicType.local,
       directory: dest.name,
       chapters: ComicChapters.fromJsonOrNull(cpMap),
@@ -179,8 +203,6 @@ abstract class CBZ {
       cover: 'cover.${coverFile.extension}',
       createdAt: DateTime.now(),
     );
-    await cache.delete(recursive: true);
-    return comic;
   }
 
   static Future<File> export(LocalComic comic, String outFilePath) async {

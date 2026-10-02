@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 
-import 'package:flutter/widgets.dart' show ChangeNotifier;
+import 'package:flutter/widgets.dart' show ChangeNotifier, visibleForTesting;
 import 'package:flutter_saf/flutter_saf.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -218,6 +218,21 @@ class LocalManager with ChangeNotifier {
 
   LocalManager._();
 
+  /// Creates a manager backed by an in-memory database rooted at [testPath],
+  /// skipping file I/O and download-task restore. For unit tests only.
+  @visibleForTesting
+  LocalManager.forTesting(String testPath) {
+    _db = sqlite3.openInMemory();
+    _createComicsTable();
+    path = testPath;
+  }
+
+  /// Replaces (or clears) the factory singleton. For unit tests only.
+  @visibleForTesting
+  static void debugSetInstance(LocalManager? instance) {
+    _instance = instance;
+  }
+
   factory LocalManager() {
     return _instance ??= LocalManager._();
   }
@@ -226,6 +241,25 @@ class LocalManager with ChangeNotifier {
 
   /// path to the directory where all the comics are stored
   late String path;
+
+  /// Schema shared by [init] and [LocalManager.forTesting].
+  void _createComicsTable() {
+    _db.execute('''
+      CREATE TABLE IF NOT EXISTS comics (
+        id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        subtitle TEXT NOT NULL,
+        tags TEXT NOT NULL,
+        directory TEXT NOT NULL,
+        chapters TEXT NOT NULL,
+        cover TEXT NOT NULL,
+        comic_type INTEGER NOT NULL,
+        downloadedChapters TEXT NOT NULL,
+        created_at INTEGER,
+        PRIMARY KEY (id, comic_type)
+      );
+    ''');
+  }
 
   Directory get directory => Directory(path);
 
@@ -302,21 +336,7 @@ class LocalManager with ChangeNotifier {
     _db = sqlite3.open(
       '${App.dataPath}/local.db',
     );
-    _db.execute('''
-      CREATE TABLE IF NOT EXISTS comics (
-        id TEXT NOT NULL,
-        title TEXT NOT NULL,
-        subtitle TEXT NOT NULL,
-        tags TEXT NOT NULL,
-        directory TEXT NOT NULL,
-        chapters TEXT NOT NULL,
-        cover TEXT NOT NULL,
-        comic_type INTEGER NOT NULL,
-        downloadedChapters TEXT NOT NULL,
-        created_at INTEGER,
-        PRIMARY KEY (id, comic_type)
-      );
-    ''');
+    _createComicsTable();
     if (File(FilePath.join(App.dataPath, 'local_path')).existsSync()) {
       path = File(FilePath.join(App.dataPath, 'local_path')).readAsStringSync();
       if (!directory.existsSync()) {
