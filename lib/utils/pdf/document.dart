@@ -371,10 +371,64 @@ class PdfDocument {
     return r;
   }
 
+  /// The name of [obj] if it resolves to a name, otherwise null. A corrupt
+  /// type entry must degrade to "unknown" rather than crash on a cast.
+  String? _nameOf(PdfObject? obj) {
+    final r = resolve(obj);
+    return r is PdfName ? r.name : null;
+  }
+
+  /// Leaf pages in reading order, each paired with its effective /Resources
+  /// (page-level value wins; otherwise inherited from ancestor Pages nodes,
+  /// per spec 7.7.3.3).
+  List<({PdfDictionary page, PdfObject? resources})> pages() {
+    final root = resolveDict(trailer['Root']);
+    final pagesRoot = resolveDict(root['Pages']);
+    final result = <({PdfDictionary page, PdfObject? resources})>[];
+    void walk(PdfDictionary node, PdfObject? inherited, int depth) {
+      if (depth > 64) {
+        throw const PdfSyntaxException('Page tree too deep (cycle?)');
+      }
+      final resources = node['Resources'] ?? inherited;
+      final kids = resolve(node['Kids']);
+      if (_nameOf(node['Type']) == 'Page' || kids is! PdfArray) {
+        result.add((page: node, resources: resources));
+        return;
+      }
+      for (final k in kids.items) {
+        final child = resolve(k);
+        if (child is PdfDictionary) {
+          walk(child, resources, depth + 1);
+        }
+      }
+    }
+
+    walk(pagesRoot, null, 0);
+    return result;
+  }
+
+  /// Image XObject streams of one page, ordered by resource name (design
+  /// decision: content-stream `Do` order is not parsed; see spec §11).
+  List<PdfStream> collectPageImageStreams(
+      ({PdfDictionary page, PdfObject? resources}) entry) {
+    final resources = resolve(entry.resources);
+    if (resources is! PdfDictionary) return const [];
+    final xobjects = resolve(resources['XObject']);
+    if (xobjects is! PdfDictionary) return const [];
+    final names = xobjects.map.keys.toList()..sort();
+    final result = <PdfStream>[];
+    for (final name in names) {
+      final obj = resolve(xobjects[name]);
+      if (obj is PdfStream && _nameOf(obj.dict['Subtype']) == 'Image') {
+        result.add(obj);
+      }
+    }
+    return result;
+  }
+
   /// Raw stream bytes honoring an indirect /Length, and (from Task 8)
   /// transport decryption.
-  Uint8List streamData(PdfStream stream) {
-    final len = resolve(stream.dict['Length']);
+  Uint8List streamData(PdfStream stream) {    final len = resolve(stream.dict['Length']);
     var raw = stream.raw;
     if (len is PdfNumber && len.intValue >= 0 && len.intValue <= raw.length) {
       raw = Uint8List.sublistView(raw, 0, len.intValue);

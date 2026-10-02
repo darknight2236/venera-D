@@ -339,7 +339,6 @@ void main() {
       // Declared entry (2, 5, 7) exceeds N = 1.
       expect(() => doc.fetch(6), throwsA(isA<PdfSyntaxException>()));
     });
-
     test('a type-2 entry pointing at a compressed stream throws, not a cycle',
         () async {
       // Object 3 is declared type-2 inside "object stream" 5, and object 5 is
@@ -358,6 +357,120 @@ void main() {
       final doc = PdfDocument(pdf);
       await doc.open();
       expect(() => doc.fetch(3), throwsA(isA<PdfSyntaxException>()));
+    });
+  });
+
+  group('PdfDocument.pages', () {
+    test('returns pages in Kids order', () async {
+      final pdf = buildImagePdf([
+        TestPdfPage(width: 2, height: 1, data: flate(Uint8List(6))),
+        TestPdfPage(width: 2, height: 1, data: flate(Uint8List(6))),
+      ]);
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(doc.pages().length, 2);
+    });
+
+    test('inherits /Resources from ancestor Pages nodes', () async {
+      // Page dict has no /Resources; the Pages root carries it.
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 2 0 R >>'); // 1
+      b.addObject('<< /Type /Pages /Kids [4 0 R] /Count 1 '
+          '/Resources << /XObject << /Im0 3 0 R >> >> >>'); // 2
+      b.addStreamObject(
+        '/Type /XObject /Subtype /Image /Width 2 /Height 1 '
+        '/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode',
+        flate(Uint8List(6)),
+      ); // 3
+      b.addObject('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 2 1] >>'); // 4
+      final doc = PdfDocument(b.finishClassic(rootObj: 1));
+      await doc.open();
+      final pages = doc.pages();
+      expect(pages.length, 1);
+      final resources = doc.resolveDict(pages.first.resources);
+      expect(resources['XObject'], isNotNull);
+    });
+
+    test('collects image XObjects of a page sorted by resource name', () async {
+      // One page with two image XObjects named /ImB and /ImA.
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 2 0 R >>'); // 1
+      b.addObject('<< /Type /Pages /Kids [5 0 R] /Count 1 >>'); // 2
+      for (var i = 0; i < 2; i++) {
+        b.addStreamObject(
+          '/Type /XObject /Subtype /Image /Width 2 /Height 1 '
+          '/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode',
+          flate(Uint8List(6)),
+        );
+      }
+      b.addObject('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 2 1] '
+          '/Resources << /XObject << /ImB 4 0 R /ImA 3 0 R >> >> >>'); // 5
+      final doc = PdfDocument(b.finishClassic(rootObj: 1));
+      await doc.open();
+      final images = doc.collectPageImageStreams(doc.pages().first);
+      // Sorted by resource name: /ImA (obj 3) before /ImB (obj 4).
+      expect(images.map((s) => s.objNum).toList(), [3, 4]);
+    });
+  });
+
+  group('PdfDocument page tree corrupt input', () {
+    test('a non-name /Type does not throw a raw TypeError', () async {
+      // A page dict whose /Type is a number: it has no /Kids, so it is simply
+      // treated as a leaf rather than crashing the walk.
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 2 0 R >>'); // 1
+      b.addObject('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'); // 2
+      b.addObject('<< /Type 7 /MediaBox [0 0 2 1] >>'); // 3
+      final doc = PdfDocument(b.finishClassic(rootObj: 1));
+      await doc.open();
+      expect(doc.pages().length, 1);
+    });
+
+    test('a non-name /Subtype on an XObject is skipped, not fatal', () async {
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 2 0 R >>'); // 1
+      b.addObject('<< /Type /Pages /Kids [4 0 R] /Count 1 >>'); // 2
+      b.addStreamObject(
+        '/Type /XObject /Subtype /Form /Width 2 /Height 1',
+        latin1.encode('x'),
+      ); // 3
+      b.addObject('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 2 1] '
+          '/Resources << /XObject << /Im0 3 0 R >> >> >>'); // 4
+      final doc = PdfDocument(b.finishClassic(rootObj: 1));
+      await doc.open();
+      expect(doc.collectPageImageStreams(doc.pages().first), isEmpty);
+    });
+
+    test('a cyclic page tree throws instead of overflowing the stack', () async {
+      // Pages node 2 lists kid 3, and 3 lists kid 2 - an infinite tree.
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 2 0 R >>'); // 1
+      b.addObject('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'); // 2
+      b.addObject('<< /Type /Pages /Kids [2 0 R] /Count 1 >>'); // 3
+      final doc = PdfDocument(b.finishClassic(rootObj: 1));
+      await doc.open();
+      expect(() => doc.pages(), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('a missing /Root throws a domain exception', () async {
+      final pdf = craftPdf(
+        xrefBody: '0 2\n0000000000 65535 f\r\n0000000009 00000 n\r\n',
+        trailerEntries: '/Size 2',
+      );
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(() => doc.pages(), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('/Resources that is not a dictionary yields no images', () async {
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 2 0 R >>'); // 1
+      b.addObject('<< /Type /Pages /Kids [3 0 R] /Count 1 >>'); // 2
+      b.addObject('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 2 1] '
+          '/Resources 42 >>'); // 3
+      final doc = PdfDocument(b.finishClassic(rootObj: 1));
+      await doc.open();
+      expect(doc.collectPageImageStreams(doc.pages().first), isEmpty);
     });
   });
 }
