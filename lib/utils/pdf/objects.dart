@@ -462,3 +462,7 @@ class PdfExtractException implements Exception {
   @override
   String toString() => message;
 }
+
+/// Called when an encrypted PDF needs a user password. The returned string
+/// is tried; returning null means the user cancelled.
+typedef PdfPasswordProvider = Future<String?> Function(String fileName);
