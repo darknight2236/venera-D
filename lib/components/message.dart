@@ -367,6 +367,7 @@ Future<void> showInputDialog({
   RegExp? inputValidator,
   String? image,
   Uint8List? imageData,
+  bool obscureText = false,
 }) {
   var controller = TextEditingController(text: initialValue);
   bool isLoading = false;
@@ -393,6 +394,7 @@ Future<void> showInputDialog({
                   ).paddingBottom(8),
                 TextField(
                   controller: controller,
+                  obscureText: obscureText,
                   decoration: InputDecoration(
                     hintText: hintText,
                     border: const OutlineInputBorder(),

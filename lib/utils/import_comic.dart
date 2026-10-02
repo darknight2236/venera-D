@@ -10,6 +10,9 @@ import 'package:venera/foundation/local.dart';
 import 'package:venera/foundation/log.dart';
 import 'package:sqlite3/sqlite3.dart' as sql;
 import 'package:venera/utils/ext.dart';
+import 'package:venera/utils/pdf/images.dart';
+import 'package:venera/utils/pdf/objects.dart';
+import 'package:venera/utils/pdf_import.dart';
 import 'package:venera/utils/translations.dart';
 import 'cbz.dart';
 import 'io.dart';
@@ -24,11 +27,16 @@ class ImportComic {
   /// Called to show a loading dialog. Returns an object with a `close()` method.
   final dynamic Function({String? message, bool allowCancel, VoidCallback? onCancel}) showLoading;
 
+  /// Injected by the UI layer to prompt for a password on encrypted PDFs.
+  /// Null in headless/test paths (only empty-password PDFs can be opened).
+  final PdfPasswordProvider? passwordProvider;
+
   const ImportComic({
     this.selectedFolder,
     this.copyToLocal = true,
     required this.showMessage,
     required this.showLoading,
+    this.passwordProvider,
   });
 
   Future<bool> cbz() async {
@@ -75,6 +83,83 @@ class ImportComic {
       return registerComics(imported, false);
     }
     return false;
+  }
+
+  /// Wraps [inner] so the second and later prompts surface an
+  /// "Incorrect password" toast. The parser tries an empty password before
+  /// ever calling the provider, so the first prompt must not toast.
+  PdfPasswordProvider wrapPasswordProvider(PdfPasswordProvider inner) {
+    var attempts = 0;
+    return (fileName) async {
+      if (attempts > 0) showMessage("Incorrect password".tl);
+      attempts++;
+      return inner(fileName);
+    };
+  }
+
+  /// A fresh wrapper per access, so batch imports count attempts per file
+  /// rather than leaking one file's failure notice onto the next.
+  PdfPasswordProvider? get _wrappedProvider => passwordProvider == null
+      ? null
+      : wrapPasswordProvider(passwordProvider!);
+
+  Future<bool> pdf() async {
+    var file = await selectFile(ext: ['pdf'], onError: showMessage);
+    if (file == null) {
+      return false;
+    }
+    var controller = showLoading(allowCancel: true);
+    Map<String?, List<LocalComic>> imported = {};
+    try {
+      var comic = await PdfComic.import(
+        File(file.path),
+        passwordProvider: _wrappedProvider,
+      );
+      imported[selectedFolder] = [comic];
+    } on PdfCancelledException {
+      controller.close();
+      return false;
+    } catch (e, s) {
+      Log.error("Import Comic", e.toString(), s);
+      showMessage(pdfErrorMessage(e));
+      controller.close();
+      return false;
+    }
+    controller.close();
+    return registerComics(imported, false);
+  }
+
+  Future<bool> multiplePdf() async {
+    var picker = DirectoryPicker();
+    var dir = await picker.pickDirectory(directAccess: true);
+    if (dir == null) {
+      return false;
+    }
+    var files = (await dir.list().toList()).whereType<File>().toList();
+    files.removeWhere((e) => e.extension.toLowerCase() != 'pdf');
+    Map<String?, List<LocalComic>> imported = {};
+    var controller = showLoading(allowCancel: false);
+    var comics = <LocalComic>[];
+    for (var file in files) {
+      try {
+        var comic = await PdfComic.import(
+          file,
+          passwordProvider: _wrappedProvider,
+        );
+        comics.add(comic);
+      } on PdfCancelledException {
+        // Cancelling skips only this file; the rest still import.
+        continue;
+      } catch (e, s) {
+        Log.error("Import Comic", e.toString(), s);
+      }
+    }
+    if (comics.isEmpty) {
+      showMessage("No valid comics found".tl);
+    }
+    controller.close();
+    imported[selectedFolder] = comics;
+    return registerComics(imported, false);
   }
 
   Future<bool> ehViewer() async {
@@ -434,4 +519,19 @@ class ImportComic {
     }
     return true;
   }
+}
+
+/// Maps a PDF extraction failure to a localized, user-facing message.
+String pdfErrorMessage(Object e) {
+  if (e is PdfUnsupportedEncodingException) {
+    return "PDF page @p uses an unsupported image encoding (@e)"
+        .tlParams({'p': e.page, 'e': e.filter});
+  }
+  if (e is PdfNoImagesException) {
+    return "No images found in the PDF".tl;
+  }
+  if (e is PdfEncryptedException) {
+    return "The PDF is encrypted".tl;
+  }
+  return e.toString();
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:sliver_tools/sliver_tools.dart';
 import 'package:url_launcher/url_launcher_string.dart';
@@ -513,6 +515,8 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
       "Select a directory which contains the comic directories.".tl,
       "Select an archive file (cbz, zip, 7z, cb7)".tl,
       "Select a directory which contains multiple archive files.".tl,
+      "Select a PDF file (image-based comics).".tl,
+      "Select a directory which contains PDF files.".tl,
       "Select an EhViewer database and a download folder.".tl,
       "Scan the current local path and restore the local database.".tl,
     ][type];
@@ -521,6 +525,8 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
       "Multiple Comics".tl,
       "An archive file".tl,
       "Multiple archive files".tl,
+      "A PDF file".tl,
+      "Multiple PDF files".tl,
       "EhViewer downloads".tl,
       "Restore local downloads".tl,
     ];
@@ -541,7 +547,7 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
               onChanged: (value) {
                 setState(() {
                   type = value ?? type;
-                  if (type == 5) {
+                  if (type == 7) {
                     selectedFolder = null;
                   }
                 });
@@ -557,7 +563,7 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
                       value: index,
                     );
                   }),
-                  if (type != 4 && type != 5)
+                  if (type != 6 && type != 7)
                     ListTile(
                       title: Text("Add to favorites".tl),
                       trailing: Select(
@@ -575,7 +581,9 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
                       !App.isMacOS &&
                       type != 2 &&
                       type != 3 &&
-                      type != 5)
+                      type != 4 &&
+                      type != 5 &&
+                      type != 7)
                     CheckboxListTile(
                         enabled: true,
                         title: Text("Copy to app local path".tl),
@@ -630,14 +638,17 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
         showLoading: ({message, allowCancel = true, onCancel}) =>
             showLoadingDialog(App.rootContext,
                 message: message, allowCancel: allowCancel, onCancel: onCancel),
+        passwordProvider: _askPdfPassword,
     );
     var result = switch (type) {
       0 => await importer.directory(true),
       1 => await importer.directory(false),
       2 => await importer.cbz(),
       3 => await importer.multipleCbz(),
-      4 => await importer.ehViewer(),
-      5 => await importer.localDownloads(),
+      4 => await importer.pdf(),
+      5 => await importer.multiplePdf(),
+      6 => await importer.ehViewer(),
+      7 => await importer.localDownloads(),
       int() => true,
     };
     if (result) {
@@ -647,6 +658,28 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
         loading = false;
       });
     }
+  }
+
+  /// Bridges the parser's `await passwordProvider(fileName)` retry loop to a
+  /// modal dialog. Completes with the entered password, or null when the
+  /// dialog is dismissed without confirming (the parser reads null as cancel).
+  Future<String?> _askPdfPassword(String fileName) {
+    final completer = Completer<String?>();
+    if (!App.rootContext.mounted) {
+      return Future.value(null);
+    }
+    showInputDialog(
+      context: App.rootContext,
+      title: "Enter password for @f".tlParams({'f': fileName}),
+      obscureText: true,
+      onConfirm: (text) {
+        completer.complete(text);
+        return null; // returning null closes the dialog
+      },
+    ).then((_) {
+      if (!completer.isCompleted) completer.complete(null);
+    });
+    return completer.future;
   }
 }
 
