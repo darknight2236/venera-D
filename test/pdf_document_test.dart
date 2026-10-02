@@ -185,4 +185,215 @@ void main() {
       expect(doc.trailer['Size'], isA<PdfNumber>());
     });
   });
+
+  group('PdfDocument xref streams and object streams', () {
+    test('opens a document with a cross-reference stream', () async {
+      final pdf = buildImagePdf(
+        [TestPdfPage(width: 2, height: 1, data: flate(Uint8List(6)))],
+        xrefStream: true,
+      );
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      final root = doc.resolveDict(doc.trailer['Root']);
+      expect((root['Type'] as PdfName).name, 'Catalog');
+      final pages = doc.resolveDict(PdfRef(2, 0));
+      expect((pages['Type'] as PdfName).name, 'Pages');
+    });
+
+    test('fetches objects stored inside an object stream', () async {
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 3 0 R >>'); // 1
+      b.addStreamObject(
+        '/Type /XObject /Subtype /Image /Width 2 /Height 1 '
+        '/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /FlateDecode',
+        flate(Uint8List(6)),
+      ); // 2
+      b.addObjectAt(4, '<< /Type /Page /Parent 3 0 R /MediaBox [0 0 2 1] '
+          '/Resources << /XObject << /Im0 2 0 R >> >> >>');
+      // Object 3 (the Pages dict) lives inside object stream 5.
+      const header = '3 0 ';
+      final inner =
+          latin1.encode('$header<< /Type /Pages /Kids [4 0 R] /Count 1 >>');
+      b.addStreamObjectAt(
+        5,
+        '/Type /ObjStm /N 1 /First ${header.length} /Filter /FlateDecode',
+        flate(Uint8List.fromList(inner)),
+      );
+      final pdf = b.finishXrefStream(rootObj: 1, extraEntries: {3: (2, 5, 0)});
+
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      final pages = doc.resolveDict(PdfRef(3, 0));
+      expect((pages['Type'] as PdfName).name, 'Pages');
+      expect((doc.resolveDict(PdfRef(4, 0))['Type'] as PdfName).name, 'Page');
+    });
+
+    test('reads an xref stream with no /Filter (stored uncompressed)',
+        () async {
+      // Object 1 sits at offset 9; W = [1 2 1] keeps entries to 4 bytes.
+      final pdf = craftXrefStream(
+        '/Type /XRef /Size 2 /W [1 2 1] /Index [0 2] /Root 1 0 R',
+        [0, 0, 0, 255, 1, 0, 9, 0],
+      );
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect((doc.resolveDict(doc.trailer['Root'])['Type'] as PdfName).name,
+          'Catalog');
+    });
+
+    test('a free entry in a newer xref stream shadows an older in-use one',
+        () async {
+      // Single section that marks object 1 free: it must not resolve.
+      final pdf = craftXrefStream(
+        '/Type /XRef /Size 2 /W [1 2 1] /Index [0 2] /Root 1 0 R',
+        [0, 0, 0, 255, 0, 0, 0, 0],
+      );
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(doc.fetch(1), isNull);
+    });
+  });
+
+  group('PdfDocument xref stream corrupt input', () {
+    test('missing /W throws', () async {
+      final pdf = craftXrefStream('/Type /XRef /Size 2 /Root 1 0 R', [0, 0]);
+      await expectLater(
+          PdfDocument(pdf).open(), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('/W with fewer than three fields throws', () async {
+      final pdf = craftXrefStream(
+          '/Type /XRef /Size 2 /W [1 2] /Index [0 2] /Root 1 0 R', [0, 0, 0]);
+      await expectLater(
+          PdfDocument(pdf).open(), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('/W with a non-numeric field throws instead of a TypeError', () async {
+      final pdf = craftXrefStream(
+          '/Type /XRef /Size 2 /W [1 2 (x)] /Index [0 2] /Root 1 0 R',
+          [0, 0, 0, 255]);
+      await expectLater(
+          PdfDocument(pdf).open(), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('/Index claiming more entries than the payload holds throws',
+        () async {
+      final pdf = craftXrefStream(
+          '/Type /XRef /Size 2 /W [1 2 1] /Index [0 1000000] /Root 1 0 R',
+          [0, 0, 0, 255]);
+      await expectLater(
+          PdfDocument(pdf).open(), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('a negative /Index start throws', () async {
+      final pdf = craftXrefStream(
+          '/Type /XRef /Size 2 /W [1 2 1] /Index [-5 2] /Root 1 0 R',
+          [0, 0, 0, 255, 1, 0, 9, 0]);
+      await expectLater(
+          PdfDocument(pdf).open(), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('an unsupported xref stream filter throws', () async {
+      final pdf = craftXrefStream(
+          '/Type /XRef /Size 2 /W [1 2 1] /Index [0 2] /Filter /LZWDecode '
+          '/Root 1 0 R',
+          [0, 0, 0, 255, 1, 0, 9, 0]);
+      await expectLater(
+          PdfDocument(pdf).open(), throwsA(isA<PdfSyntaxException>()));
+    });
+  });
+
+  group('PdfDocument object stream corrupt input', () {
+    test('an absurd /N throws instead of allocating', () async {
+      final pdf = _objStmPdf('/Type /ObjStm /N 1000000000 /First 4', '3 0 ');
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(() => doc.fetch(3), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('a /First beyond the stream data throws', () async {
+      final pdf = _objStmPdf('/Type /ObjStm /N 1 /First 9999', '3 0 1 2');
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(() => doc.fetch(3), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('a non-numeric ObjStm header pair throws', () async {
+      final pdf = _objStmPdf('/Type /ObjStm /N 1 /First 4', '(x) 1 ');
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(() => doc.fetch(3), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('an entry offset outside the stream data throws', () async {
+      final pdf = _objStmPdf('/Type /ObjStm /N 1 /First 4', '3 9999 ');
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(() => doc.fetch(3), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('an out-of-range index into the object stream throws', () async {
+      final pdf = _objStmPdf('/Type /ObjStm /N 1 /First 4', '3 0 << >> ');
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      // Declared entry (2, 5, 7) exceeds N = 1.
+      expect(() => doc.fetch(6), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('a type-2 entry pointing at a compressed stream throws, not a cycle',
+        () async {
+      // Object 3 is declared type-2 inside "object stream" 5, and object 5 is
+      // itself declared type-2 inside 3 - an invalid file that must not
+      // recurse until the stack overflows.
+      final b = TestPdfBuilder();
+      b.addObject('<< /Type /Catalog /Pages 3 0 R >>'); // 1
+      b.addObject('<< /Type /Pages /Kids [] /Count 0 >>'); // 2
+      final pdf = b.finishXrefStream(
+        rootObj: 1,
+        extraEntries: {
+          3: (2, 5, 0),
+          5: (2, 3, 0),
+        },
+      );
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect(() => doc.fetch(3), throwsA(isA<PdfSyntaxException>()));
+    });
+  });
+}
+
+/// Builds a PDF holding `1 0 obj << /Type /Catalog >>` plus an xref stream at
+/// object 2 whose dictionary is [dict] (minus /Length, which is filled in) and
+/// whose raw payload is [payload]. No compression is applied, so [payload] is
+/// read verbatim by the parser.
+Uint8List craftXrefStream(String dict, List<int> payload) {
+  final head = '%PDF-1.7\n';
+  final obj1 = '1 0 obj\n<< /Type /Catalog >>\nendobj\n';
+  final xrefPos = latin1.encode(head + obj1).length;
+  final streamObj = '2 0 obj\n<< $dict /Length ${payload.length} >>\nstream\n';
+  final bytes = BytesBuilder()
+    ..add(latin1.encode(head))
+    ..add(latin1.encode(obj1))
+    ..add(latin1.encode(streamObj))
+    ..add(payload)
+    ..add(latin1.encode(
+        '\nendstream\nendobj\nstartxref\n$xrefPos\n%%EOF\n'));
+  return bytes.toBytes();
+}
+
+/// A PDF where object 3 is a type-2 entry living inside uncompressed object
+/// stream 5, described by [dict] with the ASCII payload [data]. Object 6 is
+/// declared type-2 at index 7 of the same stream to exercise the bounds check.
+Uint8List _objStmPdf(String dict, String data) {
+  final b = TestPdfBuilder();
+  b.addObject('<< /Type /Catalog /Pages 3 0 R >>'); // 1
+  b.addStreamObjectAt(5, dict, latin1.encode(data));
+  b.addObjectAt(2, '<< /Type /Pages /Kids [] /Count 0 >>');
+  return b.finishXrefStream(
+    rootObj: 1,
+    extraEntries: {
+      3: (2, 5, 0),
+      6: (2, 5, 7),
+    },
+  );
 }

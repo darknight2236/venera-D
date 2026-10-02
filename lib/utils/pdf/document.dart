@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'objects.dart';
@@ -24,6 +25,7 @@ class PdfDocument {
 
   final Map<int, _XrefEntry> _xref = {};
   final Map<int, PdfObject?> _objectCache = {};
+  final Map<int, ({List<int> nums, List<PdfObject?> objects})> _objStmCache = {};
 
   late PdfDictionary trailer;
 
@@ -160,9 +162,115 @@ class PdfDocument {
     p.matchKeyword('obj');
   }
 
-  /// Populated in Task 4; the classic-only parser must still compile.
+  /// Reads a PDF 1.5+ cross-reference stream. Per spec 7.5.8.2 an xref stream
+  /// is never encrypted, so this reads [PdfStream.raw] directly instead of
+  /// going through [streamData] (which decrypts once Task 8 lands).
   void _readXrefStream(PdfStream stream) {
-    throw const PdfSyntaxException('Cross-reference streams not supported yet');
+    var data = stream.raw;
+    final len = stream.dict['Length'];
+    if (len is PdfNumber && len.value >= 0 && len.value <= data.length) {
+      data = Uint8List.sublistView(data, 0, len.value.round());
+    }
+    data = _applyFlate(
+        data, _filterNames(stream.dict['Filter']), 'xref stream');
+
+    final wObj = stream.dict['W'];
+    if (wObj is! PdfArray || wObj.items.length != 3) {
+      throw const PdfSyntaxException('xref stream needs a three-field /W');
+    }
+    final w = <int>[];
+    for (final e in wObj.items) {
+      if (e is! PdfNumber) {
+        throw const PdfSyntaxException('xref stream /W holds a non-number');
+      }
+      final field = e.intValue;
+      if (field < 0 || field > 8) {
+        throw PdfSyntaxException('xref stream /W field out of range: $field');
+      }
+      w.add(field);
+    }
+    final entrySize = w[0] + w[1] + w[2];
+    if (entrySize == 0) {
+      throw const PdfSyntaxException('Degenerate xref stream /W');
+    }
+
+    final size = (stream.dict['Size'] as PdfNumber?)?.intValue ?? 0;
+    final List<int> index;
+    final indexObj = stream.dict['Index'];
+    if (indexObj is PdfArray) {
+      index = [];
+      for (final e in indexObj.items) {
+        if (e is! PdfNumber) {
+          throw const PdfSyntaxException(
+              'xref stream /Index holds a non-number');
+        }
+        index.add(e.intValue);
+      }
+      if (index.length.isOdd) {
+        throw const PdfSyntaxException('xref stream /Index needs pairs');
+      }
+    } else {
+      index = [0, size];
+    }
+
+    // Bound the declared entry count against what the payload can physically
+    // hold, so an untrusted /Index cannot drive an unbounded loop.
+    var declared = 0;
+    for (var s = 0; s + 1 < index.length; s += 2) {
+      if (index[s] < 0 || index[s + 1] < 0) {
+        throw PdfSyntaxException('xref stream /Index pair out of range');
+      }
+      declared += index[s + 1];
+    }
+    if (declared > data.length ~/ entrySize) {
+      throw PdfSyntaxException('xref stream declares $declared entries but '
+          'holds ${data.length ~/ entrySize}');
+    }
+
+    var cursor = 0;
+    int readField(int wi) {
+      if (w[wi] == 0) {
+        // Spec defaults for a zero-width field: type 1, fields 0.
+        return wi == 0 ? 1 : 0;
+      }
+      var v = 0;
+      for (var k = 0; k < w[wi]; k++) {
+        if (cursor >= data.length) {
+          throw const PdfSyntaxException('Truncated xref stream');
+        }
+        v = (v << 8) | data[cursor];
+        cursor++;
+      }
+      return v;
+    }
+
+    for (var s = 0; s + 1 < index.length; s += 2) {
+      final first = index[s];
+      final count = index[s + 1];
+      for (var i = 0; i < count; i++) {
+        final type = readField(0);
+        final f2 = readField(1);
+        final f3 = readField(2);
+        final objNum = first + i;
+        if (_xref.containsKey(objNum)) continue; // newest section wins
+        // Type 1 = direct, 2 = compressed; anything else is a free entry,
+        // recorded so a newer section's deletion shadows an older in-use
+        // entry, matching the classic-table path.
+        _xref[objNum] =
+            _XrefEntry(type == 1 || type == 2 ? type : 0, f2, f3);
+      }
+    }
+  }
+
+  /// Inflates a PDF FlateDecode payload, tolerating producers that emit raw
+  /// deflate without the zlib header.
+  Uint8List _applyFlate(
+      Uint8List data, List<String> filters, String what) {
+    if (filters.isEmpty) return data;
+    if (filters.length != 1 || filters.first != 'FlateDecode') {
+      throw PdfSyntaxException('Unsupported $what filter ${filters.join('/')}');
+    }
+    return inflatePdf(data);
   }
 
   /// Fetches an object by number (with caching). Null when free/unknown.
@@ -183,9 +291,66 @@ class PdfDocument {
         obj.objNum = objNum;
         obj.objGen = entry.field3;
       }
+    } else if (entry != null && entry.type == 2) {
+      obj = _fetchFromObjStm(entry.field2, entry.field3);
     }
     _objectCache[objNum] = obj;
     return obj;
+  }
+
+  /// Extracts one object from a compressed object stream (cached per stream).
+  PdfObject? _fetchFromObjStm(int stmNum, int index) {
+    var cached = _objStmCache[stmNum];
+    if (cached == null) {
+      // An object stream must itself be a direct object; refusing anything
+      // else is what keeps a corrupt file from recursing through fetch().
+      final stmEntry = _xref[stmNum];
+      if (stmEntry == null || stmEntry.type != 1) {
+        throw PdfSyntaxException('Object stream $stmNum is not a direct object');
+      }
+      final stm = fetch(stmNum);
+      if (stm is! PdfStream) {
+        throw PdfSyntaxException('Object stream $stmNum is not a stream');
+      }
+      final data = _applyFlate(
+          streamData(stm), _filterNames(stm.dict['Filter']), 'object stream');
+      final n = (stm.dict['N'] as PdfNumber?)?.intValue ?? 0;
+      final first = (stm.dict['First'] as PdfNumber?)?.intValue ?? 0;
+      // Each header pair costs at least four bytes, so an untrusted /N larger
+      // than that is corruption, not a request to allocate.
+      if (n < 0 || first < 0 || n > data.length ~/ 4 || first > data.length) {
+        throw PdfSyntaxException('Malformed object stream $stmNum '
+            '(/N $n, /First $first, ${data.length} bytes of data)');
+      }
+      final header = PdfParser(data, 0);
+      final nums = <int>[];
+      final offs = <int>[];
+      for (var i = 0; i < n; i++) {
+        final numObj = header.parseObject();
+        final offObj = header.parseObject();
+        if (numObj is! PdfNumber || offObj is! PdfNumber) {
+          throw PdfSyntaxException('Malformed header in object stream $stmNum');
+        }
+        nums.add(numObj.intValue);
+        offs.add(offObj.intValue);
+      }
+      final objects = List<PdfObject?>.filled(n, null);
+      for (var i = 0; i < n; i++) {
+        final start = first + offs[i];
+        if (start < first || start > data.length) {
+          throw PdfSyntaxException('Object stream $stmNum entry $i starts at '
+              '$start, outside its ${data.length} bytes of data');
+        }
+        objects[i] = PdfParser(data, start).parseObject();
+      }
+      cached = (nums: nums, objects: objects);
+      _objStmCache[stmNum] = cached;
+    }
+    if (index < 0 || index >= cached.objects.length) {
+      throw PdfSyntaxException(
+          'Index $index out of range in object stream $stmNum');
+    }
+    return cached.objects[index];
   }
 
   PdfObject? resolve(PdfObject? obj, [int depth = 0]) {
@@ -215,5 +380,38 @@ class PdfDocument {
       raw = Uint8List.sublistView(raw, 0, len.intValue);
     }
     return raw;
+  }
+}
+
+/// The /Filter chain of a stream as names, empty when it declares none.
+/// PDF permits either a bare name or an array of names.
+List<String> _filterNames(PdfObject? filter) {
+  if (filter == null) return const [];
+  if (filter is PdfName) return [filter.name];
+  if (filter is PdfArray) {
+    return [
+      for (final e in filter.items)
+        e is PdfName
+            ? e.name
+            : (throw const PdfSyntaxException('Non-name /Filter entry'))
+    ];
+  }
+  throw const PdfSyntaxException('Unrecognized stream /Filter');
+}
+
+/// The raw-deflate decoder, reused so the fallback path allocates no codec.
+final _rawInflate = ZLibDecoder(raw: true);
+
+/// Inflates a PDF FlateDecode payload. Tolerates producers that omit the
+/// zlib header (raw deflate).
+Uint8List inflatePdf(Uint8List data) {
+  try {
+    return Uint8List.fromList(zlib.decode(data));
+  } on FormatException {
+    try {
+      return Uint8List.fromList(_rawInflate.convert(data));
+    } on FormatException {
+      throw const PdfSyntaxException('Corrupt FlateDecode data');
+    }
   }
 }
