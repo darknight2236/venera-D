@@ -466,3 +466,18 @@ class PdfExtractException implements Exception {
 /// Called when an encrypted PDF needs a user password. The returned string
 /// is tried; returning null means the user cancelled.
 typedef PdfPasswordProvider = Future<String?> Function(String fileName);
+
+/// Thrown when the user cancels the password prompt (provider returns null).
+/// Not a subtype of [PdfExtractException]: cancellation is normal control
+/// flow, not an extraction failure, and the UI must not toast it as an error.
+class PdfCancelledException implements Exception {
+  const PdfCancelledException();
+  @override
+  String toString() => 'Import cancelled';
+}
+
+/// Thrown when a document is encrypted and no [PdfPasswordProvider] is
+/// available to ask for a password (headless / test path).
+class PdfEncryptedException extends PdfExtractException {
+  const PdfEncryptedException() : super('The PDF is encrypted');
+}

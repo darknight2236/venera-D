@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'objects.dart';
+import 'security.dart';
 
 class _XrefEntry {
   /// 0 = free, 1 = uncompressed (field2 = byte offset, field3 = generation),
@@ -29,8 +30,8 @@ class PdfDocument {
 
   late PdfDictionary trailer;
 
-  /// Set up by open() in Task 8 when the document is encrypted.
-  Object? security;
+  /// Set up by open() when the document is encrypted; null for plain PDFs.
+  PdfSecurityHandler? security;
 
   /// [passwordProvider] / [fileName] are accepted from the start so the
   /// signature never changes; Task 8 wires them into decryption.
@@ -55,6 +56,8 @@ class PdfDocument {
       throw const PdfSyntaxException('No xref section found');
     }
     trailer = firstTrailer;
+    await setupSecurity(this,
+        passwordProvider: passwordProvider, fileName: fileName);
   }
 
   int _findStartXref() {
@@ -426,12 +429,23 @@ class PdfDocument {
     return result;
   }
 
-  /// Raw stream bytes honoring an indirect /Length, and (from Task 8)
-  /// transport decryption.
-  Uint8List streamData(PdfStream stream) {    final len = resolve(stream.dict['Length']);
+  /// Raw stream bytes honoring an indirect /Length, then decrypted when the
+  /// document is encrypted.
+  ///
+  /// Decryption lives here rather than in [fetch] because parsed objects are
+  /// cached once while stream bytes are consumed repeatedly. Cross-reference
+  /// streams never reach this method - they are read through [PdfParser]
+  /// during [open], before [security] exists - matching the spec rule that
+  /// they are not encrypted.
+  Uint8List streamData(PdfStream stream) {
+    final len = resolve(stream.dict['Length']);
     var raw = stream.raw;
     if (len is PdfNumber && len.intValue >= 0 && len.intValue <= raw.length) {
       raw = Uint8List.sublistView(raw, 0, len.intValue);
+    }
+    final sec = security;
+    if (sec != null) {
+      raw = sec.decryptStream(raw, stream.objNum, stream.objGen);
     }
     return raw;
   }

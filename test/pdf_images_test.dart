@@ -94,8 +94,8 @@ void main() {
       b.addObject('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
       b.addObject('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 10 10] >>');
       final pdf = b.finishClassic(rootObj: 1);
-      expect(
-        () => extractPdfImages(pdf).toList(),
+      await expectLater(
+        extractPdfImages(pdf).toList(),
         throwsA(isA<PdfNoImagesException>()),
       );
     });
@@ -151,8 +151,8 @@ void main() {
         '/Filter /FlateDecode',
         flate(Uint8List.fromList([0xF0])),
       );
-      expect(
-        () => extractPdfImages(pdf).toList(),
+      await expectLater(
+        extractPdfImages(pdf).toList(),
         throwsA(isA<PdfNoImagesException>()),
       );
     });
