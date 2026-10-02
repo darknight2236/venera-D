@@ -1638,7 +1638,7 @@ Uint8List inflatePdf(Uint8List data) {
 - [ ] **Step 4.4: 运行确认通过**
 
 Run: `flutter test test/pdf_document_test.dart`
-Expected: PASS（8 个测试）
+Expected: PASS（31 个测试）
 
 - [ ] **Step 4.5: 提交**
 
@@ -1646,6 +1646,48 @@ Expected: PASS（8 个测试）
 git add lib/utils/pdf/document.dart test/pdf_document_test.dart
 git commit -m "feat: PDF 1.5 cross-reference streams and object streams"
 ```
+
+#### Task 4 实施偏差记录（已提交为 326ef11，下游任务请以此为准）
+
+`lib/utils/pdf/document.dart` 的实际提交版本在本节代码块之上做了健壮性修正。
+**Tasks 5/6 的 implementer 必须以仓库中已提交的文件为唯一基线**，不要照抄本节代码块：
+
+1. **新增字段 `_objStmCache`**。本节假设 Task 3 已带该字段，但 Task 3 的实际提交版没有它
+   （未用到故被裁掉），本任务已补上：
+   `final Map<int, ({List<int> nums, List<PdfObject?> objects})> _objStmCache = {};`
+2. **`/W` 与 `/Index` 改为类型检查**。草稿写 `(e as PdfNumber).intValue`，对畸形文件抛裸 `TypeError`；
+   且 `w[0]+w[1]+w[2]` 直接下标访问，`/W` 元素不足 3 个时抛 `RangeError`。
+   现在要求 `/W` 恰为三元素且每个都是 `PdfNumber`、`/Index` 每项为 `PdfNumber` 且长度为偶数，
+   否则抛 `PdfSyntaxException`。`/W` 字段宽度另限死在 0..8。
+3. **`/Index` 声明的条目总数按 payload 实际容量封顶**：`declared > data.length ~/ entrySize` 即判为损坏。
+   草稿对不可信 `count` 没有任何限制，仅靠 `readField` 的游标越界被动兜底。
+   同时 `/Index` 的 first/count 出现负值直接抛异常。
+4. **`/Filter` 识别扩展**：抽出顶层 `_filterNames(PdfObject?) -> List<String>`，
+   兼容 `PdfName` 与单元素 `PdfArray` 两种合法写法；非 name 元素或不可识别形状抛 `PdfSyntaxException`
+   （原草稿只认 `PdfName`，写成数组的合法文件会被当成"无 filter"从而跳过解压、得到乱码）。
+5. **抽出 `_applyFlate(data, filters, what)`**，xref 流与对象流共用；不支持的 filter 报错信息带上
+   实际 filter 名与"是什么流"，便于定位。
+6. **`_readXrefStream` 现在也记录 free 条目**（与 Task 3 的修正保持一致）。
+   草稿写 `if (type == 1 || type == 2) {...} // type 0 = free: not recorded`，
+   于是新区段里被释放的对象不会占用 `_xref`，沿 `/Prev` 链往下的旧区段就能把它写回"在用"。
+7. **ObjStm 的 `/N` 按数据长度封顶**：`n > data.length ~/ 4`（每个 header 键值对至少 4 字节）即判为损坏，
+   避免 `List.filled(n, null)` 被不可信的巨值打爆内存；`/First` 同样范围校验。
+8. **ObjStm header 解析改为类型检查**，每个条目的起始偏移 `first + offs[i]` 做范围校验（含回绕检测）。
+9. **拒绝"对象流自身被声明为压缩对象"**（要求 `_xref[stmNum].type == 1`）。
+   草稿会 `fetch(stmNum)` → 又落进 `_fetchFromObjStm` → 环形互指时递归到 `StackOverflowError`
+   （注意 `StackOverflowError` 不是 `Exception`，上层 `on Exception` 根本接不住）。
+   规范本就要求对象流必须是直接对象，这一检查同时符合规范又切断环。
+10. **`inflatePdf` 的两级兜底都收敛为域异常**：zlib 头缺失时回退 raw deflate；两者都失败抛
+    `PdfSyntaxException('Corrupt FlateDecode data')`，不再让 `FormatException` 外泄。
+11. **草稿里的 `const ZLibDecoder(raw: true)` 无法编译**（该构造器不是 const），改为复用顶层
+    `final _rawInflate = ZLibDecoder(raw: true);`（`convert()` 每次自建 sink，复用安全）。
+12. **`document.dart` 新增 `import 'dart:io'`**（zlib 所需）。仍不含任何 Flutter import，
+    解析核心保持 headless 可用；`inflatePdf` 为公开顶层函数，Task 6 的解码管线直接复用。
+
+测试从计划的 8 个增加到 31 个（本文件累计）：新增 xref 流/对象流的畸形输入用例
+（缺 `/W`、`/W` 元素不足、`/W` 非数字、`/Index` 超额声明、`/Index` 负值、不支持的 xref 流 filter、
+ObjStm 巨 `/N`、`/First` 越界、header 非数字、条目偏移越界、索引超范围、type-2 互指成环），
+以及未压缩 xref 流与 free 条目遮蔽两条正常路径用例。
 
 ---
 
