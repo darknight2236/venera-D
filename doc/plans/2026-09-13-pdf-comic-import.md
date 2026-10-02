@@ -2410,6 +2410,35 @@ git add lib/utils/pdf/images.dart test/pdf_images_test.dart
 git commit -m "feat: PDF image decode pipeline with JPEG passthrough and PNG conversion"
 ```
 
+#### Task 6 实施偏差记录（已提交为 31b55ac，下游任务请以此为准）
+
+1. **`deviceNameFor` 对 `/ICCBased` 的处理是计划版的真 bug**。
+   草稿写 `doc.resolveDict(resolved.items[1])`——但按 ISO 32000，`[/ICCBased N 0 R]`
+   里的 ICC 描述文件是一个 **stream 对象**，`/N` 住在它的 **字典**里。
+   于是任何真实的 ICCBased 彩色 PDF 都会抛 `Expected a dictionary`。
+   实测（用 `TestPdfBuilder.addStreamObject('/N 1', ...)` 构造）确实复现，已改为：
+   解析 `items[1]`，`PdfStream` 取其 `.dict`，`PdfDictionary` 直接用，其余报
+   `PdfUnsupportedEncodingException`；并顺带支持 `Indexed` 嵌套在数组里的情况。
+2. **所有作用在不可信条目上的 `as PdfNumber?` / `as PdfArray?` / `as PdfBool?` 强转**
+   改为"解析 + 类型判断"辅助函数 `_intValue` / `_nameOf` / `_boolOf`。
+   `/Width (oops)`、`/BitsPerComponent (x)`、`/ImageMask 1` 这类畸形值原本会抛裸 `TypeError`，
+   突破"结构损坏表现为 `PdfExtractException`"的错误契约（与 Task 2/3/4/5 同源问题）。
+3. **`/Decode` 数组元素逐个校验为 `PdfNumber`**，非数字抛 `PdfExtractException`
+   （草稿写 `(doc.resolve(e) as PdfNumber).value`，不可空强转直接崩）。
+4. **`/Indexed` 色彩空间校验数组长度 ≥ 4** 再取 `items[3]`（草稿盲取 `items[1]`/`items[3]`，
+   畸形数组触发 `RangeError`）。
+5. **Predictor 逆变换的两处越界读**：TIFF 16-bit 分支补 `i + 1 >= rowBytes` 保护；
+   PNG 分支补 `lineStart + x >= data.length` 保护（末行被截断时不再越界）。
+6. **`toRgb8` 增加 `width <= 0 || height <= 0` 的常驻校验**。
+   这是 Task 1 代码评审提出的要求：`encodePng` 只用 `assert` 校验，而 assert 在 release 构建里被剥离，
+   维度来自不可信的 PDF 字典，必须有不依赖 assert 的入口守卫。
+   （`samples.length == width*height*channels` 这条由 `toRgb8` 既有的
+   `Truncated image sample data` 检查覆盖，故 `encodePng` 的 assert 恒成立。）
+7. **去掉未使用的 `import 'dart:io'`**：`inflatePdf` 由 `document.dart` 导出，本文件无需直接引用 dart:io。
+8. 测试从计划的 13 个增加到 25 个：新增 ICCBased/Indexed 色彩空间、ImageMask 跳过、
+   畸形 `/Width`、畸形 `/Decode`、截断 `/Indexed`、采样数据不足、不支持的 bpc、
+   PNG Average/Paeth 预测器、未知预测器、末行截断、未知色彩空间等用例。
+
 ---
 ### Task 7: 测试 fixtures（加密/未加密 PDF）+ 离线生成脚本
 
