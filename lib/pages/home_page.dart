@@ -601,6 +601,7 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
       actions: [
         Button.text(
           child: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.help_outline,
@@ -615,7 +616,7 @@ class _ImportComicsWidgetState extends State<_ImportComicsWidget> {
             launchUrlString(
                 "https://github.com/darknight2236/venera-D/blob/master/doc/import_comic.md");
           },
-        ).fixWidth(90).paddingRight(8),
+        ).paddingRight(8),
         Button.filled(
           isLoading: loading,
           onPressed: selectAndImport,
