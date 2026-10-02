@@ -3161,21 +3161,15 @@ PdfSecurityHandler? _buildAes256Handler(
   final ue = _bytesOf(encrypt['UE']);
   if (u.length < 48 || ue.length < 32) return null;
 
-  var pw = Uint8List.fromList(utf8.encode(password));
-  if (pw.length > 127) pw = Uint8List.sublistView(pw, 0, 127);
+  final pw = Uint8List.fromList(utf8.encode(password));
+  final truncated = pw.length > 127 ? Uint8List.sublistView(pw, 0, 127) : pw;
 
-  Uint8List hash(List<int> input) => r == 5
-      ? Uint8List.fromList(sha256.convert(input).bytes)
-      : _hashR6(input);
-
-  // Validate: H(password ‖ U[32:40]) == U[0:32].
-  final check = hash([...pw, ...u.sublist(32, 40)]);
+  final check = _v5Hash(r, truncated, u.sublist(32, 40));
   if (!_eqBytes(check, u.sublist(0, 32))) return null;
 
-  // File key: AES-256-CBC decrypt UE under H(password ‖ U[40:48]), IV = 0.
-  final inter = hash([...pw, ...u.sublist(40, 48)]);
-  final fileKey =
-      aesCbcDecryptNoPad(inter, Uint8List(16), ue.sublist(0, 32));
+  final intermediate = _v5Hash(r, truncated, u.sublist(40, 48));
+  final fileKey = aesCbcDecryptNoPad(
+      intermediate, Uint8List(16), Uint8List.sublistView(ue, 0, 32));
 
   return PdfSecurityHandler(
     fileKey: fileKey,
@@ -3184,39 +3178,72 @@ PdfSecurityHandler? _buildAes256Handler(
   );
 }
 
-/// ISO 32000-2 Algorithm 2.B — the R6 key-stretching hash. See the arbitration
-/// note in the implementation plan (Task 9) if the R6 fixture test fails.
-Uint8List _hashR6(List<int> input) {
-  final data = Uint8List.fromList(input);
-  var k = Uint8List.fromList(sha256.convert(data).bytes);
-  var e = Uint8List(0);
-  var round = 0;
+/// ISO 32000-2 Algorithm 2.A / 2.B - the R5/R6 key derivation.
+///
+/// NOTE: this replaces an earlier sketch of Algorithm 2.B in this plan that
+/// was wrong in four independent ways and could not validate against any
+/// fixture. It is re-derived from a working reference (pypdf `AlgV5`, which
+/// cites qpdf). Do not "simplify" it back:
+///   * the initial hash folds in the salt, but the stretching loop repeats
+///     only `password || K` - the salt does NOT reappear each round;
+///   * AES is keyed from `K` itself (`K[0:16]` / `K[16:32]`), NOT from K1;
+///   * the next digest is chosen by `sum(e[0:16]) % 3`, NOT `e[0] % 3`;
+///   * the exit test is the LAST byte of e (`e.last <= count - 32`);
+///   * `K` is kept at full digest length between rounds and truncated to 32
+///     only on return.
+/// Keying from K also keeps each round's buffer a fixed size; carrying the
+/// previous AES output forward into K1 instead makes it grow every round and
+/// exhausts memory.
+Uint8List _v5Hash(int r, List<int> password, List<int> salt) {
+  var k = Uint8List.fromList(sha256.convert([...password, ...salt]).bytes);
+  if (r < 6) return k;
+  var count = 0;
   while (true) {
-    final k1 = BytesBuilder();
+    count++;
+    final unit = [...password, ...k];
+    final block = Uint8List(unit.length * 64);
     for (var i = 0; i < 64; i++) {
-      k1
-        ..add(data)
-        ..add(k)
-        ..add(e);
+      block.setRange(i * unit.length, (i + 1) * unit.length, unit);
     }
-    final block = k1.toBytes();
-    e = aesCbcEncryptNoPad(
-      Uint8List.sublistView(block, 0, 16),
-      Uint8List.sublistView(block, 16, 32),
+    final e = aesCbcEncryptNoPad(
+      Uint8List.fromList(k.sublist(0, 16)),
+      Uint8List.fromList(k.sublist(16, 32)),
       block,
     );
-    final digest = switch (e[0] % 3) {
+    var seed = 0;
+    for (var i = 0; i < 16; i++) {
+      seed += e[i];
+    }
+    final digest = switch (seed % 3) {
       0 => sha256.convert(e).bytes,
       1 => sha384.convert(e).bytes,
       _ => sha512.convert(e).bytes,
     };
-    k = Uint8List.fromList(digest.sublist(0, 32));
-    round++;
-    if (round >= 64 && (e[32] % 3) <= round - 32) break;
+    k = Uint8List.fromList(digest);
+    if (count >= 64 && e.last <= count - 32) break;
   }
-  return k;
+  return Uint8List.fromList(k.sublist(0, 32));
 }
 ```
+
+#### Task 8/9 实施偏差记录（已提交为 0345914 / ed08a57，下游任务请以此为准）
+
+1. **Algorithm 2.B 的正确实现见上（这是本计划最关键的一处修正）。**
+   原草稿的 `_hashR6` 四处皆错（见上面函数注释），对任何 salt 取法都无法通过 `/U` 校验；
+   实测 64 种变体组合全部失败后，改为参照可用的纯 Python 参考实现（pypdf `AlgV5.calculate_hash`）逐条重写才通过。
+   `/U` 的 salt 布局确认为：`U[32:40]` 用于校验、`U[40:48]` 用于解出 `/UE`。
+2. **`setupSecurity` 增加重试上限 `kMaxPasswordAttempts = 7`**。
+   草稿的 `while (true)` 在"provider 每次都返回同一个错误密码"时无限循环——
+   实际调试中正是它把一个密码校验失败表现为**永久挂起**而非报错。
+   超限后抛 `PdfEncryptedException`。
+3. **`v`/`r` 判定改为 `v == 5 || r >= 5`** 走 AES-256 分支（仅依赖 `/V` 会在某些写器产物上误路由）。
+4. **`_buildHandler` 增加 `keyLen` 合理范围校验**（5..16），畸形 `/Length` 不再静默算错密钥长度。
+5. **`encrypt['V']` / `encrypt['R']` 改为解析后判型读取**，不用 `as PdfNumber?` 强转（与 Task 2-6 同类问题）。
+6. **测试异步断言统一用 `await expectLater(future, throwsA(...))`**。
+   `expect(() => stream.toList(), throwsA(...))` 不会 await，断言可能在错误尚未发生时就算通过（假通过）。
+   同一问题也修了 `test/pdf_images_test.dart` 里的两处。
+7. Task 9 测试从计划的 2 个增加到 3 个（加了"32 字节文件密钥 + AES-256 cipher"断言），
+   Task 10 契约测试 6 个（含重试上限与"取消不属于提取失败"两条）。
 
 - [ ] **Step 9.4: 运行确认通过**
 
