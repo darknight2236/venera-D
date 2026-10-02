@@ -94,6 +94,7 @@
 | #779 自定义图片处理无法正确执行 | ✅ 已修复 | issue（1.6.2）称模板给的是非 async 签名但代码只认 async；当前 `foundation/image_provider/reader_image.dart` 已同时处理 `Uint8List`（同步）/`Future`（异步）/`Map{image,onCancel}` 三种返回值，`defaultCustomImageProcessing` 模板也已带 `async` |
 | #767 收藏页快速阅读后侧栏一直显示 | ⚠️ 代码层面大概率已不复现，待 Windows 实机确认 | 快速阅读入口（`local_favorites_page.dart`）与其他入口一致走 `App.rootContext.to()`，reader 以不透明 `AppPageRoute`（`assert(opaque)`）压入根导航器，覆盖整个 MainPage/NaviPane；与 1.6.2 相比导航已重构，建议实机验证后关闭 |
 | #742 历史记录封面部分不显示 | ✅ 已在 venera-D 修复（app 侧缺陷） | iPad 实机复现+日志定位：picacomic 封面 URL 服务端 404（源站封面已删除），手动刷新拿到的“最新封面”是同一死链；app 侧三个缺陷已修：① 同一 404 URL 被每次重建重复请求（日志内一分钟十余次）→ `network/images.dart` 新增 `ThumbnailFailureCache` 负缓存（403/404，5 分钟 TTL）；② `HistoryImageProvider` 封面失败无任何兜底→新增自愈：本地封面回退（对齐收藏页）+ 从源拉最新封面变化则重试（5 分钟 TTL 节流）；③ 封面刷新无超时→复用 `runWithSourceTimeout`（下沉到 `foundation/source_request.dart`，reader 原路径改为转发导出）；源站真删的封面无法找回属预期行为；测试见 `test/thumbnail_failure_cache_test.dart` |
+| #431 支持导入 PDF | ✅ 已在 venera-D 实现 | 上游已归档、维护者从未回应过该 issue（也未解释过不支持的原因）；venera-D 自研纯 Dart PDF 子集解析器（`lib/utils/pdf/`）实现**图片型漫画 PDF** 导入：DCTDecode JPEG 字节直通无损、FlateDecode 转手写 PNG，标准安全处理器 R2-R6（RC4-40/128、AES-128、AES-256）含密码输入与重试；零新增依赖（复用已有 crypto/pointycastle）；与 cbz 对齐"单文件=单漫画"，共用尾段 `CBZ.comicFromCacheDir`；设计见 `doc/specs/2026-09-13-pdf-comic-import-design.md`，实施计划见 `doc/plans/2026-09-13-pdf-comic-import.md`，测试见 `test/pdf_*_test.dart`；不支持矢量/文字页与 JPX/CCITT/JBIG2 编码（属设计取舍，见规格 §5.4） |
 | #513 漫画源内下载后不支持图片收藏 | ✅ 已在 venera-D 修复 | 门禁误判：`pages/reader/scaffold.dart` 的图片收藏入口用 `images[0].contains('file://')` 排除“本地漫画”，误伤了图片同为本地文件的**已下载漫画**（其 sourceKey 完整、可从源恢复）→改为 `type == ComicType.local`；连带修 `image_favorites_provider.dart` 三个缺陷：`getImageFromLocal` 用 sourceKey 当 id 查 LocalManager（永远查不到，应为 cid）、无文件存在性检查（死路径直接抛异常阻断后续回退）、`images[page]` off-by-one（page 是 1 基）；回退链改为：本地文件→收藏缓存→空/file:// 死键先从源重取网络 URL 再下载；测试见 `test/image_favorites_provider_test.dart` |
 | #768 收藏后列表不显示、重新排序才出现 | ✅ 已在 venera-D 修复 | 确认仍存在：`local_favorites_page.dart` 的 `updateComics`（LocalFavoritesManager 监听回调）开头 `if (isLoading) return` 直接丢弃加载中的通知且无补做；大收藏（≥500 条）异步加载带 `minTime(200ms)`，窗口内 `addComic` 的 notifyListeners 被吞，旧快照覆盖展示，重排序才触发重新加载；修复：新增 `utils/reload_gate.dart`（`ReloadGate`，加载中 invalidation 合并为一次补加载），`updateComics` 四个分支统一走 beginLoad/finishLoad；测试见 `test/reload_gate_test.dart` |
 | #738 横屏后页面标题文本消失 | ✅ 已在 venera-D 修复 | 确认仍存在：NaviPane 顶部栏（渲染当前页标签）仅在窄模式（`controller.value < 2`，宽 ≤600）显示；横屏手机宽 >600 切入折叠侧栏（`value == 2`），导航项仅图标无标签，当前页标题无任何渲染位置；修复：新增 `components/navi_layout.dart`（`NaviLayout`，提取布局可见性规则），折叠侧栏顶部渲染当前页标签，展开动画（2→3）中随导航项获得自身标签而淡出；测试见 `test/navi_layout_test.dart` |
@@ -112,7 +113,7 @@
 | #653 Windows 性能回退 | 🔴 未修复，无稳定复现线索 | 无相关 commit |
 | #446 HyperOS 小窗 / #692 ColorOS 字体 | 🔴 未修复，厂商定制（同 #249 性质），难验证 | 无相关 commit（#692 与 Linux ARM64 字体 #231/#468 无关） |
 | #843 Winget / #576 rpm 包 | ⚪ 纯分发请求，未做 | 与固定打包流程相关的可选增强 |
-| #312/#369/#431/#371 格式支持 | ⚪ 纯功能请求，大工程，维持暂缓 | epub/mobi/pdf/fodt 独立模块 |
+| #312/#369/#431/#371 格式支持 | ⚪ epub/mobi/fodt 维持暂缓；**#431(pdf) 已于 2026-10 在 venera-D 实现**，见第四节 | epub/mobi/pdf/fodt 独立模块；其中 #431 纯 Dart PDF 导入已完成并上线，其余仍未做 |
 | #831/#347/#833/#634 大功能 | ⚪ 纯功能请求，偏离维护性 fork 定位 | 以图搜图/搜图 bot/GPU/Bangumi |
 | #628/#675/#811/#568 WebDAV 玩法 | ⚪ 纯功能请求，叠加复杂同步模块，维持暂缓 | 与 #114 同族 |
 

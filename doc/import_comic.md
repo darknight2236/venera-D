@@ -75,3 +75,48 @@ Currently, Venera supports the following archive formats:
 - `.cb7`
 - `.zip`
 - `.7z`
+
+## PDF
+
+Venera supports importing **image-based comic PDFs** — PDFs whose pages are
+scanned or illustrated images, one image per page. Each imported PDF becomes a
+single chapterless comic, mirroring the archive import behaviour.
+
+- Open `Local` -> `Import` -> `A PDF file` (a single PDF) or
+  `Multiple PDF files` (a directory containing PDFs).
+- The comic title is the file name without its extension. PDF `/Title` metadata
+  is deliberately not used, so files exported by tools that leave it blank do
+  not arrive titled "Untitled".
+- JPEG pages are copied through byte-for-byte (lossless, no re-encoding);
+  Flate-compressed pages are converted to PNG.
+
+### Encryption
+
+Password-protected PDFs are supported (standard security handler, revisions
+R2-R6: RC4-40/128, AES-128 and AES-256).
+
+- Files encrypted with an **empty user password** (owner password only) open
+  silently, without prompting.
+- Otherwise a password dialog appears, named after the file it is asking for.
+  A wrong password shows "Incorrect password" and asks again; cancelling aborts
+  that file.
+- In a batch import, cancelling skips only the current file and the remaining
+  PDFs still import.
+
+### Supported image formats
+
+DeviceRGB, DeviceGray and DeviceCMYK (including Adobe-inverted CMYK), plus the
+indirect forms `/ICCBased` (mapped by component count) and `/Indexed` (palette
+expanded). 8-bit and 16-bit samples are supported, 16-bit being downsampled to
+8. Predictor-encoded Flate streams (both PNG and TIFF predictors) are handled.
+
+### Not supported
+
+- **Vector or text-only pages.** A PDF containing no page images reports
+  "No images found in the PDF".
+- **Inline images** (`BI`/`ID`/`EI`) inside content streams.
+- **`JPXDecode`, `CCITTFaxDecode` and `JBIG2Decode`** image encodings. The error
+  message names the page number and the encoding. Convert such a PDF to `.cbz`
+  with an external tool and import that instead.
+- Chapter structure inside the PDF, and the `metadata.json` mechanism used by
+  archives.
