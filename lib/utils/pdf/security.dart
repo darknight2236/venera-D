@@ -10,6 +10,9 @@ import 'package:pointycastle/block/modes/ecb.dart';
 import 'document.dart';
 import 'objects.dart';
 
+/// How many times [setupSecurity] will re-ask the provider before giving up.
+const int kMaxPasswordAttempts = 7;
+
 /// The 32-byte padding string from ISO 32000 (Algorithm 2, step a).
 final Uint8List kPdfPasswordPadding = Uint8List.fromList(const [
   0x28, 0xBF, 0x4E, 0x5E, 0x4E, 0x75, 0x8A, 0x41, //
@@ -180,6 +183,7 @@ Future<void> setupSecurity(
   final r = _intOf(doc, encrypt['R']) ?? 0;
 
   var password = '';
+  var attempts = 0;
   while (true) {
     final handler = _buildHandler(encrypt, v, r, id0, password);
     if (handler != null) {
@@ -187,6 +191,11 @@ Future<void> setupSecurity(
       return;
     }
     if (passwordProvider == null) {
+      throw const PdfEncryptedException();
+    }
+    // Cap the loop: a provider that keeps handing back the same wrong
+    // password (a UI glitch, a scripted caller) must not spin forever.
+    if (++attempts > kMaxPasswordAttempts) {
       throw const PdfEncryptedException();
     }
     final next = await passwordProvider(fileName);
@@ -224,9 +233,7 @@ PdfSecurityHandler? _buildHandler(
       (encrypt['EncryptMetadata'] as PdfBool?)?.value ?? true;
 
   if (v == 5 || r >= 5) {
-    // AES-256 (R5/R6) is implemented in Task 9.
-    throw const PdfExtractException(
-        'AES-256 encrypted PDF support added in Task 9');
+    return _buildAes256Handler(encrypt, r, password, encryptMetadata);
   }
 
   final o = _bytesOf(encrypt['O']);
@@ -304,4 +311,74 @@ PdfCipher _cipherFor(PdfDictionary encrypt, int v) {
     }
   }
   return PdfCipher.rc4;
+}
+
+/// R5/R6 (V5, AES-256). Validates the user password against `/U` and unwraps
+/// the file key from `/UE`. Returns null on a wrong password.
+///
+/// The 48-byte /U is a 32-byte validation hash, an 8-byte validation salt at
+/// [32:40] and an 8-byte key salt at [40:48]; /UE is the 32-byte file key
+/// encrypted under a key derived from the password and the key salt.
+PdfSecurityHandler? _buildAes256Handler(
+  PdfDictionary encrypt,
+  int r,
+  String password,
+  bool encryptMetadata,
+) {
+  final u = _bytesOf(encrypt['U']);
+  final ue = _bytesOf(encrypt['UE']);
+  if (u.length < 48 || ue.length < 32) return null;
+
+  final pw = Uint8List.fromList(utf8.encode(password));
+  final truncated = pw.length > 127 ? Uint8List.sublistView(pw, 0, 127) : pw;
+
+  final check = _v5Hash(r, truncated, u.sublist(32, 40));
+  if (!_eqBytes(check, u.sublist(0, 32))) return null;
+
+  final intermediate = _v5Hash(r, truncated, u.sublist(40, 48));
+  final fileKey =
+      aesCbcDecryptNoPad(intermediate, Uint8List(16), Uint8List.sublistView(ue, 0, 32));
+
+  return PdfSecurityHandler(
+    fileKey: fileKey,
+    cipher: PdfCipher.aes256,
+    encryptMetadata: encryptMetadata,
+  );
+}
+
+/// ISO 32000-2 Algorithm 2.A / 2.B - the R5/R6 key derivation.
+///
+/// The initial hash folds in [salt]; the stretching loop then repeats only
+/// `password ‖ K` (the salt does **not** reappear), keys AES from `K` itself,
+/// selects the next digest by the sum of the first 16 output bytes, and exits
+/// once at least 64 rounds have run and the last output byte is small enough.
+Uint8List _v5Hash(int r, List<int> password, List<int> salt) {
+  var k = Uint8List.fromList(sha256.convert([...password, ...salt]).bytes);
+  if (r < 6) return k;
+  var count = 0;
+  while (true) {
+    count++;
+    final unit = [...password, ...k];
+    final block = Uint8List(unit.length * 64);
+    for (var i = 0; i < 64; i++) {
+      block.setRange(i * unit.length, (i + 1) * unit.length, unit);
+    }
+    final e = aesCbcEncryptNoPad(
+      Uint8List.fromList(k.sublist(0, 16)),
+      Uint8List.fromList(k.sublist(16, 32)),
+      block,
+    );
+    var seed = 0;
+    for (var i = 0; i < 16; i++) {
+      seed += e[i];
+    }
+    final digest = switch (seed % 3) {
+      0 => sha256.convert(e).bytes,
+      1 => sha384.convert(e).bytes,
+      _ => sha512.convert(e).bytes,
+    };
+    k = Uint8List.fromList(digest);
+    if (count >= 64 && e.last <= count - 32) break;
+  }
+  return Uint8List.fromList(k.sublist(0, 32));
 }

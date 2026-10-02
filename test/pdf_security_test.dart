@@ -104,4 +104,41 @@ void main() {
       expect(doc.security!.fileKey.length, 16);
     });
   });
+
+  group('standard security handler R5/R6 (AES-256)', () {
+    test('opens an AES-256 (R6) encrypted PDF with the user password',
+        () async {
+      final images = await extractPdfImages(
+        _fixture('enc_aes256_r6.pdf'),
+        passwordProvider: (_) async => 'user123',
+      ).toList();
+      expect(images.length, 2);
+      expect(images.every((i) => i.extension == 'jpg'), isTrue);
+      // A wrong key would yield bytes that are not a JPEG SOI marker.
+      expect(images.first.bytes[0], 0xFF);
+      expect(images.first.bytes[1], 0xD8);
+    });
+
+    test('installs a 32-byte file key and the AES-256 cipher', () async {
+      final doc = PdfDocument(_fixture('enc_aes256_r6.pdf'));
+      await doc.open(passwordProvider: (_) async => 'user123');
+      expect(doc.security!.fileKey.length, 32);
+      expect(doc.security!.cipher, PdfCipher.aes256);
+    });
+
+    test('a wrong password for an R6 PDF is rejected', () async {
+      var calls = 0;
+      await expectLater(
+        extractPdfImages(
+          _fixture('enc_aes256_r6.pdf'),
+          passwordProvider: (_) async {
+            calls++;
+            return calls == 1 ? 'nope' : null;
+          },
+        ).toList(),
+        throwsA(isA<PdfCancelledException>()),
+      );
+      expect(calls, 2);
+    });
+  });
 }
