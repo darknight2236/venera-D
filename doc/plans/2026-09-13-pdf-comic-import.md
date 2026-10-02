@@ -1820,7 +1820,7 @@ Expected: FAIL（`pages` / `collectPageImageStreams` 未定义）
 - [ ] **Step 5.4: 运行确认通过**
 
 Run: `flutter test test/pdf_document_test.dart`
-Expected: PASS（11 个测试）
+Expected: PASS（39 个测试）
 
 - [ ] **Step 5.5: 提交**
 
@@ -1828,6 +1828,29 @@ Expected: PASS（11 个测试）
 git add lib/utils/pdf/document.dart test/pdf_document_test.dart
 git commit -m "feat: PDF page tree walk with resource inheritance and image collection"
 ```
+
+#### Task 5 实施偏差记录（已提交为 3df80b6，下游任务请以此为准）
+
+1. **`(resolve(...) as PdfName?)` 的两处强制转换改为辅助函数 `_nameOf`**。
+   草稿写 `(resolve(node['Type']) as PdfName?)?.name` 与
+   `(resolve(obj.dict['Subtype']) as PdfName?)?.name`——当 `/Type` 或 `/Subtype`
+   存在但不是 name（例如 `/Type 7`、`/Subtype 3 0 R` 指向一个数字）时，
+   `as PdfName?` 抛裸 `TypeError`，突破"结构损坏表现为 `PdfSyntaxException`"的错误契约。
+   现在改为：
+   ```dart
+   String? _nameOf(PdfObject? obj) {
+     final r = resolve(obj);
+     return r is PdfName ? r.name : null;
+   }
+   ```
+   行为上等价于"类型不明则不是 Page / 不是 Image"，页树遍历据此把畸形节点当叶节点处理，
+   `collectPageImageStreams` 则跳过它，都不再崩。
+   调用点相应写成 `_nameOf(node['Type']) == 'Page'` 与 `_nameOf(obj.dict['Subtype']) == 'Image'`。
+2. **测试里 `for (final obj in [3, 4])` 的 `obj` 未被使用**，`flutter analyze` 报
+   `unused_local_variable`；改为 `for (var i = 0; i < 2; i++)`。
+3. 测试从计划的 3 个增加到 8 个（本文件累计 39 个）：新增"页树畸形输入"分组
+   （非 name 的 `/Type`、非 name 的 `/Subtype`、`/Kids` 互指成环、`/Root` 缺失、
+   `/Resources` 不是字典），全部断言抛 `PdfSyntaxException` 或安全退化，不得出现裸 VM 错误。
 
 ---
 
