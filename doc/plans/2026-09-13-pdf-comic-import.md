@@ -1406,7 +1406,7 @@ typedef PdfPasswordProvider = Future<String?> Function(String fileName);
 - [ ] **Step 3.5: 运行确认通过**
 
 Run: `flutter test test/pdf_document_test.dart`
-Expected: PASS（6 个测试）
+Expected: PASS（15 个测试）
 
 - [ ] **Step 3.6: 提交**
 
@@ -1414,6 +1414,36 @@ Expected: PASS（6 个测试）
 git add lib/utils/pdf/document.dart lib/utils/pdf/objects.dart test/helpers/pdf_builder.dart test/pdf_document_test.dart
 git commit -m "feat: PDF document structure - startxref, classic xref, object fetch"
 ```
+
+#### Task 3 实施偏差记录（已提交为 07a52a9，下游任务请以此为准）
+
+上面的 Step 3.3 代码块是**实施前的草稿**，实际提交版本在其基础上做了健壮性修正与一处正确性修正。
+**Tasks 4/5/6 的 implementer 必须以仓库中已提交的 `lib/utils/pdf/document.dart` 为唯一基线**，
+不要照抄本节代码块，否则会重新引入下面已修掉的缺陷：
+
+1. **free 条目现在会被记录**（正确性修正，最重要）。草稿写 `if (typeText == 'n') { _xref[...] = ... }`，
+   于是新区段里标记为 `f`（空闲）的对象**不会**占用 `_xref` 槽位，`containsKey` 仍为 false，
+   沿 `/Prev` 链往下走的旧区段就会把同一个对象号写回成"在用"——文档会取到一个已被删除的对象。
+   提交版改为 `_xref[objNum] = _XrefEntry(typeText == 'n' ? 1 : 0, ...)`，
+   配合 `fetch` 里的 `entry.type == 1` 判断，新区段的删除得以生效。
+2. **xref 偏移一律先做范围校验**。`open()` 在调用 `_parseXrefAt(offset)` 前检查 `offset >= bytes.length`；
+   `fetch()` 检查 `offset < 0 || offset >= bytes.length`。原因：`PdfNumber.intValue` 对超大有限字面量
+   会饱和到 int64-max（不抛异常），未校验的偏移会让 `PdfParser` 在读 `bytes[pos]` 时抛裸 `RangeError`，
+   突破"结构损坏必须表现为 `PdfExtractException`/`PdfSyntaxException`"的错误契约。
+3. ** subsection 头与条目字段改为域异常**。抽出 `_subsectionInt()`（用类型检查替代 `as PdfNumber`，
+   避免裸 `TypeError`）；条目数值用 `int.tryParse` + null 判断（避免 `FormatException`）。
+4. **subsection 条目数按剩余字节数封顶**：`count > remaining ~/ 5` 即判为损坏并抛异常，
+   同时检查 `firstObj + count < firstObj` 防溢出。原草稿对不可信 `count` 无任何限制。
+5. **`/Prev` 类型不符时终止链**：抽出 `_prevOf()`，非 `PdfNumber` 返回 0，而不是在 cast 处抛 `TypeError`。
+6. **抽出 `_skipObjectHeader()`**，由 `_parseXrefAt` 与 `fetch` 共用（`matchKeyword` 不跳空白，
+   且数字解析会回退 pos，故 `'obj'` 前必须显式 skip）。
+7. `_parseXrefAt` 把"不是 stream"与"`/Type` 不是 `XRef`"拆成两个判断以便给出更准的错误信息；行为等价。
+8. 测试从计划的 6 个增加到 15 个：新增 9 个覆盖畸形输入（负偏移、越界偏移、畸形条目 token、
+   荒谬条目数、非数字 subsection 头、自指 `/Prev`、startxref 指向文件尾之后、
+   xref 流候选的 `/Type` 非 name、非数字 `/Prev`）。
+
+> 另注：Task 2 的解析器已保证 `0 <= pos <= bytes.length` 且 `parseObject` 词法嵌套深度上限 32；
+> 本节的 `resolve` 深度 32 是**另一个**限制（管的是间接引用链跳转，不是词法嵌套），两者不要混淆。
 
 ---
 
