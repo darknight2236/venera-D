@@ -352,8 +352,13 @@ class NaviPaneState extends State<NaviPane>
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Opacity(
                   opacity: NaviLayout.sidebarPageTitleOpacity(value),
+                  // Centred, not centreLeft: the nav items below sit inside a
+                  // second 12px padding that leaves exactly the icon's width,
+                  // so they read as centred in the folded bar. The title only
+                  // gets the outer padding and would otherwise hang ~8px left
+                  // of them.
                   child: Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.center,
                     child: Text(
                       widget.paneItems[currentPage].label,
                       style: const TextStyle(
