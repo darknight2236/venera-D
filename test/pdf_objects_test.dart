@@ -1,4 +1,3 @@
-// test/pdf_objects_test.dart
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -7,6 +6,9 @@ import 'package:venera/utils/pdf/objects.dart';
 
 PdfObject parse(String source) =>
     PdfParser(Uint8List.fromList(latin1.encode(source)), 0).parseObject();
+
+PdfParser parserOf(String source) =>
+    PdfParser(Uint8List.fromList(latin1.encode(source)), 0);
 
 void main() {
   group('PdfParser primitives', () {
@@ -78,11 +80,130 @@ void main() {
     test('parses streams with CRLF after the stream keyword', () {
       final src = '<< /Length 3 >>\rstream\r\nXYZ\r\nendstream';
       // "stream" may be followed by \r\n or \n; data is exactly 3 bytes.
-      final s = PdfParser(
-        Uint8List.fromList(latin1.encode(src.replaceAll('\rstream', 'stream'))),
-        0,
-      ).parseObject() as PdfStream;
+      final s = parse(src) as PdfStream;
       expect(latin1.decode(s.raw), 'XYZ');
+    });
+  });
+
+  group('PdfParser stream length recovery', () {
+    test('scans for endstream when /Length is absent', () {
+      final s =
+          parse('<< /Filter /DCTDecode >>\nstream\nABCDEFGHIJ\nendstream')
+              as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('scans for endstream when /Length is an indirect reference', () {
+      final s =
+          parse('<< /Length 7 0 R >>\nstream\nABCDEFGHIJ\nendstream')
+              as PdfStream;
+      expect(s.dict['Length'], isA<PdfRef>());
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('scans for endstream when /Length is negative', () {
+      final s = parse('<< /Length -1 >>\nstream\nABCDEFGHIJ\nendstream')
+          as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('recovers from a wrong but in-bounds /Length', () {
+      final s = parse('<< /Length 3 >>\nstream\nABCDEFGHIJ\nendstream')
+          as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('accepts a correct /Length with no EOL before endstream', () {
+      final s = parse('<< /Length 5 >>\nstream\nABCDEendstream') as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDE');
+    });
+
+    test('trusts a verifying /Length over an earlier endstream in the data',
+        () {
+      final s =
+          parse('<< /Length 20 >>\nstream\nxxendstreamxxxxxxxxx\nendstream')
+              as PdfStream;
+      expect(latin1.decode(s.raw), 'xxendstreamxxxxxxxxx');
+    });
+
+    test('throws when neither /Length nor endstream is usable', () {
+      expect(() => parse('<< /Length 3 >>\nstream\nABC'),
+          throwsA(isA<PdfSyntaxException>()));
+    });
+  });
+
+  group('PdfParser malformed input', () {
+    test('unterminated literal string', () {
+      expect(() => parse('(abc'), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('unterminated array', () {
+      expect(() => parse('[1 2'), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('unterminated dictionary', () {
+      expect(() => parse('<< /A 1'), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('unterminated hex string leaves pos inside the buffer', () {
+      final p = parserOf('<41');
+      expect(p.parseObject, throwsA(isA<PdfSyntaxException>()));
+      expect(p.pos, lessThanOrEqualTo(p.bytes.length));
+    });
+
+    test('junk byte', () {
+      expect(() => parse('@'), throwsA(isA<PdfSyntaxException>()));
+    });
+  });
+
+  group('PdfParser hostile numerics', () {
+    test('a huge /Length falls back to the endstream scan', () {
+      // 1e23 rounds to int64-max, so dataStart + intValue wraps negative,
+      // passes an integer bounds check and makes sublistView throw RangeError.
+      final s = parse(
+              '<< /Length 99999999999999999999999 >>\nstream\nABCDEFGHIJ\nendstream')
+          as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('rejects a number literal that overflows to Infinity', () {
+      // intValue on Infinity throws UnsupportedError, which is not an
+      // Exception and would escape the import error handler.
+      expect(() => parse('1' * 400), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('an over-long generation run stays a number', () {
+      // int.parse on a 29-digit run throws FormatException from inside the
+      // reference lookahead.
+      expect(parse('12 ${'9' * 29} R'), isA<PdfNumber>());
+      expect((parse('12 ${'9' * 29} R') as PdfNumber).intValue, 12);
+    });
+  });
+
+  group('PdfParser nesting limit', () {
+    test('rejects nesting beyond the limit', () {
+      // StackOverflowError is not an Exception, so the import error handler
+      // cannot catch it; the parser has to bound lexical nesting itself.
+      // Balanced brackets, so this cannot be satisfied by the unterminated
+      // array path.
+      expect(() => parse('${'[' * 200}${']' * 200}'),
+          throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('still parses nesting within the limit', () {
+      final a = parse('${'[' * 10}1${']' * 10}') as PdfArray;
+      var cur = a;
+      for (var i = 0; i < 9; i++) {
+        cur = cur.items.single as PdfArray;
+      }
+      expect((cur.items.single as PdfNumber).intValue, 1);
+    });
+
+    test('balances the depth counter across sibling objects', () {
+      final nested = '${'[' * 20}1${']' * 20}';
+      final p = parserOf('$nested $nested');
+      expect(p.parseObject(), isA<PdfArray>());
+      expect(p.parseObject(), isA<PdfArray>());
     });
   });
 }

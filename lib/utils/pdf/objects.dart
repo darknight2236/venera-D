@@ -1,4 +1,3 @@
-// lib/utils/pdf/objects.dart
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -70,12 +69,24 @@ class PdfStream extends PdfObject {
 }
 
 /// Recursive-descent parser over a PDF byte buffer. Parses a single object
-/// per call starting at [pos]; `pos` advances past what was consumed.
+/// per call starting at [pos].
+///
+/// `pos` advances past what was consumed, with one exception: after a stream
+/// it stops at the end of the stream *data*, before the trailing EOL and the
+/// `endstream` keyword. Callers locate objects by byte offset instead of
+/// reading sequentially, so nothing depends on `pos` reaching past
+/// `endstream`.
 class PdfParser {
   PdfParser(this.bytes, this.pos);
 
   final Uint8List bytes;
   int pos;
+
+  /// Bounds lexical nesting: unbounded recursion overruns the stack, and
+  /// StackOverflowError is not an Exception, so callers cannot catch it.
+  /// Matches the cap on indirect-reference chains.
+  static const int _maxDepth = 32;
+  int _depth = 0;
 
   static bool isWhitespace(int c) =>
       c == 0x00 || c == 0x09 || c == 0x0A || c == 0x0C || c == 0x0D || c == 0x20;
@@ -109,16 +120,23 @@ class PdfParser {
 
   /// Consumes [kw] when it appears at the current position as a whole token.
   bool matchKeyword(String kw) {
-    if (pos + kw.length > bytes.length) return false;
-    for (var i = 0; i < kw.length; i++) {
-      if (bytes[pos + i] != kw.codeUnitAt(i)) return false;
-    }
+    if (!_atKeyword(pos, kw)) return false;
     final after = pos + kw.length;
     if (after < bytes.length) {
       final c = bytes[after];
       if (!isWhitespace(c) && !isDelimiter(c)) return false;
     }
     pos = after;
+    return true;
+  }
+
+  /// Byte comparison against [kw] at [at], without moving [pos] and without
+  /// requiring a delimiter after the keyword.
+  bool _atKeyword(int at, String kw) {
+    if (at + kw.length > bytes.length) return false;
+    for (var i = 0; i < kw.length; i++) {
+      if (bytes[at + i] != kw.codeUnitAt(i)) return false;
+    }
     return true;
   }
 
@@ -138,24 +156,32 @@ class PdfParser {
   /// Parses one object value. Handles the `N G R` indirect-reference
   /// lookahead and `<< ... >> stream` bodies.
   PdfObject parseObject() {
-    skipWhitespaceAndComments();
-    if (pos >= bytes.length) {
-      throw const PdfSyntaxException('Unexpected end of file');
+    if (_depth >= _maxDepth) {
+      throw const PdfSyntaxException('Nesting too deep');
     }
-    final c = bytes[pos];
-    if (c == 0x28) return PdfString(_parseLiteralStringBytes());
-    if (c == 0x3C) {
-      if (pos + 1 < bytes.length && bytes[pos + 1] == 0x3C) {
-        return _parseDictOrStream();
+    _depth++;
+    try {
+      skipWhitespaceAndComments();
+      if (pos >= bytes.length) {
+        throw const PdfSyntaxException('Unexpected end of file');
       }
-      return _parseHexString();
+      final c = bytes[pos];
+      if (c == 0x28) return PdfString(_parseLiteralStringBytes());
+      if (c == 0x3C) {
+        if (pos + 1 < bytes.length && bytes[pos + 1] == 0x3C) {
+          return _parseDictOrStream();
+        }
+        return _parseHexString();
+      }
+      if (c == 0x2F) return _parseName();
+      if (c == 0x5B) return _parseArray();
+      if (matchKeyword('true')) return const PdfBool(true);
+      if (matchKeyword('false')) return const PdfBool(false);
+      if (matchKeyword('null')) return const PdfNull();
+      return _parseNumberOrRef();
+    } finally {
+      _depth--;
     }
-    if (c == 0x2F) return _parseName();
-    if (c == 0x5B) return _parseArray();
-    if (matchKeyword('true')) return const PdfBool(true);
-    if (matchKeyword('false')) return const PdfBool(false);
-    if (matchKeyword('null')) return const PdfNull();
-    return _parseNumberOrRef();
   }
 
   PdfObject _parseNumberOrRef() {
@@ -176,24 +202,28 @@ class PdfParser {
     if (value == null) {
       throw PdfSyntaxException('Invalid number "$text" at offset $start');
     }
+    // A few hundred digits overflow the double to Infinity, whose intValue
+    // throws UnsupportedError — not an Exception, so callers cannot catch it.
+    if (!value.isFinite) {
+      throw PdfSyntaxException('Numeric literal out of range at offset $start');
+    }
     // Indirect-reference lookahead: integer, generation, 'R'.
     if (!text.contains('.') && value == value.roundToDouble()) {
       final saved = pos;
-      try {
+      skipWhitespaceAndComments();
+      final genStart = pos;
+      while (pos < bytes.length && bytes[pos] >= 0x30 && bytes[pos] <= 0x39) {
+        pos++;
+      }
+      // A generation number is a small non-negative integer; a longer run is
+      // not a reference, and int.parse on it throws FormatException.
+      final genLen = pos - genStart;
+      if (genLen > 0 && genLen <= 9) {
+        final gen = int.parse(latin1.decode(bytes.sublist(genStart, pos)));
         skipWhitespaceAndComments();
-        final genStart = pos;
-        while (pos < bytes.length && bytes[pos] >= 0x30 && bytes[pos] <= 0x39) {
-          pos++;
+        if (matchKeyword('R')) {
+          return PdfRef(value.toInt(), gen);
         }
-        if (pos > genStart) {
-          final gen = int.parse(latin1.decode(bytes.sublist(genStart, pos)));
-          skipWhitespaceAndComments();
-          if (matchKeyword('R')) {
-            return PdfRef(value.toInt(), gen);
-          }
-        }
-      } on PdfSyntaxException {
-        // Fall through to restore.
       }
       pos = saved;
     }
@@ -304,6 +334,10 @@ class PdfParser {
       if (!isWhitespace(c)) nibbles.add(c);
       pos++;
     }
+    // Callers record pos as an object-end offset, so it must stay <= length.
+    if (pos >= bytes.length) {
+      throw const PdfSyntaxException('Unterminated hex string');
+    }
     pos++; // '>'
     if (nibbles.length.isOdd) nibbles.add(0x30);
     int hexVal(int c) {
@@ -363,10 +397,17 @@ class PdfParser {
       final dataStart = pos;
       int dataEnd;
       final length = dict['Length'];
+      // Bounds-check in double space: intValue saturates at int64-max for a
+      // huge /Length, and dataStart plus that wraps negative straight through
+      // an integer comparison.
       if (length is PdfNumber &&
-          length.intValue >= 0 &&
-          dataStart + length.intValue <= bytes.length) {
-        dataEnd = dataStart + length.intValue;
+          length.value >= 0 &&
+          length.value <= bytes.length - dataStart) {
+        final candidate = dataStart + length.value.round();
+        // A stale but in-bounds /Length silently truncates the stream, so
+        // require the endstream keyword that has to follow the data.
+        final verified = _endstreamFollows(candidate);
+        dataEnd = verified ? candidate : _findEndstream(dataStart);
       } else {
         // /Length is indirect or bogus: locate 'endstream' and strip one EOL.
         dataEnd = _findEndstream(dataStart);
@@ -378,10 +419,24 @@ class PdfParser {
     return dict;
   }
 
+  /// True when `endstream` starts at [at], allowing the single EOL that
+  /// ISO 32000 puts between the stream data and the keyword — some producers
+  /// omit it.
+  bool _endstreamFollows(int at) {
+    var i = at;
+    if (i >= bytes.length) return false;
+    if (bytes[i] == 0x0D) {
+      i++;
+      if (i < bytes.length && bytes[i] == 0x0A) i++;
+    } else if (bytes[i] == 0x0A) {
+      i++;
+    }
+    return _atKeyword(i, 'endstream');
+  }
+
   int _findEndstream(int from) {
     for (var i = from; i + 9 <= bytes.length; i++) {
-      if (bytes[i] == 0x65 &&
-          latin1.decode(bytes.sublist(i, i + 9)) == 'endstream') {
+      if (bytes[i] == 0x65 && _atKeyword(i, 'endstream')) {
         var end = i;
         if (end > from && bytes[end - 1] == 0x0A) end--;
         if (end > from && bytes[end - 1] == 0x0D) end--;
