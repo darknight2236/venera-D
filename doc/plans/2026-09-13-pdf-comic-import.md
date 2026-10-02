@@ -207,7 +207,6 @@ git commit -m "feat: hand-rolled minimal PNG encoder for the PDF import pipeline
 - [ ] **Step 2.1: 写失败测试**
 
 ```dart
-// test/pdf_objects_test.dart
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -216,6 +215,9 @@ import 'package:venera/utils/pdf/objects.dart';
 
 PdfObject parse(String source) =>
     PdfParser(Uint8List.fromList(latin1.encode(source)), 0).parseObject();
+
+PdfParser parserOf(String source) =>
+    PdfParser(Uint8List.fromList(latin1.encode(source)), 0);
 
 void main() {
   group('PdfParser primitives', () {
@@ -241,8 +243,10 @@ void main() {
     });
 
     test('parses hex strings with odd-length padding', () {
+      // ISO 32000 7.3.4.3: odd digit count implies a trailing 0, so the last
+      // byte is 0x30 ('0'), not 0x33.
       final s = parse('<48656C6C6F3>') as PdfString;
-      expect(latin1.decode(s.bytes), 'Hello3');
+      expect(latin1.decode(s.bytes), 'Hello0');
     });
 
     test('skips comments', () {
@@ -285,11 +289,130 @@ void main() {
     test('parses streams with CRLF after the stream keyword', () {
       final src = '<< /Length 3 >>\rstream\r\nXYZ\r\nendstream';
       // "stream" may be followed by \r\n or \n; data is exactly 3 bytes.
-      final s = PdfParser(
-        Uint8List.fromList(latin1.encode(src.replaceAll('\rstream', 'stream'))),
-        0,
-      ).parseObject() as PdfStream;
+      final s = parse(src) as PdfStream;
       expect(latin1.decode(s.raw), 'XYZ');
+    });
+  });
+
+  group('PdfParser stream length recovery', () {
+    test('scans for endstream when /Length is absent', () {
+      final s =
+          parse('<< /Filter /DCTDecode >>\nstream\nABCDEFGHIJ\nendstream')
+              as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('scans for endstream when /Length is an indirect reference', () {
+      final s =
+          parse('<< /Length 7 0 R >>\nstream\nABCDEFGHIJ\nendstream')
+              as PdfStream;
+      expect(s.dict['Length'], isA<PdfRef>());
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('scans for endstream when /Length is negative', () {
+      final s = parse('<< /Length -1 >>\nstream\nABCDEFGHIJ\nendstream')
+          as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('recovers from a wrong but in-bounds /Length', () {
+      final s = parse('<< /Length 3 >>\nstream\nABCDEFGHIJ\nendstream')
+          as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('accepts a correct /Length with no EOL before endstream', () {
+      final s = parse('<< /Length 5 >>\nstream\nABCDEendstream') as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDE');
+    });
+
+    test('trusts a verifying /Length over an earlier endstream in the data',
+        () {
+      final s =
+          parse('<< /Length 20 >>\nstream\nxxendstreamxxxxxxxxx\nendstream')
+              as PdfStream;
+      expect(latin1.decode(s.raw), 'xxendstreamxxxxxxxxx');
+    });
+
+    test('throws when neither /Length nor endstream is usable', () {
+      expect(() => parse('<< /Length 3 >>\nstream\nABC'),
+          throwsA(isA<PdfSyntaxException>()));
+    });
+  });
+
+  group('PdfParser malformed input', () {
+    test('unterminated literal string', () {
+      expect(() => parse('(abc'), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('unterminated array', () {
+      expect(() => parse('[1 2'), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('unterminated dictionary', () {
+      expect(() => parse('<< /A 1'), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('unterminated hex string leaves pos inside the buffer', () {
+      final p = parserOf('<41');
+      expect(p.parseObject, throwsA(isA<PdfSyntaxException>()));
+      expect(p.pos, lessThanOrEqualTo(p.bytes.length));
+    });
+
+    test('junk byte', () {
+      expect(() => parse('@'), throwsA(isA<PdfSyntaxException>()));
+    });
+  });
+
+  group('PdfParser hostile numerics', () {
+    test('a huge /Length falls back to the endstream scan', () {
+      // 1e23 rounds to int64-max, so dataStart + intValue wraps negative,
+      // passes an integer bounds check and makes sublistView throw RangeError.
+      final s = parse(
+              '<< /Length 99999999999999999999999 >>\nstream\nABCDEFGHIJ\nendstream')
+          as PdfStream;
+      expect(latin1.decode(s.raw), 'ABCDEFGHIJ');
+    });
+
+    test('rejects a number literal that overflows to Infinity', () {
+      // intValue on Infinity throws UnsupportedError, which is not an
+      // Exception and would escape the import error handler.
+      expect(() => parse('1' * 400), throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('an over-long generation run stays a number', () {
+      // int.parse on a 29-digit run throws FormatException from inside the
+      // reference lookahead.
+      expect(parse('12 ${'9' * 29} R'), isA<PdfNumber>());
+      expect((parse('12 ${'9' * 29} R') as PdfNumber).intValue, 12);
+    });
+  });
+
+  group('PdfParser nesting limit', () {
+    test('rejects nesting beyond the limit', () {
+      // StackOverflowError is not an Exception, so the import error handler
+      // cannot catch it; the parser has to bound lexical nesting itself.
+      // Balanced brackets, so this cannot be satisfied by the unterminated
+      // array path.
+      expect(() => parse('${'[' * 200}${']' * 200}'),
+          throwsA(isA<PdfSyntaxException>()));
+    });
+
+    test('still parses nesting within the limit', () {
+      final a = parse('${'[' * 10}1${']' * 10}') as PdfArray;
+      var cur = a;
+      for (var i = 0; i < 9; i++) {
+        cur = cur.items.single as PdfArray;
+      }
+      expect((cur.items.single as PdfNumber).intValue, 1);
+    });
+
+    test('balances the depth counter across sibling objects', () {
+      final nested = '${'[' * 20}1${']' * 20}';
+      final p = parserOf('$nested $nested');
+      expect(p.parseObject(), isA<PdfArray>());
+      expect(p.parseObject(), isA<PdfArray>());
     });
   });
 }
@@ -303,12 +426,13 @@ Expected: FAIL（编译错误：objects.dart 不存在）
 - [ ] **Step 2.3: 实现**
 
 ```dart
-// lib/utils/pdf/objects.dart
 import 'dart:convert';
 import 'dart:typed_data';
 
 /// Base class of the PDF object model. Instances are produced by [PdfParser].
-abstract class PdfObject {}
+abstract class PdfObject {
+  const PdfObject();
+}
 
 class PdfNull extends PdfObject {
   const PdfNull();
@@ -373,12 +497,24 @@ class PdfStream extends PdfObject {
 }
 
 /// Recursive-descent parser over a PDF byte buffer. Parses a single object
-/// per call starting at [pos]; `pos` advances past what was consumed.
+/// per call starting at [pos].
+///
+/// `pos` advances past what was consumed, with one exception: after a stream
+/// it stops at the end of the stream *data*, before the trailing EOL and the
+/// `endstream` keyword. Callers locate objects by byte offset instead of
+/// reading sequentially, so nothing depends on `pos` reaching past
+/// `endstream`.
 class PdfParser {
   PdfParser(this.bytes, this.pos);
 
   final Uint8List bytes;
   int pos;
+
+  /// Bounds lexical nesting: unbounded recursion overruns the stack, and
+  /// StackOverflowError is not an Exception, so callers cannot catch it.
+  /// Matches the cap on indirect-reference chains.
+  static const int _maxDepth = 32;
+  int _depth = 0;
 
   static bool isWhitespace(int c) =>
       c == 0x00 || c == 0x09 || c == 0x0A || c == 0x0C || c == 0x0D || c == 0x20;
@@ -412,16 +548,23 @@ class PdfParser {
 
   /// Consumes [kw] when it appears at the current position as a whole token.
   bool matchKeyword(String kw) {
-    if (pos + kw.length > bytes.length) return false;
-    for (var i = 0; i < kw.length; i++) {
-      if (bytes[pos + i] != kw.codeUnitAt(i)) return false;
-    }
+    if (!_atKeyword(pos, kw)) return false;
     final after = pos + kw.length;
     if (after < bytes.length) {
       final c = bytes[after];
       if (!isWhitespace(c) && !isDelimiter(c)) return false;
     }
     pos = after;
+    return true;
+  }
+
+  /// Byte comparison against [kw] at [at], without moving [pos] and without
+  /// requiring a delimiter after the keyword.
+  bool _atKeyword(int at, String kw) {
+    if (at + kw.length > bytes.length) return false;
+    for (var i = 0; i < kw.length; i++) {
+      if (bytes[at + i] != kw.codeUnitAt(i)) return false;
+    }
     return true;
   }
 
@@ -441,24 +584,32 @@ class PdfParser {
   /// Parses one object value. Handles the `N G R` indirect-reference
   /// lookahead and `<< ... >> stream` bodies.
   PdfObject parseObject() {
-    skipWhitespaceAndComments();
-    if (pos >= bytes.length) {
-      throw const PdfSyntaxException('Unexpected end of file');
+    if (_depth >= _maxDepth) {
+      throw const PdfSyntaxException('Nesting too deep');
     }
-    final c = bytes[pos];
-    if (c == 0x28) return PdfString(_parseLiteralStringBytes());
-    if (c == 0x3C) {
-      if (pos + 1 < bytes.length && bytes[pos + 1] == 0x3C) {
-        return _parseDictOrStream();
+    _depth++;
+    try {
+      skipWhitespaceAndComments();
+      if (pos >= bytes.length) {
+        throw const PdfSyntaxException('Unexpected end of file');
       }
-      return _parseHexString();
+      final c = bytes[pos];
+      if (c == 0x28) return PdfString(_parseLiteralStringBytes());
+      if (c == 0x3C) {
+        if (pos + 1 < bytes.length && bytes[pos + 1] == 0x3C) {
+          return _parseDictOrStream();
+        }
+        return _parseHexString();
+      }
+      if (c == 0x2F) return _parseName();
+      if (c == 0x5B) return _parseArray();
+      if (matchKeyword('true')) return const PdfBool(true);
+      if (matchKeyword('false')) return const PdfBool(false);
+      if (matchKeyword('null')) return const PdfNull();
+      return _parseNumberOrRef();
+    } finally {
+      _depth--;
     }
-    if (c == 0x2F) return _parseName();
-    if (c == 0x5B) return _parseArray();
-    if (matchKeyword('true')) return const PdfBool(true);
-    if (matchKeyword('false')) return const PdfBool(false);
-    if (matchKeyword('null')) return const PdfNull();
-    return _parseNumberOrRef();
   }
 
   PdfObject _parseNumberOrRef() {
@@ -479,24 +630,28 @@ class PdfParser {
     if (value == null) {
       throw PdfSyntaxException('Invalid number "$text" at offset $start');
     }
+    // A few hundred digits overflow the double to Infinity, whose intValue
+    // throws UnsupportedError — not an Exception, so callers cannot catch it.
+    if (!value.isFinite) {
+      throw PdfSyntaxException('Numeric literal out of range at offset $start');
+    }
     // Indirect-reference lookahead: integer, generation, 'R'.
     if (!text.contains('.') && value == value.roundToDouble()) {
       final saved = pos;
-      try {
+      skipWhitespaceAndComments();
+      final genStart = pos;
+      while (pos < bytes.length && bytes[pos] >= 0x30 && bytes[pos] <= 0x39) {
+        pos++;
+      }
+      // A generation number is a small non-negative integer; a longer run is
+      // not a reference, and int.parse on it throws FormatException.
+      final genLen = pos - genStart;
+      if (genLen > 0 && genLen <= 9) {
+        final gen = int.parse(latin1.decode(bytes.sublist(genStart, pos)));
         skipWhitespaceAndComments();
-        final genStart = pos;
-        while (pos < bytes.length && bytes[pos] >= 0x30 && bytes[pos] <= 0x39) {
-          pos++;
+        if (matchKeyword('R')) {
+          return PdfRef(value.toInt(), gen);
         }
-        if (pos > genStart) {
-          final gen = int.parse(latin1.decode(bytes.sublist(genStart, pos)));
-          skipWhitespaceAndComments();
-          if (matchKeyword('R')) {
-            return PdfRef(value.toInt(), gen);
-          }
-        }
-      } on PdfSyntaxException {
-        // Fall through to restore.
       }
       pos = saved;
     }
@@ -607,6 +762,10 @@ class PdfParser {
       if (!isWhitespace(c)) nibbles.add(c);
       pos++;
     }
+    // Callers record pos as an object-end offset, so it must stay <= length.
+    if (pos >= bytes.length) {
+      throw const PdfSyntaxException('Unterminated hex string');
+    }
     pos++; // '>'
     if (nibbles.length.isOdd) nibbles.add(0x30);
     int hexVal(int c) {
@@ -666,10 +825,17 @@ class PdfParser {
       final dataStart = pos;
       int dataEnd;
       final length = dict['Length'];
+      // Bounds-check in double space: intValue saturates at int64-max for a
+      // huge /Length, and dataStart plus that wraps negative straight through
+      // an integer comparison.
       if (length is PdfNumber &&
-          length.intValue >= 0 &&
-          dataStart + length.intValue <= bytes.length) {
-        dataEnd = dataStart + length.intValue;
+          length.value >= 0 &&
+          length.value <= bytes.length - dataStart) {
+        final candidate = dataStart + length.value.round();
+        // A stale but in-bounds /Length silently truncates the stream, so
+        // require the endstream keyword that has to follow the data.
+        final verified = _endstreamFollows(candidate);
+        dataEnd = verified ? candidate : _findEndstream(dataStart);
       } else {
         // /Length is indirect or bogus: locate 'endstream' and strip one EOL.
         dataEnd = _findEndstream(dataStart);
@@ -681,10 +847,24 @@ class PdfParser {
     return dict;
   }
 
+  /// True when `endstream` starts at [at], allowing the single EOL that
+  /// ISO 32000 puts between the stream data and the keyword — some producers
+  /// omit it.
+  bool _endstreamFollows(int at) {
+    var i = at;
+    if (i >= bytes.length) return false;
+    if (bytes[i] == 0x0D) {
+      i++;
+      if (i < bytes.length && bytes[i] == 0x0A) i++;
+    } else if (bytes[i] == 0x0A) {
+      i++;
+    }
+    return _atKeyword(i, 'endstream');
+  }
+
   int _findEndstream(int from) {
     for (var i = from; i + 9 <= bytes.length; i++) {
-      if (bytes[i] == 0x65 &&
-          latin1.decode(bytes.sublist(i, i + 9)) == 'endstream') {
+      if (bytes[i] == 0x65 && _atKeyword(i, 'endstream')) {
         var end = i;
         if (end > from && bytes[end - 1] == 0x0A) end--;
         if (end > from && bytes[end - 1] == 0x0D) end--;
@@ -717,7 +897,7 @@ class PdfExtractException implements Exception {
 - [ ] **Step 2.4: 运行确认通过**
 
 Run: `flutter test test/pdf_objects_test.dart`
-Expected: PASS（11 个测试）
+Expected: PASS（29 个测试）
 
 - [ ] **Step 2.5: 提交**
 
