@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'objects.dart';
+import 'predictor.dart';
 import 'security.dart';
 
 class _XrefEntry {
@@ -174,8 +175,6 @@ class PdfDocument {
     if (len is PdfNumber && len.value >= 0 && len.value <= data.length) {
       data = Uint8List.sublistView(data, 0, len.value.round());
     }
-    data = _applyFlate(
-        data, _filterNames(stream.dict['Filter']), 'xref stream');
 
     final wObj = stream.dict['W'];
     if (wObj is! PdfArray || wObj.items.length != 3) {
@@ -196,6 +195,11 @@ class PdfDocument {
     if (entrySize == 0) {
       throw const PdfSyntaxException('Degenerate xref stream /W');
     }
+
+    // /DecodeParms may predictor-encode the table, and its rows are then one
+    // byte longer than [entrySize]; invert before reading any /W field.
+    data = _applyFlate(data, stream.dict, 'xref stream',
+        columnsFallback: entrySize);
 
     final size = (stream.dict['Size'] as PdfNumber?)?.intValue ?? 0;
     final List<int> index;
@@ -266,14 +270,42 @@ class PdfDocument {
   }
 
   /// Inflates a PDF FlateDecode payload, tolerating producers that emit raw
-  /// deflate without the zlib header.
+  /// deflate without the zlib header, then reverses the `/DecodeParms`
+  /// predictor when the producer used one.
+  ///
+  /// [columnsFallback] supplies /Columns for stream kinds whose row length is
+  /// implied elsewhere - cross-reference streams tie it to the /W entry size.
+  /// Entries are read without resolving references, because this runs while
+  /// the cross-reference table is still being built.
   Uint8List _applyFlate(
-      Uint8List data, List<String> filters, String what) {
+    Uint8List data,
+    PdfDictionary dict,
+    String what, {
+    int? columnsFallback,
+  }) {
+    final filters = _filterNames(dict['Filter']);
     if (filters.isEmpty) return data;
     if (filters.length != 1 || filters.first != 'FlateDecode') {
       throw PdfSyntaxException('Unsupported $what filter ${filters.join('/')}');
     }
-    return inflatePdf(data);
+    data = inflatePdf(data);
+    var parms = dict['DecodeParms'];
+    if (parms is PdfArray && parms.items.isNotEmpty) parms = parms.items.first;
+    if (parms is! PdfDictionary) return data;
+    final predictor = _parmOf(parms, 'Predictor') ?? 1;
+    if (predictor == 1) return data;
+    return applyPredictorInverse(
+      data,
+      predictor: predictor,
+      columns: _parmOf(parms, 'Columns') ?? columnsFallback ?? 1,
+      colors: _parmOf(parms, 'Colors') ?? 1,
+      bpc: _parmOf(parms, 'BitsPerComponent') ?? 8,
+    );
+  }
+
+  static int? _parmOf(PdfDictionary dict, String key) {
+    final v = dict[key];
+    return v is PdfNumber ? v.intValue : null;
   }
 
   /// Fetches an object by number (with caching). Null when free/unknown.
@@ -315,8 +347,7 @@ class PdfDocument {
       if (stm is! PdfStream) {
         throw PdfSyntaxException('Object stream $stmNum is not a stream');
       }
-      final data = _applyFlate(
-          streamData(stm), _filterNames(stm.dict['Filter']), 'object stream');
+      final data = _applyFlate(streamData(stm), stm.dict, 'object stream');
       final n = (stm.dict['N'] as PdfNumber?)?.intValue ?? 0;
       final first = (stm.dict['First'] as PdfNumber?)?.intValue ?? 0;
       // Each header pair costs at least four bytes, so an untrusted /N larger

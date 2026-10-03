@@ -241,6 +241,34 @@ void main() {
           'Catalog');
     });
 
+    test('reverses the PNG predictor on a cross-reference stream', () async {
+      // Producers such as the one behind the regressing iPad file write
+      // /W [1 4 1] with /DecodeParms << /Columns 6 /Predictor 12 >>. Each row
+      // is prefixed by a PNG filter byte, so the /W fields only line up once
+      // the predictor is inverted.
+      const rows = [
+        [0, 0, 0, 0, 0, 0], // object 0, free
+        [1, 0, 0, 0, 9, 0], // object 1, the catalog at offset 9
+      ];
+      final predicted = BytesBuilder();
+      for (var r = 0; r < rows.length; r++) {
+        predicted.addByte(2); // PNG Up
+        for (var c = 0; c < 6; c++) {
+          predicted
+              .addByte((rows[r][c] - (r == 0 ? 0 : rows[r - 1][c])) & 0xFF);
+        }
+      }
+      final pdf = craftXrefStream(
+        '/Type /XRef /Size 2 /W [1 4 1] /Index [0 2] /Root 1 0 R '
+        '/Filter /FlateDecode /DecodeParms << /Columns 6 /Predictor 12 >>',
+        flate(predicted.toBytes()),
+      );
+      final doc = PdfDocument(pdf);
+      await doc.open();
+      expect((doc.resolveDict(doc.trailer['Root'])['Type'] as PdfName).name,
+          'Catalog');
+    });
+
     test('a free entry in a newer xref stream shadows an older in-use one',
         () async {
       // Single section that marks object 1 free: it must not resolve.
