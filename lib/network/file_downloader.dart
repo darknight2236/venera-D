@@ -184,8 +184,7 @@ class FileDownloader {
       block.downloading = true;
       var task = _fetchBlock(block);
       task.then((value) => tasks.remove(task), onError: (e) {
-        if(_canceled) return;
-        throw e;
+        if (!_canceled) throw e;
       });
       tasks.add(task);
     }
