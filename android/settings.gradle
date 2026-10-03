@@ -26,12 +26,12 @@ pluginManagement {
 
 plugins {
     id "dev.flutter.flutter-plugin-loader" version "1.0.0"
-    id "com.android.application" version '9.0.1' apply false
+    id "com.android.application" version '9.4.1' apply false
     // Pinned explicitly: android.builtInKotlin=false means Kotlin comes from the
-    // classpath, and without this the version silently tracks AGP's transitive
-    // dependency (9.0.1 -> 2.2.10). Flutter 3.47.x rejects anything below 2.2.20
-    // and warns below 2.3.20, so stay at or above the latter.
-    id "org.jetbrains.kotlin.android" version "2.3.20" apply false
+    // classpath, and without this the version silently tracks whichever KGP the
+    // AGP release depends on transitively. Flutter 3.47.x rejects KGP below
+    // 2.2.20 and warns below 2.3.20.
+    id "org.jetbrains.kotlin.android" version "2.4.20" apply false
 }
 
 include ":app"
