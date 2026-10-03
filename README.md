@@ -6,7 +6,7 @@
 
 **English** · [简体中文](README_zh.md)
 
-[![flutter](https://img.shields.io/badge/flutter-3.44.6-blue)](https://flutter.dev/)
+[![flutter](https://img.shields.io/badge/flutter-3.47.6-blue)](https://flutter.dev/)
 [![License](https://img.shields.io/github/license/darknight2236/venera-D)](https://github.com/darknight2236/venera-D/blob/master/LICENSE)
 [![stars](https://img.shields.io/github/stars/darknight2236/venera-D?style=flat)](https://github.com/darknight2236/venera-D/stargazers)
 
@@ -60,7 +60,7 @@ Android · iOS · Windows · Linux · macOS
 ## Build from Source
 
 1. Clone the repository.
-2. Install Flutter — see [flutter.dev](https://flutter.dev/docs/get-started/install) (Flutter `3.44.6`, Dart SDK `>=3.8.0`).
+2. Install Flutter — see [flutter.dev](https://flutter.dev/docs/get-started/install) (Flutter `3.47.6`, Dart SDK `>=3.8.0`).
 3. Install Rust — see [rustup.rs](https://rustup.rs/).
 4. Build for your platform, for example:
    - Android: `flutter build apk`

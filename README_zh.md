@@ -6,7 +6,7 @@
 
 [English](README.md) · **简体中文**
 
-[![flutter](https://img.shields.io/badge/flutter-3.44.6-blue)](https://flutter.dev/)
+[![flutter](https://img.shields.io/badge/flutter-3.47.6-blue)](https://flutter.dev/)
 [![License](https://img.shields.io/github/license/darknight2236/venera-D)](https://github.com/darknight2236/venera-D/blob/master/LICENSE)
 [![stars](https://img.shields.io/github/stars/darknight2236/venera-D?style=flat)](https://github.com/darknight2236/venera-D/stargazers)
 
@@ -58,7 +58,7 @@ Android · iOS · Windows · Linux · macOS
 ## 从源码构建
 
 1. 克隆本仓库。
-2. 安装 Flutter —— 参见 [flutter.dev](https://flutter.dev/docs/get-started/install)（Flutter `3.44.6`，Dart SDK `>=3.8.0`）。
+2. 安装 Flutter —— 参见 [flutter.dev](https://flutter.dev/docs/get-started/install)（Flutter `3.47.6`，Dart SDK `>=3.8.0`）。
 3. 安装 Rust —— 参见 [rustup.rs](https://rustup.rs/)。
 4. 针对目标平台构建，例如：
    - Android：`flutter build apk`
