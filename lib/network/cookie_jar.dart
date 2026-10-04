@@ -190,7 +190,7 @@ class CookieJarSql {
   }
 
   void dispose() {
-    _db.dispose();
+    _db.close();
   }
 }
 

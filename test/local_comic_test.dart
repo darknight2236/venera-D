@@ -26,7 +26,7 @@ void main() {
         ''');
       });
 
-      tearDown(() => db.dispose());
+      tearDown(() => db.close());
 
       test('restores row including JSON-encoded tags and chapters', () {
         db.execute(

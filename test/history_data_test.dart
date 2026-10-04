@@ -84,7 +84,7 @@ void main() {
         ''');
       });
 
-      tearDown(() => db.dispose());
+      tearDown(() => db.close());
 
       test('restores row including comma-joined readEpisode', () {
         db.execute(

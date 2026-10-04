@@ -435,7 +435,7 @@ class LocalManager with ChangeNotifier {
   @override
   void dispose() {
     super.dispose();
-    _db.dispose();
+    _db.close();
   }
 
   List<LocalComic> getRecent() {

@@ -111,7 +111,7 @@ class CacheManager {
   }
 
   void close() {
-    _db.dispose();
+    _db.close();
   }
 
   /// Get the singleton instance of CacheManager.

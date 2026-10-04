@@ -178,7 +178,7 @@ Future<void> importPicaData(File file) async {
       } catch (e) {
         Log.error("Import Data", "Failed to import local favorite: $e");
       } finally {
-        db.dispose();
+        db.close();
       }
     }
     var historyFile = cacheDir.joinFile("history.db");
@@ -262,7 +262,7 @@ Future<void> importPicaData(File file) async {
       } catch (e, stack) {
         Log.error("Import Data", "Failed to import history: $e", stack);
       } finally {
-        db.dispose();
+        db.close();
       }
     }
   } finally {

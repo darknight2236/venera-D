@@ -11,7 +11,7 @@ void main() {
       'native library loads and an in-memory database works',
       () {
         final db = sqlite3.openInMemory();
-        addTearDown(db.dispose);
+        addTearDown(db.close);
 
         db.execute('CREATE TABLE t (id INTEGER PRIMARY KEY, name TEXT)');
         db.execute("INSERT INTO t (name) VALUES ('venera')");

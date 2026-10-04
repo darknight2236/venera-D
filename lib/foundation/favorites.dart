@@ -977,7 +977,7 @@ class LocalFavoritesManager with ChangeNotifier {
   }
 
   Future<void> clearAll() async {
-    _db.dispose();
+    _db.close();
     File("${App.dataPath}/local_favorite.db").deleteSync();
     await init();
   }
@@ -1343,7 +1343,7 @@ class LocalFavoritesManager with ChangeNotifier {
   }
 
   void close() {
-    _db.dispose();
+    _db.close();
   }
 
   void notifyChanges() {
