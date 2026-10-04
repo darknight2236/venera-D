@@ -26,7 +26,7 @@ flutter test
 
 | Fork | Patch reason |
 |------|------|
-| `rhttp` | compileSdk 36 + cargokit Gradle 9 exec fix |
+| `rhttp` | pins `flutter_rust_bridge` to the codegen version of its generated code (the 0.18.0 snapshot otherwise needs no patching) |
 | `zip_flutter` | compileSdk 36 |
 | `flutter_inappwebview` | proguard-android-optimize fix |
 | `flutter_memory_info` | win32 6 FFI port (upstream 0.0.3 is abandoned and pins win32 5, which share_plus 13 cannot use) + drop self-applied Kotlin Gradle Plugin |
@@ -73,7 +73,7 @@ All existing code complies with these rules (converged in 2026-07); new UI code 
 ## Dependency Management
 
 - All `git:` dependencies in `pubspec.yaml` **must** pin a `ref:` (commit SHA). Bare branch references are not allowed.
-- `flutter_rust_bridge` runtime version must exactly match the codegen version used by the rhttp fork (currently `2.11.1`); see `dependency_overrides`.
+- `flutter_rust_bridge`'s runtime version must equal the codegen version baked into the rhttp fork's generated code (currently `2.12.0`). The fork declares that as an exact constraint in its own `pubspec.yaml`, so `pubspec.yaml` has **no** `dependency_overrides` section — do not reintroduce one, and never bump one side alone.
 
 ## Release Process
 
