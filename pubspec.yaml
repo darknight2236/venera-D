@@ -120,9 +120,6 @@ dev_dependencies:
 # 运行时版本必须与之完全一致，否则 RustLib.init() 会因版本校验失败而抛异常。
 dependency_overrides:
   flutter_rust_bridge: 2.11.1
-  # dio 5.10 之后的版本在 DioMixin 中调用 Interceptor 私有方法，曾使 CI 解析
-  # 到的新版与代码不兼容（见 MyLogInterceptor 注释）；钉死为本地验证过的版本。
-  dio: 5.10.0
 
 flutter:
   uses-material-design: true
