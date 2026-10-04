@@ -30,17 +30,9 @@ dependencies:
       url: https://github.com/venera-app/photo_view
       ref: a1255d1b5945aad4b7323303ec2ecdf0c90ffc4c
   mime: ^2.0.0
-  # 上界是必需的，不是保守：13.x 把 win32 提到 ^6.0.1，而 flutter_memory_info 0.0.3
-  # 依赖 win32 ^5.9.0 且已停更（pub 上 0.0.3/2025-10-13 即最后一版，无 0.0.4）。
-  # 用 dependency_overrides 强推 win32 6 也不行——不是元数据冲突而是真编译错误：
-  # 该包的 lib/src/windows.dart 写的是 win32 5 的签名
-  # `FAILED(GlobalMemoryStatusEx(...))`，而 6.0 起 GlobalMemoryStatusEx 返回
-  # Win32Result<bool>、FAILED(HRESULT) 只接受 int；且 windows.dart 被
-  # flutter_memory_info.dart 无条件 import，Windows 之外的平台也会一起编译失败。
-  # 13.0.0 相对 12.0.2 只有依赖与最低平台版本变化，无 Dart API 破坏（我们的调用已经是
-  # SharePlus.instance.share(ShareParams(...))）。解除办法：fork flutter_memory_info
-  # 迁到 win32 6——这同时能清掉 Built-in Kotlin 迁移的三个阻塞依赖之一。
-  share_plus: '>=12.0.2 <13.0.0'
+  # 13.x 起要求 win32 ^6.0.1，这要求 flutter_memory_info 必须是打过补丁的 fork，
+  # 见下方该依赖的注释；两者成对回退。13.0.0 相对 12.0.2 无 Dart API 破坏。
+  share_plus: ^13.3.1
   scrollable_positioned_list:
     git:
       url: https://github.com/venera-app/flutter.widgets
@@ -86,9 +78,14 @@ dependencies:
       ref: fe182cdf40e5fa6230f451bc1d643b860f610d13
   dynamic_color: ^2.1.0
   shimmer_animation: ^2.1.0
-  # 停更（最后一版 0.0.3，2025-10-13），且 win32 约束把 share_plus 卡在 13 以下，
-  # 详见上方 share_plus 注释。
-  flutter_memory_info: ^0.0.3
+  # 上游 0.0.3（2025-10-13）即最后一版且已停更，其 win32 ^5.9.0 与 Windows FFI 写法
+  # 在 win32 6 下无法编译，而 share_plus 13 起必须用 win32 6。fork 做了两件事：
+  # ① Windows 路径迁到 win32 6 的 Win32Result；② android/build.gradle 去掉自行 apply
+  # 的 Kotlin 插件与自带 AGP/KGP classpath（Built-in Kotlin 迁移的阻塞之一）。
+  flutter_memory_info:
+    git:
+      url: ssh://git@ssh.github.com:443/darknight2236/flutter_memory_info.git
+      ref: 001af788659a0cc73b1663b428a59195cae1673c
   syntax_highlight: ^0.4.0
   flutter_7zip:
     git:
