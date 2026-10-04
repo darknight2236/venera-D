@@ -22,13 +22,14 @@ flutter test
 
 ## Environment Setup
 
-`pubspec.yaml` references three patched fork dependencies via SSH URLs (`ssh://git@ssh.github.com:443/darknight2236/...`):
+`pubspec.yaml` references four patched fork dependencies via SSH URLs (`ssh://git@ssh.github.com:443/darknight2236/...`):
 
 | Fork | Patch reason |
 |------|------|
 | `rhttp` | compileSdk 36 + cargokit Gradle 9 exec fix |
 | `zip_flutter` | compileSdk 36 |
 | `flutter_inappwebview` | proguard-android-optimize fix |
+| `flutter_memory_info` | win32 6 FFI port (upstream 0.0.3 is abandoned and pins win32 5, which share_plus 13 cannot use) + drop self-applied Kotlin Gradle Plugin |
 
 These forks are **public** repositories. SSH URLs are used because the maintainer's local network has unstable HTTPS access to github.com.
 
