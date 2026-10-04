@@ -181,11 +181,18 @@ jobs:
       # but the Linux BINARY_NAME is venera-D. Provide a venera-named copy so PKGBUILD can find it.
       - run: cp build/linux/x64/release/bundle/venera-D build/linux/x64/release/bundle/venera
       - run: dart run flutter_to_arch
+      # The generated PKGBUILD carries no `options=` line, so makepkg's default
+      # OPTIONS=(debug) also emits venera-debug-*.pkg.tar.zst (detached debug
+      # symbols). arch_build uploads the whole directory and the Release job
+      # globs *.zst, which would ship that split as if it were an app package.
+      # flutter_to_arch writes PKGBUILD and runs makepkg in one go, so the debug
+      # package can only be dropped afterwards.
       - run: |
           sudo rm -rf build/linux/arch/app.tar.gz
           sudo rm -rf build/linux/arch/pkg
           sudo rm -rf build/linux/arch/src
           sudo rm -rf build/linux/arch/PKGBUILD
+          sudo rm -f build/linux/arch/venera-debug-*.pkg.tar.zst
       - uses: actions/upload-artifact@v4
         with:
           name: deb_build
