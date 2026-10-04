@@ -83,7 +83,13 @@ dependencies:
     git:
       url: https://github.com/venera-app/flutter_7zip
       ref: b33344797f1d2469339e0e1b75f5f954f1da224c
-  flex_seed_scheme: ^4.0.1
+  # 上界是必需的，不是保守：5.x 把 ColorScheme 换成了 package:material_ui 的类型
+  # （其 5.0.1 没有任何文件还 import flutter/material），而本 app 仍用 SDK 内置
+  # Material —— Flutter 3.47.6 的 material.dart 尚不引用 material_ui，两个同名类
+  # 互不相干，lib/main.dart 的 ThemeData(colorScheme:) 接不上。5.0.0 唯一的行为
+  # 变化是 FlexTones.surfaceTintTone 修复，不涉及我们用 vividBackground 的结果。
+  # app 若迁到解耦版 Material，解除本上界。
+  flex_seed_scheme: '>=4.0.1 <5.0.0'
   flutter_localizations:
     sdk: flutter
   yaml: ^3.1.3
