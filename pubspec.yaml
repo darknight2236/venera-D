@@ -62,10 +62,14 @@ dependencies:
     git:
       url: https://github.com/venera-app/lodepng_flutter
       ref: ac7d05dde32e8d728102a9ff66e6b55f05d94ba1
+  # Fork of Codeberg Tienisto/rhttp at 0.18.0. It pins the package's own
+  # flutter_rust_bridge constraint to the codegen version that generated
+  # lib/src/rust/frb_generated.dart, which is what keeps the FRB runtime and
+  # generated code equal — no dependency_overrides needed on our side.
   rhttp:
     git:
       url: ssh://git@ssh.github.com:443/darknight2236/rhttp.git
-      ref: 283c7f93c56bc2bd9c4e0c3aa0f50e85d1e6991d
+      ref: 67ea613699ae57648bffd9acfef482bcb0ef4c6a
   webdav_client:
     git:
       url: https://github.com/venera-app/webdav_client
@@ -115,11 +119,6 @@ dev_dependencies:
       url: https://github.com/venera-app/flutter_to_debian.git
       ref: 3777c91b6b1cc0b7c03357c67ca216d4313c3db5
   archive: any
-
-# rhttp fork 的生成代码由 flutter_rust_bridge codegen 2.11.1 生成，
-# 运行时版本必须与之完全一致，否则 RustLib.init() 会因版本校验失败而抛异常。
-dependency_overrides:
-  flutter_rust_bridge: 2.11.1
 
 flutter:
   uses-material-design: true

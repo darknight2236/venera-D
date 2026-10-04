@@ -471,13 +471,13 @@ packages:
     source: hosted
     version: "5.7.0"
   flutter_rust_bridge:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: flutter_rust_bridge
-      sha256: "37ef40bc6f863652e865f0b2563ea07f0d3c58d8efad803cc01933a4b2ee067e"
+      sha256: e87d6b9ee934dcd24a128ccb2bd91905d2d5fe5c06245d6a8f5477d4907a437a
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "2.11.1"
+    version: "2.12.0"
   flutter_saf:
     dependency: "direct main"
     description:
@@ -920,11 +920,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "283c7f93c56bc2bd9c4e0c3aa0f50e85d1e6991d"
-      resolved-ref: "283c7f93c56bc2bd9c4e0c3aa0f50e85d1e6991d"
+      ref: "67ea613699ae57648bffd9acfef482bcb0ef4c6a"
+      resolved-ref: "67ea613699ae57648bffd9acfef482bcb0ef4c6a"
       url: "ssh://git@ssh.github.com:443/darknight2236/rhttp.git"
     source: git
-    version: "0.15.1"
+    version: "0.18.0"
   screen_retriever:
     dependency: transitive
     description:
