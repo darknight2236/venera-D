@@ -24,11 +24,22 @@ class CacheManager {
 
   int _limitSize = 2 * 1024 * 1024 * 1024;
 
+  /// Runs the isolate-based directory scan against [db]. For unit tests only:
+  /// the production entry point is [CacheManager._create].
+  @visibleForTesting
+  static Future<int> scanDirForTesting(Pointer<void> db, String dir) =>
+      _scanDir(db, dir);
+
   static Future<int> _scanDir(Pointer<void> dbP, String dir) async {
     var res = await Isolate.run(() async {
       int totalSize = 0;
       List<String> unmanagedFiles = [];
-      var db = sqlite3.fromPointer(dbP);
+      // borrowed: this isolate only reads through the parent's connection. A
+      // non-borrowed wrapper owns the handle, and sqlite3 then attaches a
+      // native finalizer that runs sqlite3_close_v2 during isolate teardown,
+      // leaving the main isolate with a closed pointer (SQLITE_MISUSE on the
+      // next prepare).
+      var db = sqlite3.fromPointer(dbP, borrowed: true);
       await for (var file in Directory(dir).list(recursive: true)) {
         if (file is File) {
           var size = await file.length();
@@ -208,65 +219,70 @@ class CacheManager {
       return;
     }
     _isChecking = true;
-    var res = _db.select('''
-      SELECT * FROM cache
-      WHERE expires < ?
-    ''', [DateTime.now().millisecondsSinceEpoch]);
-    for (var row in res) {
-      var dir = row[1] as String;
-      var name = row[2] as String;
-      var file = File('$cachePath/$dir/$name');
-      if (await file.exists()) {
-        var size = await file.length();
-        _currentSize = _currentSize! - size;
-        await file.delete();
-      }
-    }
-    if (res.isNotEmpty) {
-      _db.execute('''
-      DELETE FROM cache
-      WHERE expires < ?
-    ''', [DateTime.now().millisecondsSinceEpoch]);
-    }
-
-    while (_currentSize != null && _currentSize! > _limitSize) {
+    try {
       var res = _db.select('''
         SELECT * FROM cache
-        ORDER BY expires ASC
-        limit 10
-      ''');
-      if (res.isEmpty) {
-        // There are many files unmanaged by the cache manager.
-        // Clear all cache.
-        await Directory(cachePath).delete(recursive: true);
-        Directory(cachePath).createSync(recursive: true);
-        break;
-      }
+        WHERE expires < ?
+      ''', [DateTime.now().millisecondsSinceEpoch]);
       for (var row in res) {
-        var key = row[0] as String;
         var dir = row[1] as String;
         var name = row[2] as String;
         var file = File('$cachePath/$dir/$name');
         if (await file.exists()) {
           var size = await file.length();
-          await file.delete();
-          _db.execute('''
-            DELETE FROM cache
-            WHERE key = ?
-          ''', [key]);
           _currentSize = _currentSize! - size;
-          if (_currentSize! <= _limitSize) {
-            break;
-          }
-        } else {
-          _db.execute('''
-            DELETE FROM cache
-            WHERE key = ?
-          ''', [key]);
+          await file.delete();
         }
       }
+      if (res.isNotEmpty) {
+        _db.execute('''
+        DELETE FROM cache
+        WHERE expires < ?
+      ''', [DateTime.now().millisecondsSinceEpoch]);
+      }
+
+      while (_currentSize != null && _currentSize! > _limitSize) {
+        var res = _db.select('''
+          SELECT * FROM cache
+          ORDER BY expires ASC
+          limit 10
+        ''');
+        if (res.isEmpty) {
+          // There are many files unmanaged by the cache manager.
+          // Clear all cache.
+          await Directory(cachePath).delete(recursive: true);
+          Directory(cachePath).createSync(recursive: true);
+          break;
+        }
+        for (var row in res) {
+          var key = row[0] as String;
+          var dir = row[1] as String;
+          var name = row[2] as String;
+          var file = File('$cachePath/$dir/$name');
+          if (await file.exists()) {
+            var size = await file.length();
+            await file.delete();
+            _db.execute('''
+              DELETE FROM cache
+              WHERE key = ?
+            ''', [key]);
+            _currentSize = _currentSize! - size;
+            if (_currentSize! <= _limitSize) {
+              break;
+            }
+          } else {
+            _db.execute('''
+              DELETE FROM cache
+              WHERE key = ?
+            ''', [key]);
+          }
+        }
+      }
+    } finally {
+      // Without this, one failed pass would keep _isChecking true forever and
+      // silently disable all later eviction.
+      _isChecking = false;
     }
-    _isChecking = false;
   }
 
   /// Delete cache by key.

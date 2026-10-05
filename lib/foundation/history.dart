@@ -260,7 +260,11 @@ class HistoryManager with ChangeNotifier {
 
   static Future<void> _addHistoryAsync(int dbAddr, History newItem) {
     return Isolate.run(() {
-      var db = sqlite3.fromPointer(ffi.Pointer.fromAddress(dbAddr));
+      // borrowed: a non-borrowed wrapper owns the handle and sqlite3 attaches a
+      // finalizer that runs sqlite3_close_v2 on isolate teardown, which would
+      // close the connection the main isolate keeps using (SQLITE_MISUSE).
+      var db =
+          sqlite3.fromPointer(ffi.Pointer.fromAddress(dbAddr), borrowed: true);
       db.execute(_insertHistorySql, [
         newItem.id,
         newItem.title,

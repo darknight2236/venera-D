@@ -395,7 +395,9 @@ class LocalFavoritesManager with ChangeNotifier {
   static Future<Map<int, int>> _initHashedIds(
       List<String> folders, Pointer<void> p) {
     return Isolate.run(() {
-      var db = sqlite3.fromPointer(p);
+      // borrowed: see the note in CacheManager._scanDir. A non-borrowed wrapper
+      // would close the parent connection when this isolate is torn down.
+      var db = sqlite3.fromPointer(p, borrowed: true);
       return _hashedIdsOf(db, folders);
     });
   }
@@ -503,7 +505,7 @@ class LocalFavoritesManager with ChangeNotifier {
   static Future<List<FavoriteItem>> _getFolderComicsAsync(
       String folder, String orderByClause, Pointer<void> p) {
     return Isolate.run(() {
-      var db = sqlite3.fromPointer(p);
+      var db = sqlite3.fromPointer(p, borrowed: true);
       var rows = db.select("""
         select * from "$folder"
         $orderByClause;
@@ -552,7 +554,7 @@ class LocalFavoritesManager with ChangeNotifier {
   static Future<List<FavoriteItem>> _getAllComicsAsync(
       List<String> folders, FavoriteSortType sortType, Pointer<void> p) {
     return Isolate.run(() {
-      var db = sqlite3.fromPointer(p);
+      var db = sqlite3.fromPointer(p, borrowed: true);
       var res = <FavoriteItem>{};
       for (final folder in folders) {
         var comics = db.select("""

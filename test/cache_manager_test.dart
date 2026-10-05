@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sqlite3/sqlite3.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/cache_manager.dart';
 
@@ -99,6 +100,84 @@ void main() {
       CacheManager.debugSetInstance(injected);
 
       expect(identical(CacheManager(), injected), isTrue);
+    });
+  }, skip: sqliteAvailable ? false : sqlite3SkipReason);
+
+  group('CacheManager sqlite ownership', () {
+    late Directory tempDir;
+    late Directory scanDir;
+    late Database db;
+
+    setUp(() {
+      tempDir = Directory.systemTemp.createTempSync('venera_scan_test');
+      // The database lives outside the scanned tree: a file there would count
+      // as unmanaged and the scan would try to delete it.
+      db = sqlite3.open('${tempDir.path}/cache.db');
+      db.execute('''
+        CREATE TABLE cache (
+          key TEXT PRIMARY KEY NOT NULL,
+          dir TEXT NOT NULL,
+          name TEXT NOT NULL,
+          expires INTEGER NOT NULL,
+          type TEXT
+        )
+      ''');
+      db.execute(
+        'INSERT INTO cache (key, dir, name, expires) VALUES (?, ?, ?, ?)',
+        ['k1', '7', 'a.png', DateTime.now().millisecondsSinceEpoch + 60000],
+      );
+      scanDir = Directory('${tempDir.path}/files')..createSync(recursive: true);
+      Directory('${scanDir.path}/7').createSync(recursive: true);
+      File('${scanDir.path}/7/a.png').writeAsBytesSync([1, 2, 3]);
+      addTearDown(() {
+        db.close();
+        tempDir.deleteSync(recursive: true);
+      });
+    });
+
+    test('the scan must not close the connection it reaches through a pointer',
+        () async {
+      // _scanDir wraps the parent connection with sqlite3.fromPointer() inside
+      // Isolate.run. A non-borrowed wrapper owns the handle and the package
+      // attaches a native finalizer calling sqlite3_close_v2, so isolate
+      // teardown would close the connection the main isolate is still using.
+      for (var i = 0; i < 60; i++) {
+        final total = await CacheManager.scanDirForTesting(db.handle, scanDir.path);
+        expect(total, 3, reason: 'scan #$i should still see the managed file');
+      }
+
+      expect(
+        () => db.select(
+          'SELECT * FROM cache WHERE expires < ?',
+          [DateTime.now().millisecondsSinceEpoch],
+        ),
+        returnsNormally,
+        reason: 'the parent connection must survive the borrowed-handle scan',
+      );
+    });
+
+    test('a failed checkCache does not disable eviction for the session',
+        () async {
+      App.cachePath = tempDir.path;
+      App.dataPath = tempDir.path;
+      final manager = CacheManager.forTesting();
+
+      // Closing the database makes the next prepared statement fail. Note the
+      // exception type differs by path: an explicit close() trips sqlite3's
+      // Dart-side guard (StateError), while the production bug - a foreign
+      // finalizer calling sqlite3_close_v2 on a still-used handle - surfaces as
+      // SqliteException(21). Either way, the second call must still try.
+      manager.close();
+      await expectLater(
+        manager.checkCache(),
+        throwsA(anything),
+        reason: 'first attempt should hit the dead connection',
+      );
+      await expectLater(
+        manager.checkCache(),
+        throwsA(anything),
+        reason: '_isChecking must reset, or eviction never runs again',
+      );
     });
   }, skip: sqliteAvailable ? false : sqlite3SkipReason);
 }
