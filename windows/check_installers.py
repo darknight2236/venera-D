@@ -21,8 +21,11 @@ import sys
 ISS_PATH = "windows/build.iss"
 ARCH = "x64"
 
-# Build outputs that must never go into the installer.
-IGNORED_OUTPUTS = ("*.pdb",)
+# Build outputs that must never go into the installer. native_assets.json is the
+# debug/JIT copy of the native-assets map; a release build has no such file next
+# to the exe because the manifest ships inside data\flutter_assets and reaches
+# the installer through the data\* entry.
+IGNORED_OUTPUTS = ("*.pdb", "native_assets.json")
 
 SOURCE_RE = re.compile(r'^Source:\s*"([^"]+)"', re.M)
 DEFINE_RE = re.compile(r'^#define\s+(\w+)\s+"([^"]*)"', re.M)
