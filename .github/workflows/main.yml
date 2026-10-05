@@ -156,6 +156,12 @@ jobs:
         run: |
           flutter pub get
           python windows/build.py
+      # Refuse to publish an installer whose [Files] list no longer matches what
+      # the build produced (missing native_assets.json / plugin dlls install a
+      # broken app that only fails after the user runs it).
+      - name: Check installer payload
+        shell: bash
+        run: python windows/check_installers.py --release-dir build/windows/x64/runner/Release
       - uses: actions/upload-artifact@v4
         with:
           name: windows_build

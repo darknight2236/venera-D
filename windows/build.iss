@@ -71,6 +71,10 @@ Source: "{#RootPath}\build\windows\x64\runner\Release\flutter_inappwebview_windo
 Source: "{#RootPath}\build\windows\x64\runner\Release\file_selector_windows_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#RootPath}\build\windows\x64\runner\Release\app_links_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#RootPath}\build\windows\x64\runner\Release\sqlite3.dll"; DestDir: "{app}"; Flags: ignoreversion
+; sqlite3 is loaded through Dart's native assets, so the manifest beside the exe
+; must ship with it; dartjni.dll comes from package:jni's Windows build.
+Source: "{#RootPath}\build\windows\x64\runner\Release\native_assets.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#RootPath}\build\windows\x64\runner\Release\dartjni.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#RootPath}\build\windows\x64\runner\Release\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#RootPath}\build\windows\x64\runner\Release\flutter_qjs_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#RootPath}\build\windows\x64\runner\Release\desktop_webview_window_plugin.dll"; DestDir: "{app}"; Flags: ignoreversion

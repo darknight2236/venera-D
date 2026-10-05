@@ -109,7 +109,7 @@
 |------|---------|----------|
 | #433 下载漫画找不到 | 🔴 大部分已被现有功能覆盖，剩余诉求大改，暂缓 | 三个诉求逐项核：①“文件缺失自动读网络”数据结构不支持（本地图 key 仅 `file://` 路径，无原始 URL 映射，需存映射是大改）；②“找回文件在但索引丢”已被上游 #765 的首页“导入漫画”（ImportComic，`lib/utils/import_comic.dart`）覆盖；③“手动清理/重下”已被章节选择器覆盖（显示已下载章 + 重选先删目录重下）。净结论：无干净可做子项 |
 | #707 / #799 下载卡“获取图像列表” | 🟡 已验证为真 bug，根因已定位：`_runWithRetry` 无超时 | 已排除源配置类猜测（无源特定线索/无配置报错）；卡住根因=download.dart `_runWithRetry` 的 `await task()` 无 `.timeout()`，`source.loadComicPages` 挂起（网络黑洞/源 JS 卡死）即整体卡死；丢章节/下载不完整与 `saveCurrentDownloadingTasks` 仅持久化任务元数据、`_images` 依赖内存态相关。修复方向：`_runWithRetry` 加超时（小改、可测） |
-| #756 armwin 无法使用 | 🔴 暂缓：上游 arm64 折腾史 + venera-D 未发 arm64 包 | 上游 2025-03~04 四次加 windows arm64（7bc4c69/fddd959/ebf6846/49481bf/6877aa1）后于 2025-04-25 回退（c6714f7）；venera-D 有 build_arm64.py 但 v1.7.3 资产仅 x64，属发布决策非一键修 |
+| #756 armwin 无法使用 | ⚪ 按决定不修：本项目不发布 Windows arm64 包 | 上游 2025-03~04 四次加 windows arm64（7bc4c69/fddd959/ebf6846/49481bf/6877aa1）后于 2025-04-25 回退（c6714f7）；venera-D 曾继承 `build_arm64.py`/`build_arm64.iss`，但 v1.7.3~v1.8.1 的 Windows 资产始终只有 x64 两份，且 Flutter 的 Windows 目标架构跟随宿主 CPU（`build_windows.dart` 无 arch 参数），x64 CI 也做不出 arm64 产物 —— 2026-10-05 删除这两个文件，把 `windows/build.iss` 的 payload 改为用 `windows/check_installers.py` 对真实构建产物校验 |
 | #653 Windows 性能回退 | 🔴 未修复，无稳定复现线索 | 无相关 commit |
 | #446 HyperOS 小窗 / #692 ColorOS 字体 | 🔴 未修复，厂商定制（同 #249 性质），难验证 | 无相关 commit（#692 与 Linux ARM64 字体 #231/#468 无关） |
 | #843 Winget / #576 rpm 包 | ⚪ 纯分发请求，未做 | 与固定打包流程相关的可选增强 |
