@@ -16,20 +16,28 @@ class _App {
   // 必须与 pubspec.yaml 的 version 保持一致（由 test/version_consistency_test.dart 守卫）
   final version = "1.8.2";
 
-  bool get isAndroid => Platform.isAndroid;
+  /// Host tests cannot fake [Platform], and the iOS-only security-scope
+  /// handling in `utils/io.dart` is unreachable without this. While true every
+  /// platform getter reports iOS and nothing else, so callers' branch order
+  /// still resolves the way it does on a device.
+  @visibleForTesting
+  bool debugForceIOS = false;
 
-  bool get isIOS => Platform.isIOS;
+  bool get isAndroid => !debugForceIOS && Platform.isAndroid;
 
-  bool get isWindows => Platform.isWindows;
+  bool get isIOS => debugForceIOS || Platform.isIOS;
 
-  bool get isLinux => Platform.isLinux;
+  bool get isWindows => !debugForceIOS && Platform.isWindows;
 
-  bool get isMacOS => Platform.isMacOS;
+  bool get isLinux => !debugForceIOS && Platform.isLinux;
+
+  bool get isMacOS => !debugForceIOS && Platform.isMacOS;
 
   bool get isDesktop =>
-      Platform.isWindows || Platform.isLinux || Platform.isMacOS;
+      !debugForceIOS &&
+      (Platform.isWindows || Platform.isLinux || Platform.isMacOS);
 
-  bool get isMobile => Platform.isAndroid || Platform.isIOS;
+  bool get isMobile => debugForceIOS || Platform.isAndroid || Platform.isIOS;
 
   // Whether the app has been initialized.
   // If current Isolate is main Isolate, this value is always true.

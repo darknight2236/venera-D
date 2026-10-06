@@ -4,7 +4,10 @@ import FlutterMacOS
 @main
 class AppDelegate: FlutterAppDelegate {
   var flutterResult: FlutterResult?
-  var directoryPath: URL!
+
+  /// Security-scoped grants handed out by the open panel, keyed by path, so a
+  /// revoke can only drop the directory it was granted for.
+  var grantedDirectories: [String: URL] = [:]
 
   override func applicationDidFinishLaunching(_ notification: Notification) {
       let controller: FlutterViewController = mainFlutterWindow?.contentViewController as! FlutterViewController
@@ -32,7 +35,13 @@ class AppDelegate: FlutterAppDelegate {
           self.flutterResult = result
           self.getDirectoryPath()
         case "stopAccessingSecurityScopedResource":
-          self.directoryPath?.stopAccessingSecurityScopedResource()
+          // An unknown path is ignored rather than cancelling whatever grant
+          // happens to be current.
+          if let arguments = call.arguments as? [String: Any],
+            let path = arguments["path"] as? String,
+            let url = grantedDirectories.removeValue(forKey: path) {
+            url.stopAccessingSecurityScopedResource()
+          }
           result(nil)
         default:
           result(FlutterMethodNotImplemented)
@@ -72,13 +81,15 @@ class AppDelegate: FlutterAppDelegate {
       openPanel.allowsMultipleSelection = false
 
       openPanel.begin { (result) in
-          if result == .OK {
-              self.directoryPath = openPanel.urls.first
-              if let directoryPath = self.directoryPath, !directoryPath.startAccessingSecurityScopedResource() {
+          if result == .OK, let url = openPanel.urls.first {
+              if !url.startAccessingSecurityScopedResource() {
                   self.flutterResult?(nil)
                   return
               }
-              self.flutterResult?(self.directoryPath?.path)
+              // Picking the same path twice keeps the newer grant and leaks the
+              // earlier one; a leaked grant only means access stays open.
+              self.grantedDirectories[url.path] = url
+              self.flutterResult?(url.path)
           } else {
               self.flutterResult?(nil)
           }

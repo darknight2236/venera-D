@@ -6,7 +6,10 @@ import Foundation // 添加此行
 @main
 @objc class AppDelegate: FlutterAppDelegate, UIDocumentPickerDelegate {
   var flutterResult: FlutterResult?
-  var directoryPath: URL!
+
+  /// Security-scoped grants handed out by the document picker, keyed by path,
+  /// so a revoke can only drop the directory it was granted for.
+  var grantedDirectories: [String: URL] = [:]
 
   // 定义插件通道名称
   private var directoryPicker: DirectoryPicker?
@@ -43,8 +46,14 @@ import Foundation // 添加此行
         self.flutterResult = result
         self.getDirectoryPath()
       } else if call.method == "stopAccessingSecurityScopedResource" {
-        self.directoryPath?.stopAccessingSecurityScopedResource()
-        self.directoryPath = nil
+        // Grants are keyed by path so that a revoke can only ever drop the
+        // directory it was granted for; an unknown path is ignored rather than
+        // cancelling whatever happens to be current.
+        if let arguments = call.arguments as? [String: Any],
+          let path = arguments["path"] as? String,
+          let url = grantedDirectories.removeValue(forKey: path) {
+          url.stopAccessingSecurityScopedResource()
+        }
         result(nil)
       } else if call.method == "selectDirectory" {
         self.directoryPicker = DirectoryPicker()
@@ -70,19 +79,20 @@ import Foundation // 添加此行
   }
 
   func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-    self.directoryPath = urls.first
-    if self.directoryPath == nil {
+    guard let url = urls.first else {
       flutterResult?(nil)
       return
     }
 
-    let success = self.directoryPath.startAccessingSecurityScopedResource()
-
-    if success {
-      flutterResult?(self.directoryPath.path)
-    } else {
+    if !url.startAccessingSecurityScopedResource() {
       flutterResult?(nil)
+      return
     }
+
+    // Picking the same path twice keeps the newer grant and leaks the earlier
+    // one; a leaked grant only means access stays open until the app exits.
+    grantedDirectories[url.path] = url
+    flutterResult?(url.path)
   }
 
   func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {

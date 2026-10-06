@@ -67,13 +67,17 @@ class ImportComic {
       Map<String?, List<LocalComic>> imported = {};
       var controller = showLoading(allowCancel: false);
       var comics = <LocalComic>[];
-      for (var file in files) {
-        try {
-          var comic = await CBZ.import(file);
-          comics.add(comic);
-        } catch (e, s) {
-          Log.error("Import Comic", e.toString(), s);
+      try {
+        for (var file in files) {
+          try {
+            var comic = await CBZ.import(file);
+            comics.add(comic);
+          } catch (e, s) {
+            Log.error("Import Comic", e.toString(), s);
+          }
         }
+      } finally {
+        await picker.release();
       }
       if (comics.isEmpty) {
         showMessage("No valid comics found".tl);
@@ -140,19 +144,23 @@ class ImportComic {
     Map<String?, List<LocalComic>> imported = {};
     var controller = showLoading(allowCancel: false);
     var comics = <LocalComic>[];
-    for (var file in files) {
-      try {
-        var comic = await PdfComic.import(
-          file,
-          passwordProvider: _wrappedProvider,
-        );
-        comics.add(comic);
-      } on PdfCancelledException {
-        // Cancelling skips only this file; the rest still import.
-        continue;
-      } catch (e, s) {
-        Log.error("Import Comic", e.toString(), s);
+    try {
+      for (var file in files) {
+        try {
+          var comic = await PdfComic.import(
+            file,
+            passwordProvider: _wrappedProvider,
+          );
+          comics.add(comic);
+        } on PdfCancelledException {
+          // Cancelling skips only this file; the rest still import.
+          continue;
+        } catch (e, s) {
+          Log.error("Import Comic", e.toString(), s);
+        }
       }
+    } finally {
+      await picker.release();
     }
     if (comics.isEmpty) {
       showMessage("No valid comics found".tl);
@@ -258,7 +266,11 @@ class ImportComic {
     }
     controller.close();
     if (cancelled) return false;
-    return registerComics(imported, copyToLocal);
+    // registerComics still reads from the picked directory when copying, so the
+    // grant is dropped only afterwards.
+    final result = await registerComics(imported, copyToLocal);
+    await picker.release();
+    return result;
   }
 
   Future<bool> directory(bool single) async {
@@ -291,7 +303,9 @@ class ImportComic {
       Log.error("Import Comic", e.toString(), s);
       showMessage(e.toString());
     }
-    return registerComics(imported, copyToLocal);
+    final result = await registerComics(imported, copyToLocal);
+    await picker.release();
+    return result;
   }
 
   Future<bool> localDownloads() async {

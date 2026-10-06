@@ -208,19 +208,39 @@ String findValidDirectoryName(String path, String directory) {
 class DirectoryPicker {
   /// Pick a directory.
   ///
-  /// The directory may not be usable after the instance is GCed.
+  /// The access granted by the picker belongs to this instance: keep it
+  /// referenced until the directory has been fully read, then call [release].
   DirectoryPicker();
 
-  static final _finalizer = Finalizer<String>((path) {
+  static final _finalizer = Finalizer<String>(_revoke);
+
+  static const _methodChannel = MethodChannel("venera/method_channel");
+
+  /// Drop the access granted for [path]. Carrying the path matters: the native
+  /// side keys grants by path, so a revoke that arrives late - after the
+  /// instance it belongs to was collected - cannot cancel a directory another
+  /// pick is still reading.
+  static Future<void> _revoke(String path) async {
     if (path.startsWith(App.cachePath)) {
       Directory(path).deleteIgnoreError();
     }
     if (App.isIOS || App.isMacOS) {
-      _methodChannel.invokeMethod("stopAccessingSecurityScopedResource");
+      await _methodChannel
+          .invokeMethod("stopAccessingSecurityScopedResource", {"path": path});
     }
-  });
+  }
 
-  static const _methodChannel = MethodChannel("venera/method_channel");
+  String? _path;
+
+  /// Release the picked directory once it is no longer read. Without this the
+  /// grant is only dropped whenever the VM happens to collect this instance,
+  /// which is unpredictable relative to the reads that depend on it.
+  Future<void> release() async {
+    _finalizer.detach(this);
+    final path = _path;
+    _path = null;
+    if (path != null) await _revoke(path);
+  }
 
   Future<Directory?> pickDirectory({bool directAccess = false}) async {
     IO._isSelectingFiles = true;
@@ -246,6 +266,7 @@ class DirectoryPicker {
             await _methodChannel.invokeMethod<String?>("getDirectoryPath");
       }
       if (directory == null) return null;
+      _path = directory;
       _finalizer.attach(this, directory);
       return Directory(directory);
     } finally {
