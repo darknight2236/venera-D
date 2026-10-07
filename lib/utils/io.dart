@@ -277,18 +277,41 @@ class DirectoryPicker {
   }
 }
 
+/// A directory the user chose, together with the access granted for it.
+class PickedDirectory {
+  final String path;
+
+  /// Base64 `URL.bookmarkData` created while the pick was still live, or null
+  /// on platforms that need no persisted grant. Only this, not [path], can
+  /// reopen the directory after the app is relaunched.
+  final String? bookmark;
+
+  const PickedDirectory(this.path, {this.bookmark});
+}
+
+/// Re-open the access [bookmark] was created for, keeping it for this run.
+///
+/// Returns the path the bookmark resolved to, or null when the grant could not
+/// be restored.
+Future<String?> restoreSecurityScopedAccess(String bookmark) async {
+  if (!App.isIOS) return null;
+  var result = await const MethodChannel("venera/method_channel")
+      .invokeMethod<Map<Object?, Object?>>(
+          "startAccessingSecurityScopedBookmark", {"bookmark": bookmark});
+  return result?["path"] as String?;
+}
+
 class IOSDirectoryPicker {
   static const MethodChannel _channel = MethodChannel("venera/method_channel");
 
-  // 璋冪敤 iOS 鐩綍閫夋嫨鏂规硶
-  static Future<String?> selectDirectory() async {
+  static Future<PickedDirectory?> selectDirectory() async {
     IO._isSelectingFiles = true;
     try {
-      final String? path = await _channel.invokeMethod('selectDirectory');
-      return path;
-    } catch (e) {
-      // 杩斿洖鎶ラ敊淇℃伅
-      return e.toString();
+      var picked =
+          await _channel.invokeMethod<Map<Object?, Object?>>("selectDirectory");
+      var path = picked?["path"] as String?;
+      if (path == null) return null;
+      return PickedDirectory(path, bookmark: picked?["bookmark"] as String?);
     } finally {
       Future.delayed(const Duration(milliseconds: 100), () {
         IO._isSelectingFiles = false;
@@ -353,7 +376,7 @@ Future<String?> selectDirectory() async {
 }
 
 // selectDirectoryIOS
-Future<String?> selectDirectoryIOS() async {
+Future<PickedDirectory?> selectDirectoryIOS() async {
   return IOSDirectoryPicker.selectDirectory();
 }
 

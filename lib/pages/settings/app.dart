@@ -33,11 +33,14 @@ class _AppSettingsState extends State<AppSettings> {
           actionTitle: "Set".tl,
           callback: () async {
             String? result;
+            String? bookmark;
             if (App.isAndroid) {
               var picker = DirectoryPicker();
               result = (await picker.pickDirectory())?.path;
             } else if (App.isIOS) {
-              result = await selectDirectoryIOS();
+              var picked = await selectDirectoryIOS();
+              result = picked?.path;
+              bookmark = picked?.bookmark;
             } else {
               result = await selectDirectory();
             }
@@ -48,7 +51,8 @@ class _AppSettingsState extends State<AppSettings> {
               barrierDismissible: false,
               allowCancel: false,
             );
-            var res = await LocalManager().setNewPath(result);
+            var res = await LocalManager()
+                .setNewPath(result, bookmark: bookmark);
             loadingDialog.close();
             if (!context.mounted) return;
             if (res != null) {

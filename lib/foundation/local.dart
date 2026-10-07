@@ -272,8 +272,39 @@ class LocalManager with ChangeNotifier {
     }
   }
 
+  /// Path of the file next to `local_path` holding the base64 security-scoped
+  /// bookmark.
+  String get _bookmarkPath =>
+      FilePath.join(App.dataPath, 'local_bookmark');
+
+  /// The storage path saved by [setNewPath], with its access re-claimed.
+  ///
+  /// On iOS `local_path` alone is not enough: a directory outside the app
+  /// container stays closed until the bookmark taken at pick time is claimed,
+  /// so the claim has to happen before the path is even looked at.
+  @visibleForTesting
+  Future<String> resolveStoredPath() async {
+    var stored = File(FilePath.join(App.dataPath, 'local_path'));
+    if (!stored.existsSync()) {
+      return findDefaultPath();
+    }
+    var storedPath = stored.readAsStringSync();
+    String? claimed;
+    var bookmark = File(_bookmarkPath);
+    if (bookmark.existsSync()) {
+      claimed = await restoreSecurityScopedAccess(bookmark.readAsStringSync());
+    }
+    if (Directory(storedPath).existsSync()) return storedPath;
+    if (claimed != null && Directory(claimed).existsSync()) return claimed;
+    return await findDefaultPath();
+  }
+
   // return error message if failed
-  Future<String?> setNewPath(String newPath) async {
+  Future<String?> setNewPath(String newPath, {String? bookmark}) async {
+    if (bookmark != null &&
+        await restoreSecurityScopedAccess(bookmark) == null) {
+      return "Could not access the selected directory";
+    }
     var newDir = Directory(newPath);
     if (!await newDir.exists()) {
       return "Directory does not exist";
@@ -286,6 +317,12 @@ class LocalManager with ChangeNotifier {
         directory,
         newDir,
       );
+      var bookmarkFile = File(_bookmarkPath);
+      if (bookmark != null) {
+        await bookmarkFile.writeAsString(bookmark);
+      } else {
+        await bookmarkFile.deleteIfExists();
+      }
       await File(FilePath.join(App.dataPath, 'local_path'))
           .writeAsString(newPath);
     } catch (e, s) {
@@ -337,14 +374,7 @@ class LocalManager with ChangeNotifier {
       '${App.dataPath}/local.db',
     );
     _createComicsTable();
-    if (File(FilePath.join(App.dataPath, 'local_path')).existsSync()) {
-      path = File(FilePath.join(App.dataPath, 'local_path')).readAsStringSync();
-      if (!directory.existsSync()) {
-        path = await findDefaultPath();
-      }
-    } else {
-      path = await findDefaultPath();
-    }
+    path = await resolveStoredPath();
     try {
       if (!directory.existsSync()) {
         await directory.create();

@@ -58,6 +58,27 @@ import Foundation // 添加此行
       } else if call.method == "selectDirectory" {
         self.directoryPicker = DirectoryPicker()
         self.directoryPicker?.selectDirectory(result: result)
+      } else if call.method == "startAccessingSecurityScopedBookmark" {
+        // Re-open what a previous run's picker was granted: the stored path
+        // stays closed until this bookmark is claimed. The grant is kept for
+        // the whole run and is deliberately not put in `grantedDirectories`,
+        // which only holds the import picker's short-lived grants.
+        var restored: String?
+        if let arguments = call.arguments as? [String: Any],
+          let base64 = arguments["bookmark"] as? String,
+          let data = Data(base64Encoded: base64) {
+          var isStale = false
+          if let url = try? URL(resolvingBookmarkData: data,
+                                bookmarkDataIsStale: &isStale),
+            url.startAccessingSecurityScopedResource() {
+            restored = url.path
+          }
+        }
+        if let restored = restored {
+          result(["path": restored])
+        } else {
+          result(nil)
+        }
       } else {
         result(FlutterMethodNotImplemented)
       }
