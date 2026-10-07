@@ -16,6 +16,7 @@ import 'package:venera/utils/pdf_import.dart';
 import 'package:venera/utils/translations.dart';
 import 'cbz.dart';
 import 'io.dart';
+import 'pdf_password_session.dart';
 
 class ImportComic {
   final String? selectedFolder;
@@ -89,23 +90,17 @@ class ImportComic {
     return false;
   }
 
-  /// Wraps [inner] so the second and later prompts surface an
-  /// "Incorrect password" toast. The parser tries an empty password before
-  /// ever calling the provider, so the first prompt must not toast.
-  PdfPasswordProvider wrapPasswordProvider(PdfPasswordProvider inner) {
-    var attempts = 0;
-    return (fileName) async {
-      if (attempts > 0) showMessage("Incorrect password".tl);
-      attempts++;
-      return inner(fileName);
-    };
-  }
-
-  /// A fresh wrapper per access, so batch imports count attempts per file
-  /// rather than leaking one file's failure notice onto the next.
-  PdfPasswordProvider? get _wrappedProvider => passwordProvider == null
+  /// A password session for one import operation, or null when the caller gave
+  /// no provider (headless/test paths open only empty-password PDFs).
+  ///
+  /// One instance per operation, so a batch of encrypted PDFs that share a
+  /// password only prompts for the first of them.
+  PdfPasswordSession? _passwordSession() => passwordProvider == null
       ? null
-      : wrapPasswordProvider(passwordProvider!);
+      : PdfPasswordSession(
+          ask: passwordProvider!,
+          showMessage: showMessage,
+        );
 
   Future<bool> pdf() async {
     var file = await selectFile(ext: ['pdf'], onError: showMessage);
@@ -117,7 +112,7 @@ class ImportComic {
     try {
       var comic = await PdfComic.import(
         File(file.path),
-        passwordProvider: _wrappedProvider,
+        passwordProvider: _passwordSession()?.providerFor(),
       );
       imported[selectedFolder] = [comic];
     } on PdfCancelledException {
@@ -144,19 +139,27 @@ class ImportComic {
     Map<String?, List<LocalComic>> imported = {};
     var controller = showLoading(allowCancel: false);
     var comics = <LocalComic>[];
+    var session = _passwordSession();
     try {
       for (var file in files) {
         try {
           var comic = await PdfComic.import(
             file,
-            passwordProvider: _wrappedProvider,
+            passwordProvider: session?.providerFor(),
           );
           comics.add(comic);
+          session?.rememberLastIssued();
         } on PdfCancelledException {
           // Cancelling skips only this file; the rest still import.
           continue;
         } catch (e, s) {
           Log.error("Import Comic", e.toString(), s);
+          // Anything but `PdfEncryptedException` means the parser got past its
+          // password loop and the file failed later (an unsupported encoding,
+          // say), so the password that opened it is still worth reusing.
+          if (e is! PdfEncryptedException) {
+            session?.rememberLastIssued();
+          }
         }
       }
     } finally {

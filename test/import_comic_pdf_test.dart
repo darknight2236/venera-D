@@ -1,10 +1,15 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/appdata.dart';
+import 'package:venera/foundation/local.dart';
 import 'package:venera/utils/import_comic.dart';
+import 'package:venera/utils/io.dart';
 import 'package:venera/utils/pdf/images.dart';
 import 'package:venera/utils/pdf/objects.dart';
 import 'package:venera/utils/translations.dart';
+
+import 'helpers/sqlite3_test_setup.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -37,37 +42,62 @@ void main() {
     });
   });
 
-  group('ImportComic.wrapPasswordProvider', () {
-    test('toasts "Incorrect password" only after the first attempt', () async {
-      final messages = <String>[];
-      final answers = <String?>['wrong', 'right'];
-      var i = 0;
-      final importer = ImportComic(
-        showMessage: messages.add,
-        showLoading: ({message, allowCancel = true, onCancel}) => null,
-        passwordProvider: (_) async => answers[i++],
-      );
+  group('ImportComic.multiplePdf', () {
+    final sqliteAvailable = ensureSqlite3ForTests();
+    const channel = MethodChannel('venera/method_channel');
+    late Directory tmp;
 
-      final wrapped = importer.wrapPasswordProvider(importer.passwordProvider!);
-      expect(await wrapped('f.pdf'), 'wrong');
-      expect(messages, isEmpty); // first prompt follows a silent empty attempt
-      expect(await wrapped('f.pdf'), 'right');
-      expect(messages.length, 1); // second prompt reports the failed attempt
+    setUp(() {
+      tmp = Directory.systemTemp.createTempSync('pdf_batch');
+      App.cachePath = tmp.path;
+      App.dataPath = tmp.path;
+      final localPath = FilePath.join(tmp.path, 'local');
+      Directory(localPath).createSync(recursive: true);
+      LocalManager.debugSetInstance(LocalManager.forTesting(localPath));
+      // Routes DirectoryPicker through the channel mock below instead of
+      // file_selector, which has no implementation in a test host.
+      App.debugForceIOS = true;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'getDirectoryPath') return 'test/fixtures/pdf';
+        return null;
+      });
     });
 
-    test('passes the file name through to the inner provider', () async {
-      String? seen;
+    tearDown(() {
+      App.debugForceIOS = false;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+      LocalManager.debugSetInstance(null);
+      if (tmp.existsSync()) tmp.deleteSync(recursive: true);
+    });
+
+    test('a folder of encrypted PDFs sharing one password prompts once',
+        () async {
+      final prompts = <String>[];
       final importer = ImportComic(
         showMessage: (_) {},
-        showLoading: ({message, allowCancel = true, onCancel}) => null,
-        passwordProvider: (name) async {
-          seen = name;
-          return 'pw';
+        showLoading: ({message, allowCancel = true, onCancel}) =>
+            _LoadingController(),
+        passwordProvider: (fileName) async {
+          prompts.add(fileName);
+          return 'user123';
         },
       );
 
-      await importer.wrapPasswordProvider(importer.passwordProvider!)('x.pdf');
-      expect(seen, 'x.pdf');
-    });
+      expect(await importer.multiplePdf(), isTrue);
+
+      expect(prompts.length, 1,
+          reason: 'the three encrypted fixtures share user123, so only the '
+              'first of them may ask');
+      expect(prompts.single, contains('enc_'),
+          reason: 'the plain and owner-only fixtures open without a password');
+      expect(LocalManager().getComics(LocalSortType.name).length, 5,
+          reason: 'every fixture in the folder was imported');
+    }, skip: sqliteAvailable ? false : sqlite3SkipReason);
   });
+}
+
+class _LoadingController {
+  void close() {}
 }

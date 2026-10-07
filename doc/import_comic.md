@@ -100,6 +100,11 @@ R2-R6: RC4-40/128, AES-128 and AES-256).
 - Otherwise a password dialog appears, named after the file it is asking for.
   A wrong password shows "Incorrect password" and asks again; cancelling aborts
   that file.
+- A password that opened a file is remembered for the rest of that import, so
+  the next encrypted PDF is tried against it first, silently. A file that needs
+  a different password prompts as usual and its password joins the list too
+  (most recent first, at most 5), which is what makes a folder of PDFs sharing
+  one password prompt only once. Nothing is written to disk.
 - In a batch import, cancelling skips only the current file and the remaining
   PDFs still import.
 
