@@ -4,6 +4,11 @@ import Flutter
 class DirectoryPicker: NSObject, UIDocumentPickerDelegate {
     private var result: FlutterResult?
 
+    /// Hands the picked URL to its owner once the security scope has been
+    /// claimed, so the owner can revoke it by path later. Without the claim,
+    /// listing or writing into a provider-backed directory fails with EPERM.
+    var onGranted: ((URL) -> Void)?
+
     // 初始化选择目录方法
     func selectDirectory(result: @escaping FlutterResult) {
         self.result = result
@@ -21,12 +26,18 @@ class DirectoryPicker: NSObject, UIDocumentPickerDelegate {
 
     // 处理选择完成后的结果
     func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
-        // 获取选中的路径
-        if let url = urls.first {
-            result?(url.path)
-        } else {
+        guard let url = urls.first else {
             result?(nil)
+            return
         }
+
+        if !url.startAccessingSecurityScopedResource() {
+            result?(nil)
+            return
+        }
+
+        onGranted?(url)
+        result?(url.path)
     }
 
     // 处理取消选择情况

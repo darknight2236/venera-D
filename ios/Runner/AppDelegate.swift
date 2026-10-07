@@ -57,6 +57,9 @@ import Foundation // 添加此行
         result(nil)
       } else if call.method == "selectDirectory" {
         self.directoryPicker = DirectoryPicker()
+        self.directoryPicker?.onGranted = { [weak self] url in
+          self?.grantedDirectories[url.path] = url
+        }
         self.directoryPicker?.selectDirectory(result: result)
       } else {
         result(FlutterMethodNotImplemented)
