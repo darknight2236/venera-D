@@ -27,10 +27,15 @@ dependencies:
   pointycastle: ^4.0.0
   url_launcher: ^6.3.2
   path: ^1.9.0
+  # Fork of venera-app/photo_view (archived) at the very same commit plus one
+  # fix: its image wrapper fell back to the loading state on every re-resolve,
+  # so any MediaQuery change - hiding or showing the reader's toolbars changes
+  # the window insets - stranded an already loaded page on its spinner.
+  # Regression test: test/reader_gallery_loading_test.dart.
   photo_view:
     git:
-      url: https://github.com/venera-app/photo_view
-      ref: a1255d1b5945aad4b7323303ec2ecdf0c90ffc4c
+      url: ssh://git@ssh.github.com:443/darknight2236/photo_view.git
+      ref: 6934c5d66a5e606cf878a7ef940e30ddf41a1d78
   mime: ^2.0.0
   # 13.x 起要求 win32 ^6.0.1，这要求 flutter_memory_info 必须是打过补丁的 fork，
   # 见下方该依赖的注释；两者成对回退。13.0.0 相对 12.0.2 无 Dart API 破坏。

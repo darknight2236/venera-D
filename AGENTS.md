@@ -22,7 +22,7 @@ flutter test
 
 ## Environment Setup
 
-`pubspec.yaml` references four patched fork dependencies via SSH URLs (`ssh://git@ssh.github.com:443/darknight2236/...`):
+`pubspec.yaml` references five patched fork dependencies via SSH URLs (`ssh://git@ssh.github.com:443/darknight2236/...`):
 
 | Fork | Patch reason |
 |------|------|
@@ -30,6 +30,7 @@ flutter test
 | `zip_flutter` | compileSdk 36 |
 | `flutter_inappwebview` | proguard-android-optimize fix |
 | `flutter_memory_info` | win32 6 FFI port (upstream 0.0.3 is abandoned and pins win32 5, which share_plus 13 cannot use) + drop self-applied Kotlin Gradle Plugin |
+| `photo_view` | the reader's image wrapper entered its loading state on every re-resolve, so any `MediaQuery` change (toggling the reader toolbars changes the window insets) stranded an already loaded page on its spinner; the patch only falls back to loading when the image stream actually changes. Forked from the archived `venera-app/photo_view` at that same commit. Regression test: `test/reader_gallery_loading_test.dart` |
 
 These forks are **public** repositories. SSH URLs are used because the maintainer's local network has unstable HTTPS access to github.com.
 

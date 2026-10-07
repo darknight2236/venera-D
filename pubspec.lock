@@ -863,9 +863,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: a1255d1b5945aad4b7323303ec2ecdf0c90ffc4c
-      resolved-ref: a1255d1b5945aad4b7323303ec2ecdf0c90ffc4c
-      url: "https://github.com/venera-app/photo_view"
+      ref: "6934c5d66a5e606cf878a7ef940e30ddf41a1d78"
+      resolved-ref: "6934c5d66a5e606cf878a7ef940e30ddf41a1d78"
+      url: "ssh://git@ssh.github.com:443/darknight2236/photo_view.git"
     source: git
     version: "0.14.0"
   platform:
