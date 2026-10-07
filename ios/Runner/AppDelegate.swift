@@ -51,7 +51,7 @@ import Foundation // 添加此行
         // cancelling whatever happens to be current.
         if let arguments = call.arguments as? [String: Any],
           let path = arguments["path"] as? String,
-          let url = grantedDirectories.removeValue(forKey: path) {
+          let url = self.grantedDirectories.removeValue(forKey: path) {
           url.stopAccessingSecurityScopedResource()
         }
         result(nil)
