@@ -192,4 +192,24 @@ void main() {
     expect(picker, contains('startAccessingSecurityScopedResource'),
         reason: 'bookmark data is only security-scoped if the URL was claimed');
   });
+
+  test('macOS must reopen the storage path through a security-scoped bookmark',
+      () {
+    var app = File('macos/Runner/AppDelegate.swift').readAsStringSync();
+    expect(app, contains('case "selectDirectory"'),
+        reason: 'the settings page picks through the platform channel on macOS '
+            'too; file_selector never hands back the URL to bookmark');
+    expect(app, contains('bookmarkData'),
+        reason: 'a sandboxed macOS app loses the open panel grant when it '
+            'quits, so the pick has to persist a bookmark');
+    expect(app, contains('.withSecurityScope'),
+        reason: 'only a security-scoped bookmark survives the sandbox: '
+            'plain bookmark data resolves but grants no access');
+    expect(app, contains('resolvingBookmarkData'),
+        reason: 'the stored bookmark has to be claimed at launch, before the '
+            'path is used');
+    expect(app, contains('case "startAccessingSecurityScopedBookmark"'),
+        reason: 'the launch-time claim arrives on its own channel method');
+    expect(app, contains('startAccessingSecurityScopedResource'));
+  });
 }

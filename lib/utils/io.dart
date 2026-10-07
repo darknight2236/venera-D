@@ -294,14 +294,19 @@ class PickedDirectory {
 /// Returns the path the bookmark resolved to, or null when the grant could not
 /// be restored.
 Future<String?> restoreSecurityScopedAccess(String bookmark) async {
-  if (!App.isIOS) return null;
+  if (!App.isIOS && !App.isMacOS) return null;
   var result = await const MethodChannel("venera/method_channel")
       .invokeMethod<Map<Object?, Object?>>(
           "startAccessingSecurityScopedBookmark", {"bookmark": bookmark});
   return result?["path"] as String?;
 }
 
-class IOSDirectoryPicker {
+/// Picks the directory that will hold the local comics on iOS and macOS.
+///
+/// Both platforms sandbox the app, so what the picker returns has to be
+/// persisted: the grant over a directory outside the container is dropped when
+/// the app quits.
+class AppleDirectoryPicker {
   static const MethodChannel _channel = MethodChannel("venera/method_channel");
 
   static Future<PickedDirectory?> selectDirectory() async {
@@ -375,9 +380,9 @@ Future<String?> selectDirectory() async {
   }
 }
 
-// selectDirectoryIOS
-Future<PickedDirectory?> selectDirectoryIOS() async {
-  return IOSDirectoryPicker.selectDirectory();
+// selectAppleDirectory
+Future<PickedDirectory?> selectAppleDirectory() async {
+  return AppleDirectoryPicker.selectDirectory();
 }
 
 Future<void> saveFile(

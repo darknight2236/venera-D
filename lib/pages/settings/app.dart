@@ -37,8 +37,8 @@ class _AppSettingsState extends State<AppSettings> {
             if (App.isAndroid) {
               var picker = DirectoryPicker();
               result = (await picker.pickDirectory())?.path;
-            } else if (App.isIOS) {
-              var picked = await selectDirectoryIOS();
+            } else if (App.isIOS || App.isMacOS) {
+              var picked = await selectAppleDirectory();
               result = picked?.path;
               bookmark = picked?.bookmark;
             } else {
