@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:venera/components/components.dart';
 import 'package:venera/foundation/app.dart';
 import 'package:venera/foundation/appdata.dart';
+import 'package:venera/foundation/comic_source/comic_source.dart';
 import 'package:venera/foundation/comic_type.dart';
 import 'package:venera/foundation/local.dart';
 import 'package:venera/foundation/log.dart';
@@ -138,24 +140,7 @@ class _LocalComicsPageState extends State<LocalComicsPage> {
         },
       ),
       if (selectedComics.length == 1)
-        MenuEntry(
-          icon: Icons.folder_open,
-          text: "Open Folder".tl,
-          onClick: () {
-            openComicFolder(selectedComics.keys.first);
-          },
-        ),
-      if (selectedComics.length == 1)
-        MenuEntry(
-          icon: Icons.chrome_reader_mode_outlined,
-          text: "View Detail".tl,
-          onClick: () {
-            context.to(() => ComicPage(
-                  id: selectedComics.keys.first.id,
-                  sourceKey: selectedComics.keys.first.sourceKey,
-                ));
-          },
-        ),
+        ...singleSelectionEntries(selectedComics.keys.first, context),
       if (selectedComics.isNotEmpty)
         ...exportActions(selectedComics.keys.toList()),
     ]);
@@ -545,6 +530,48 @@ class _LocalComicsPageState extends State<LocalComicsPage> {
 
 typedef ExportComicFunc = Future<File> Function(
     LocalComic comic, String outFilePath);
+
+/// Entries the local page offers when exactly one comic is selected.
+///
+/// This menu is the only place a touch screen can reach them - a long press on
+/// a tile starts multi-selection instead of opening the tile's own popup - so
+/// it carries the actions that popup would have offered.
+List<MenuEntry> singleSelectionEntries(LocalComic comic, BuildContext context) {
+  return [
+    MenuEntry(
+      icon: Icons.folder_open,
+      text: "Open Folder".tl,
+      onClick: () {
+        openComicFolder(comic);
+      },
+    ),
+    MenuEntry(
+      icon: Icons.chrome_reader_mode_outlined,
+      text: "View Detail".tl,
+      onClick: () {
+        context.to(() => ComicPage(
+              id: comic.id,
+              sourceKey: comic.sourceKey,
+            ));
+      },
+    ),
+    copyTitleEntry(comic, context),
+  ];
+}
+
+/// The "Copy Title" entry, shared by the local page's selection menu and the
+/// home page's thumbnail menu: a local comic has no detail page to read the
+/// title off, so both entry points must offer the same one-step copy.
+MenuEntry copyTitleEntry(Comic comic, BuildContext context) {
+  return MenuEntry(
+    icon: Icons.copy,
+    text: "Copy Title".tl,
+    onClick: () {
+      Clipboard.setData(ClipboardData(text: comic.title));
+      context.showMessage(message: "Copied".tl);
+    },
+  );
+}
 
 /// Opens the folder containing the comic in the system file explorer
 Future<void> openComicFolder(LocalComic comic) async {

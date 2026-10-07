@@ -418,6 +418,16 @@ class _LocalState extends State<_Local> {
                       return SimpleComicTile(
                         comic: local[index],
                         heroID: heroID,
+                        menuOptions: [
+                          copyTitleEntry(local[index], context),
+                          MenuEntry(
+                            icon: Icons.folder_open,
+                            text: "Open Folder".tl,
+                            onClick: () {
+                              openComicFolder(local[index]);
+                            },
+                          ),
+                        ],
                         onTap: () {
                           context.to(
                             () => ComicPage(

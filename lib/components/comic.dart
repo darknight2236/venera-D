@@ -1646,15 +1646,32 @@ class _SMClipper extends CustomClipper<Rect> {
 
 class SimpleComicTile extends StatelessWidget {
   const SimpleComicTile(
-      {super.key, required this.comic, this.onTap, this.withTitle = false, this.heroID});
+      {super.key,
+      required this.comic,
+      this.onTap,
+      this.menuOptions,
+      this.withTitle = false,
+      this.heroID});
 
   final Comic comic;
 
   final void Function()? onTap;
 
+  /// Entries of the long-press menu. Null leaves the tile with a tap only.
+  final List<MenuEntry>? menuOptions;
+
   final bool withTitle;
 
   final int? heroID;
+
+  void _showMenu(BuildContext context) {
+    var renderBox = context.findRenderObject() as RenderBox;
+    var size = renderBox.size;
+    var location = renderBox.localToGlobal(
+      Offset((size.width - 242) / 2, size.height / 2),
+    );
+    showMenuX(context, location, menuOptions!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1745,6 +1762,7 @@ class SimpleComicTile extends StatelessWidget {
               ),
             );
           },
+      onLongPress: menuOptions == null ? null : () => _showMenu(context),
       child: child,
     );
 
