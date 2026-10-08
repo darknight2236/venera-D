@@ -2,7 +2,7 @@ name: venera
 description: "A comic app."
 publish_to: 'none'
 
-version: 1.8.3+183
+version: 1.8.4+184
 
 environment:
   # Not a preference: win32 6 (through share_plus 13 and the

@@ -14,7 +14,7 @@ export "context.dart";
 
 class _App {
   // 必须与 pubspec.yaml 的 version 保持一致（由 test/version_consistency_test.dart 守卫）
-  final version = "1.8.3";
+  final version = "1.8.4";
 
   /// Host tests cannot fake [Platform], and the iOS-only security-scope
   /// handling in `utils/io.dart` is unreachable without this. While true every
